@@ -470,7 +470,15 @@ export default function App() {
             }}>{fmt(time)}</div>
             {isTutorial && tutStep === 1 && (
               <div>
-                <TutorialBubble text="⬆️ スタートと同時にタイムが動き出すよ！⏱" />
+                <div style={{
+                  background: "#ff69b4", color: "white", borderRadius: "14px",
+                  padding: "28px 48px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "16px 0",
+                  boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                }}>
+                  ⬆️ スタートと同時にタイムが動き出すよ！⏱
+                </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
@@ -492,7 +500,7 @@ export default function App() {
             </div>
             {isTutorial && tutStep === 2 && (
               <div>
-                <TutorialBubble text="⬆️ これが⑥TARGET！この数字にするのが目標だよ！カードに書かれた数字ね👆" />
+                <TutorialBubble text="⬆️ これが⑥TARGET！この数字にするのが目標だよ！" />
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
@@ -510,8 +518,16 @@ export default function App() {
 
           {/* 5 cards */}
           <div style={{ position: "relative" }}>
-            <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginBottom: "10px" }}>
-              ①②③④⑤
+            {/* 各カードの直上に①②③④⑤ */}
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "4px" }}>
+              {["①","②","③","④","⑤"].map((n, i) => (
+                <div key={i} style={{
+                  width: 139, textAlign: "center",
+                  fontSize: "36px", fontWeight: "900", color: "#111",
+                }}>
+                  {n}
+                </div>
+              ))}
             </div>
             <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
               {cards.nums.map((n, i) => (
@@ -522,7 +538,27 @@ export default function App() {
             </div>
             {isTutorial && tutStep === 3 && (
               <div>
-                <TutorialBubble text="⬆️ ①②③④⑤の5枚！この数字を各1回ずつ使って、四則計算（＋－×÷）で繋げて⑥の数字にしよう！記号は何度使ってもOK！解き方は1つじゃないよ😊" />
+                <div style={{
+                  background: "#ff69b4", color: "white", borderRadius: "14px",
+                  padding: "28px 40px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "16px 0",
+                  boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                }}>
+                  ⬆️ ①②③④⑤の5枚！<br/>この数字のカードを四則計算記号で繋げて並び替えて⑥の数字にするよ！
+                </div>
+                <div style={{
+                  background: "#e8336d", color: "white", borderRadius: "14px",
+                  padding: "20px 40px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "12px 0",
+                  boxShadow: "0 4px 20px rgba(232,51,109,0.5)",
+                  border: "2px solid #c0145a",
+                }}>
+                  記号は何度使ってもいいよ。
+                </div>
+                <div style={{ fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left", textDecoration: "underline wavy #ef4444" }}>
+                  ※解き方は1つじゃないよ。
+                </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
@@ -536,7 +572,20 @@ export default function App() {
           {phase === "playing" && (isTutorial ? tutStep >= 4 : true) && (
             <div style={{ position: "relative" }}>
               {isTutorial && tutStep === 4 && (
-                <TutorialBubble text='解けたら「フォスパ！」と言って（バスや電車の中では心の中で笑）⬇️ このボタンを押すよ！' />
+                <div>
+                  <div style={{
+                    background: "#ff69b4", color: "white", borderRadius: "14px",
+                    padding: "28px 40px", fontSize: "50px", fontWeight: "bold",
+                    lineHeight: "1.6", margin: "16px 0",
+                    boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                    border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                  }}>
+                    解けたら「フォスパ！」と言って👇のボタンを押すよ
+                  </div>
+                  <div style={{ fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left", textDecoration: "underline wavy #ef4444" }}>
+                    ※バスや電車の中では心の中でね笑
+                  </div>
+                </div>
               )}
               <button
                 onPointerUp={() => { fospa(); }}
