@@ -211,7 +211,7 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
         position: "relative", zIndex: 100,
         background: "#ff69b4", color: "white",
         borderRadius: "14px", padding: "18px 22px",
-        fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
+        fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
         margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
         border: "2px solid #ff1493",
         animation: "pulse-pink 2s infinite",
