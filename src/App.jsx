@@ -214,7 +214,7 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
         borderRadius: "11px", padding: "12px 14px",
         fontSize: "24px", fontFamily: "monospace", fontWeight: "bold",
         color: "#ff69b4", textAlign: "center", marginTop: "8px",
-        minHeight: "52px", letterSpacing: "2px",
+        Height: "auto", letterSpacing: "2px",
       }}>
         {displayStr || <span style={{ color: "#5a2a4a", fontSize: "15px" }}>3秒後にデモが始まるよ…</span>}
         {started && !done && <span style={{ animation: "blink 0.8s infinite" }}>|</span>}
