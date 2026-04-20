@@ -744,7 +744,7 @@ export default function App() {
             <div style={{
               background: "#111f14", border: "2px solid #4ade8033",
               borderRadius: "16px", padding: "20px 20px",
-              fontSize: exprTokens.length > 12 ? "32px" : exprTokens.length > 8 ? "40px" : "48px",
+              fontSize: exprTokens.length > 12 ? "48px" : exprTokens.length > 8 ? "58px" : "68px",
               fontFamily: "monospace", fontWeight: "bold",
               color: "white", textAlign: "center", marginBottom: "12px",
               minHeight: "80px", wordBreak: "break-all", letterSpacing: "1px",
