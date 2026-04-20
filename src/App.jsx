@@ -105,7 +105,7 @@ function CloverSVG({ size = 80 }) {
 
 function CloverCard({ number, isTarget = false, size = "normal" }) {
   const d = {
-    large:  { w: 158, h: 230, numSz: 79, svgSz: 126, r: 18, bw: 5 },
+    large:  { w: 200, h: 290, numSz: 100, svgSz: 160, r: 22, bw: 6 },
     normal: { w: 68,  h: 98,  numSz: 32, svgSz: 54, r: 9,  bw: 2 },
     small:  { w: 50,  h: 72,  numSz: 22, svgSz: 38, r: 7,  bw: 2 },
     xsmall: { w: 52,  h: 60,  numSz: 18, svgSz: 30, r: 6,  bw: 2 },
@@ -394,7 +394,7 @@ export default function App() {
             background: "#111f14", border: "1px solid #4ade8020",
             borderRadius: "32px", padding: "36px 36px", marginBottom: "43px",
           }}>
-            <div style={{ fontSize: "29px", lineHeight: "2.2", color: "#86efac" }}>
+            <div style={{ fontSize: "28px", lineHeight: "2.2", color: "#86efac" }}>
               52枚の山からカードを引いて<br/>
               <span style={{ color: "#60a5fa", fontWeight: "bold" }}>①②③④⑤</span> に書かれた数字を四則計算で
               繋げて並び替えて <span style={{ color: "#ef4444", fontWeight: "bold" }}>⑥</span> の数字(target)にしよう！！<br/>
