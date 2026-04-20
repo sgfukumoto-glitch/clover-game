@@ -214,7 +214,7 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
         borderRadius: "11px", padding: "12px 14px",
         fontSize: "24px", fontFamily: "monospace", fontWeight: "bold",
         color: "#ff69b4", textAlign: "center", marginTop: "8px",
-        Height: "100svh", letterSpacing: "2px",
+        minHeight: "52px", letterSpacing: "2px",
       }}>
         {displayStr || <span style={{ color: "#5a2a4a", fontSize: "15px" }}>3秒後にデモが始まるよ…</span>}
         {started && !done && <span style={{ animation: "blink 0.8s infinite" }}>|</span>}
@@ -366,62 +366,62 @@ export default function App() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#0a1a0f",
+      minHeight: "100svh", background: "#0a1a0f",
       display: "flex", flexDirection: "column", alignItems: "center",
-      padding: "14px 12px 20px", color: "white",
+      padding: "20px 16px 30px", color: "white",
       fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       {/* HEADER */}
-      <div style={{ textAlign: "center", marginBottom: "10px" }}>
-        <div style={{ fontSize: "40px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>
+      <div style={{ textAlign: "center", marginBottom: "16px" }}>
+        <div style={{ fontSize: "52px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>
           🍀 CLOVER™️
         </div>
-        <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#4ade8044", marginTop: "2px" }}>
+        <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#4ade8044", marginTop: "4px" }}>
           ♣ NUMBER CARD GAME ♣
         </div>
         {bestTime !== null && (
-          <div style={{ fontSize: "12px", color: "#fbbf24", marginTop: "4px" }}>🏆 ベスト: {fmt(bestTime)}秒</div>
+          <div style={{ fontSize: "14px", color: "#fbbf24", marginTop: "6px" }}>🏆 ベスト: {fmt(bestTime)}秒</div>
         )}
       </div>
 
       {/* ── START ── */}
       {phase === "start" && (
-        <div style={{ width: "100%", maxWidth: "360px", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+        <div style={{ width: "100%", maxWidth: "420px", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "24px" }}>
             <CloverCard number="？" size="large" />
           </div>
           <div style={{
             background: "#111f14", border: "1px solid #4ade8020",
-            borderRadius: "14px", padding: "14px 16px", marginBottom: "16px",
+            borderRadius: "18px", padding: "20px 20px", marginBottom: "24px",
           }}>
-            <div style={{ fontSize: "13px", lineHeight: "1.9", color: "#86efac" }}>
+            <div style={{ fontSize: "16px", lineHeight: "2.2", color: "#86efac" }}>
               52枚の山からカードを引いて<br/>
               <span style={{ color: "#60a5fa", fontWeight: "bold" }}>①②③④⑤</span> に書かれた数字を四則計算で
               繋げて並び替えて <span style={{ color: "#ef4444", fontWeight: "bold" }}>⑥</span> の数字(target)にしよう！！<br/>
               タイムを競うカードゲームだよ！
             </div>
-            <div style={{ fontSize: "12px", color: "#5cb85c", marginTop: "10px", fontStyle: "italic" }}>
+            <div style={{ fontSize: "15px", color: "#5cb85c", marginTop: "14px", fontStyle: "italic" }}>
               to be happy... 🍀
             </div>
           </div>
-          <div style={{ fontSize: "12px", color: "#aaa", marginBottom: "8px" }}>
+          <div style={{ fontSize: "14px", color: "#aaa", marginBottom: "12px" }}>
             ⬇️ のボタンを押すと…
           </div>
-          <div style={{ marginBottom: "10px" }}>
+          <div style={{ marginBottom: "14px" }}>
             <button onClick={() => startGame(true)} style={{
               background: "linear-gradient(135deg,#ff69b4,#ff1493)",
-              border: "none", borderRadius: "12px", color: "white",
-              fontWeight: "bold", fontSize: "17px", padding: "13px 0",
+              border: "none", borderRadius: "14px", color: "white",
+              fontWeight: "bold", fontSize: "20px", padding: "18px 0",
               cursor: "pointer", width: "100%", letterSpacing: "2px",
               boxShadow: "0 5px 20px rgba(255,105,180,0.4)",
             }}>やり方を学ぶ 📖</button>
           </div>
           <PBtn label="スタート 🃏" onClick={() => startGame(false)} />
-          <div style={{ fontSize: "12px", color: "#86efac", marginTop: "10px", lineHeight: "1.8" }}>
+          <div style={{ fontSize: "14px", color: "#86efac", marginTop: "16px", lineHeight: "2.0" }}>
             ⬆️ 「やり方を学ぶ」ピンクボタンを押すとチュートリアルで説明を聞きながら試しに出来るよ！<br/>
             やり方がわかったら、⬆️ 黄色字ボタンを押してゲーム(本番)スタートだよ！
           </div>
-          <div style={{ marginTop: "14px", fontSize: "13px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>
+          <div style={{ marginTop: "20px", fontSize: "15px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>
             by NPO法人 Foster Partner®️
           </div>
         </div>
