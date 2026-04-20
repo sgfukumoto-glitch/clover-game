@@ -106,9 +106,9 @@ function CloverSVG({ size = 80 }) {
 function CloverCard({ number, isTarget = false, size = "normal" }) {
   const d = {
     large:  { w: 240, h: 348, numSz: 120, svgSz: 192, r: 26, bw: 7 },
-    normal: { w: 120, h: 174, numSz: 58, svgSz: 97, r: 16, bw: 4 },
-    small:  { w: 90,  h: 130, numSz: 40, svgSz: 68, r: 12, bw: 4 },
-    xsmall: { w: 80,  h: 108, numSz: 32, svgSz: 54, r: 10, bw: 3 },
+    normal: { w: 168, h: 296, numSz: 81, svgSz: 136, r: 22, bw: 5 },
+    small:  { w: 126, h: 221, numSz: 56, svgSz: 116, r: 17, bw: 5 },
+    xsmall: { w: 112, h: 184, numSz: 45, svgSz: 92,  r: 14, bw: 4 },
   }[size];
   return (
     <div style={{
