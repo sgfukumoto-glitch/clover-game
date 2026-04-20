@@ -741,7 +741,17 @@ export default function App() {
           )}
 
           {isTutorial && tutStep === 6 && (
-            <TutorialBubble text="式が入力されたよ！👇「答え合わせ！」ボタンを押してみよう！" />
+            <div style={{
+              position: "relative", zIndex: 100,
+              background: "#ff69b4", color: "white",
+              borderRadius: "14px", padding: "18px 22px",
+              fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
+              margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+              border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+              whiteSpace: "nowrap",
+            }}>
+              式が入力されたよ！<br/>👇の「答え合わせ」ボタンを押してね。
+            </div>
           )}
 
           {/* Operators - アニメーション中はpointerEvents:none */}
@@ -799,7 +809,17 @@ export default function App() {
           )}
 
           {isTutorial && tutStep === 6 && (
-            <TutorialBubble text="👇「答え合わせ！」ボタンを押して確認しよう！" />
+            <div style={{
+              position: "relative", zIndex: 100,
+              background: "#ff69b4", color: "white",
+              borderRadius: "14px", padding: "18px 22px",
+              fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
+              margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+              border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+              whiteSpace: "nowrap",
+            }}>
+              式が入力されたよ！<br/>👇の「答え合わせ」ボタンを押してね。
+            </div>
           )}
 
           <div style={{ display: "flex", gap: "12px" }}>
@@ -872,7 +892,7 @@ export default function App() {
                 {isNewRecord && (
                   <div style={{
                     color: "#fbbf24", fontSize: "40px", fontWeight: "900",
-                    marginBottom: "12px", animation: "blink-gold 0.6s infinite",
+                    marginBottom: "12px", animation: "blink-gold 1.8s infinite",
                   }}>🎉 新記録！ 🎉</div>
                 )}
                 {bestTime !== null && (
