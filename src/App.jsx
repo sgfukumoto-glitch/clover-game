@@ -106,9 +106,9 @@ function CloverSVG({ size = 80 }) {
 function CloverCard({ number, isTarget = false, size = "normal" }) {
   const d = {
     large:  { w: 240, h: 348, numSz: 120, svgSz: 192, r: 26, bw: 7 },
-    normal: { w: 68,  h: 98,  numSz: 32, svgSz: 54, r: 9,  bw: 2 },
-    small:  { w: 50,  h: 72,  numSz: 22, svgSz: 38, r: 7,  bw: 2 },
-    xsmall: { w: 52,  h: 60,  numSz: 18, svgSz: 30, r: 6,  bw: 2 },
+    normal: { w: 120, h: 174, numSz: 58, svgSz: 97, r: 16, bw: 4 },
+    small:  { w: 90,  h: 130, numSz: 40, svgSz: 68, r: 12, bw: 4 },
+    xsmall: { w: 80,  h: 108, numSz: 32, svgSz: 54, r: 10, bw: 3 },
   }[size];
   return (
     <div style={{
@@ -349,9 +349,9 @@ export default function App() {
   const PBtn = ({ label, onClick, color = "#16a34a", textColor = "#fbbf24" }) => (
     <button onClick={onClick} style={{
       background: `linear-gradient(135deg,${color},${color}dd)`,
-      border: "none", borderRadius: "22px",
-      color: textColor, fontWeight: "bold", fontSize: "31px",
-      padding: "23px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
+      border: "none", borderRadius: "25px",
+      color: textColor, fontWeight: "bold", fontSize: "36px",
+      padding: "32px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
       boxShadow: `0 5px 20px ${color}66`,
     }}>{label}</button>
   );
@@ -429,9 +429,9 @@ export default function App() {
 
       {/* ── DEALING / PLAYING ── */}
       {(phase === "dealing" || phase === "playing") && cards && (
-        <div style={{ width: "100%", maxWidth: "400px", textAlign: "center" }}>
+        <div style={{ width: "100%", maxWidth: "600px", textAlign: "center" }}>
           {/* 戻るボタン：チュートリアルは1ステップ前、本番はタイトルへ */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <button onClick={() => {
               if (isTutorial) {
                 if (tutStep <= 1) { setPhase("start"); setIsTutorial(false); setRunning(false); }
@@ -441,21 +441,21 @@ export default function App() {
               }
             }} style={{
               background: "linear-gradient(135deg,#1a3a22,#0d2414)",
-              border: "2px solid #4ade80", borderRadius: "10px",
-              color: "#4ade80", fontWeight: "900", padding: "8px 16px",
-              cursor: "pointer", fontSize: "15px", flexShrink: 0,
+              border: "2px solid #4ade80", borderRadius: "14px",
+              color: "#4ade80", fontWeight: "900", padding: "14px 24px",
+              cursor: "pointer", fontSize: "22px", flexShrink: 0,
               boxShadow: "0 2px 10px rgba(74,222,128,0.3)",
             }}>← 戻る</button>
             {isTutorial ? (
               <div style={{
-                flex: 1, background: "#ff69b4", color: "white", borderRadius: "10px",
-                padding: "8px 14px", fontSize: "13px", fontWeight: "bold",
+                flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px",
+                padding: "14px 20px", fontSize: "20px", fontWeight: "bold",
                 boxShadow: "0 3px 12px rgba(255,105,180,0.5)",
               }}>
                 チュートリアル中 🩷 — 説明に沿って操作手順を覚えてね
               </div>
             ) : (
-              <div style={{ flex: 1, textAlign: "left", fontSize: "12px", color: "#4ade8066" }}>
+              <div style={{ flex: 1, textAlign: "left", fontSize: "18px", color: "#4ade8066" }}>
                 タイトルへ戻る
               </div>
             )}
@@ -464,17 +464,17 @@ export default function App() {
           {/* Timer */}
           <div style={{ position: "relative" }}>
             <div style={{
-              fontSize: "34px", fontWeight: "900", fontFamily: "monospace",
+              fontSize: "60px", fontWeight: "900", fontFamily: "monospace",
               color: running ? "#4ade80" : "#1e3a22",
-              marginBottom: "6px", letterSpacing: "2px",
+              marginBottom: "10px", letterSpacing: "2px",
             }}>{fmt(time)}</div>
             {isTutorial && tutStep === 1 && (
               <div>
                 <TutorialBubble text="⬆️ スタートと同時にタイムが動き出すよ！⏱ 早く解くほど速いタイムになるよ！" />
                 <button onClick={advanceTutorial} style={{
-                  background: "#ff69b4", border: "none", borderRadius: "10px",
-                  color: "white", fontWeight: "bold", padding: "8px 20px",
-                  cursor: "pointer", fontSize: "14px", marginBottom: "8px",
+                  background: "#ff69b4", border: "none", borderRadius: "14px",
+                  color: "white", fontWeight: "bold", padding: "14px 30px",
+                  cursor: "pointer", fontSize: "22px", marginBottom: "12px",
                 }}>次へ →</button>
               </div>
             )}
