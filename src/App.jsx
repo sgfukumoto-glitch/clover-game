@@ -804,26 +804,26 @@ export default function App() {
 
       {/* ── RESULT ── */}
       {phase === "result" && (
-        <div style={{ textAlign: "center", width: "100%", maxWidth: "360px" }}>
-          <div style={{ fontSize: "52px", marginBottom: "6px" }}>🍀</div>
-          <div style={{ fontSize: "32px", fontWeight: "900", color: "#4ade80", marginBottom: "4px" }}>
+        <div style={{ textAlign: "center", width: "100%", maxWidth: "720px" }}>
+          <div style={{ fontSize: "104px", marginBottom: "12px" }}>🍀</div>
+          <div style={{ fontSize: "64px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
             {isTutorial ? "チュートリアル完了！🎉" : "せいかい！🍬"}
           </div>
-          <div style={{ fontSize: "52px", fontFamily: "monospace", fontWeight: "900", color: "#4ade80", marginBottom: "4px" }}>
+          <div style={{ fontSize: "104px", fontFamily: "monospace", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
             {fmt(time)}秒
           </div>
 
           {isTutorial ? (
-            <div style={{ marginBottom: "16px" }}>
-              <div style={{ fontSize: "13px", color: "#86efac", lineHeight: "1.8", marginBottom: "12px" }}>
+            <div style={{ marginBottom: "32px" }}>
+              <div style={{ fontSize: "26px", color: "#86efac", lineHeight: "1.8", marginBottom: "24px" }}>
                 ⬆️ はクリアしたタイムだよ！<br/>
                 本番では記録が出るたびに更新されるよ🏆<br/>
                 ⬇️ 新記録なら「新記録！」と出るよ！
               </div>
               <div style={{
-                background: "#ff69b422", border: "1px solid #ff69b4",
-                borderRadius: "12px", padding: "12px", marginBottom: "12px",
-                color: "#ff69b4", fontSize: "14px", fontWeight: "bold",
+                background: "#ff69b422", border: "2px solid #ff69b4",
+                borderRadius: "24px", padding: "24px", marginBottom: "24px",
+                color: "#ff69b4", fontSize: "28px", fontWeight: "bold",
               }}>
                 やり方わかったかな？🩷<br/>
                 次のゲームをスタートする時はここを押してね⬇️
@@ -833,13 +833,13 @@ export default function App() {
           ) : (
             <>
               {bestTime !== null && time <= bestTime && (
-                <div style={{ color: "#fbbf24", fontSize: "15px", marginBottom: "6px" }}>🏆 新記録！</div>
+                <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>🏆 新記録！</div>
               )}
-              <div style={{ color: "#555", fontSize: "12px", marginBottom: "4px" }}>{feedback?.msg}</div>
-              <div style={{ fontSize: "14px", color: "#5cb85c", fontStyle: "italic", marginBottom: "16px" }}>
+              <div style={{ color: "#555", fontSize: "24px", marginBottom: "8px" }}>{feedback?.msg}</div>
+              <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>
                 to be happy... 🍀
               </div>
-              <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
+              <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
                 <div style={{ flex: 1 }}>
                   <PBtn label="スタート 🃏" onClick={() => startGame(false)} />
                 </div>
@@ -847,12 +847,12 @@ export default function App() {
             </>
           )}
 
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "16px" }}>
             <div style={{ flex: 1 }}>
               <button onClick={() => startGame(true)} style={{
                 background: "linear-gradient(135deg,#ff69b4,#ff1493)",
-                border: "none", borderRadius: "12px", color: "white",
-                fontWeight: "bold", fontSize: "14px", padding: "11px 0",
+                border: "none", borderRadius: "24px", color: "white",
+                fontWeight: "bold", fontSize: "28px", padding: "22px 0",
                 cursor: "pointer", width: "100%",
                 boxShadow: "0 4px 16px rgba(255,105,180,0.4)",
               }}>やり方を学ぶ 📖</button>
