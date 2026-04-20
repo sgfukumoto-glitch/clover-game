@@ -477,7 +477,7 @@ export default function App() {
                   boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
                 }}>
-                  ⬆️ スタートと同時にタイムが動き出すよ！⏱
+                  ⬆️ スタートと同時に<br/>タイムが動き出すよ！⏱
                 </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
@@ -637,54 +637,53 @@ export default function App() {
 
       {/* ── FOSPA ── */}
       {phase === "fospa" && cards && (
-        <div style={{ width: "100%", maxWidth: "460px", textAlign: "center" }}>
+        <div style={{ width: "100%", maxWidth: "900px", textAlign: "center" }}>
           {/* 戻るボタン＋チュートリアルバナー */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <button onClick={goBackToPlaying} style={{
               background: "linear-gradient(135deg,#1a3a22,#0d2414)",
-              border: "2px solid #4ade80", borderRadius: "10px",
-              color: "#4ade80", fontWeight: "900", padding: "8px 16px",
-              cursor: "pointer", fontSize: "15px", flexShrink: 0,
+              border: "2px solid #4ade80", borderRadius: "14px",
+              color: "#4ade80", fontWeight: "900", padding: "14px 24px",
+              cursor: "pointer", fontSize: "28px", flexShrink: 0,
               boxShadow: "0 2px 10px rgba(74,222,128,0.3)",
             }}>← 戻る</button>
             {isTutorial ? (
               <div style={{
-                flex: 1, background: "#ff69b4", color: "white", borderRadius: "10px",
-                padding: "8px 14px", fontSize: "13px", fontWeight: "bold",
+                flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px",
+                padding: "14px 20px", fontSize: "28px", fontWeight: "bold",
               }}>
                 チュートリアル中 🩷
               </div>
             ) : (
-              <div style={{ flex: 1, textAlign: "left", fontSize: "12px", color: "#4ade8066" }}>
+              <div style={{ flex: 1, textAlign: "left", fontSize: "22px", color: "#4ade8066" }}>
                 解き直したい時は戻れるよ
               </div>
             )}
           </div>
 
-          <div style={{ fontSize: "13px", color: "#4ade80", letterSpacing: "2px", marginBottom: "10px" }}>
+          <div style={{ fontSize: "36px", color: "#4ade80", letterSpacing: "2px", marginBottom: "16px" }}>
             フォスパ！ ⏱ {fmt(time)}秒
           </div>
 
-          {/* Mini cards - アニメーション中は非表示 */}
           {/* Mini cards - 常に表示 */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", marginBottom: "12px" }}>
-            <CloverCard number={cards.target} isTarget size="small" />
-            <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+            <CloverCard number={cards.target} isTarget size="normal" />
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
               {cards.nums.map((n, i) => (
                 <div key={i} style={{ opacity: usedNums.includes(i) ? 0.25 : 1, transition: "opacity 0.2s" }}>
-                  <CloverCard number={n} size="xsmall" />
+                  <CloverCard number={n} size="small" />
                 </div>
               ))}
             </div>
           </div>
 
           {/* Number tap buttons - アニメーション中はpointerEvents:none */}
-          <div style={{ display: "flex", gap: "4px", justifyContent: "center", marginBottom: "8px" }}>
+          <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "14px" }}>
             {cards.nums.map((n, i) => (
               <button key={i} onClick={() => appNum(i, n)} style={{
                 background: ["#3b82f6", "#ec4899", "#f97316", "#8b5cf6", "#10b981"][i],
-                border: "none", borderRadius: "9px", color: "white",
-                fontWeight: "900", width: "52px", height: "52px", fontSize: "22px",
+                border: "none", borderRadius: "14px", color: "white",
+                fontWeight: "900", width: "90px", height: "90px", fontSize: "38px",
                 cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
                 opacity: usedNums.includes(i) ? 0.25 : 1,
                 transition: "opacity 0.2s",
