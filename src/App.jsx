@@ -500,7 +500,15 @@ export default function App() {
             </div>
             {isTutorial && tutStep === 2 && (
               <div>
-                <TutorialBubble text="⬆️ これが⑥TARGET！この数字にするのが目標だよ！" />
+                <div style={{
+                  background: "#ff69b4", color: "white", borderRadius: "14px",
+                  padding: "28px 48px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "16px 0",
+                  boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                }}>
+                  これが👆⑥ターゲット<br/>この数字を答えにするのが<br/>目標だよ！
+                </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
@@ -523,7 +531,7 @@ export default function App() {
               {["①","②","③","④","⑤"].map((n, i) => (
                 <div key={i} style={{
                   width: 139, textAlign: "center",
-                  fontSize: "36px", fontWeight: "900", color: "#111",
+                  fontSize: "36px", fontWeight: "900", color: "#aaa",
                 }}>
                   {n}
                 </div>
@@ -545,7 +553,7 @@ export default function App() {
                   boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
                 }}>
-                  ⬆️ ①②③④⑤の5枚！<br/>この数字のカードを四則計算記号で繋げて並び替えて⑥の数字にするよ！
+                  ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ
                 </div>
                 <div style={{
                   background: "#e8336d", color: "white", borderRadius: "14px",
@@ -554,10 +562,14 @@ export default function App() {
                   boxShadow: "0 4px 20px rgba(232,51,109,0.5)",
                   border: "2px solid #c0145a",
                 }}>
-                  記号は何度使ってもいいよ。
+                  記号(+-×÷)は<br/>何度使ってもいいよ
                 </div>
-                <div style={{ fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left", textDecoration: "underline wavy #ef4444" }}>
-                  ※解き方は1つじゃないよ。
+                <div style={{
+                  fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left",
+                  textDecoration: "underline", textDecorationStyle: "wavy",
+                  textDecorationColor: "#ef4444",
+                }}>
+                  ※解法は一つではないよ
                 </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
@@ -580,10 +592,14 @@ export default function App() {
                     boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                     border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
                   }}>
-                    解けたら「フォスパ！」と言って👇のボタンを押すよ
+                    出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ
                   </div>
-                  <div style={{ fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left", textDecoration: "underline wavy #ef4444" }}>
-                    ※バスや電車の中では心の中でね笑
+                  <div style={{
+                    fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left",
+                    textDecoration: "underline", textDecorationStyle: "wavy",
+                    textDecorationColor: "#ef4444",
+                  }}>
+                    ※バスや電車の中では、心の中でね笑
                   </div>
                 </div>
               )}
