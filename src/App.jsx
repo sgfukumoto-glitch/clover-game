@@ -210,13 +210,13 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
       <TutorialBubble text="⬆️ こんなふうに数字と演算子を組み合わせて式を作るよ！（例を見てね）" />
       {/* アニメーション用の式表示のみ（カードは親が表示） */}
       <div style={{
-        background: "#1a0f1a", border: "2px solid #ff69b4",
-        borderRadius: "11px", padding: "12px 14px",
-        fontSize: "24px", fontFamily: "monospace", fontWeight: "bold",
-        color: "#ff69b4", textAlign: "center", marginTop: "8px",
-        minHeight: "52px", letterSpacing: "2px",
+        background: "#111f14", border: "2px solid #4ade8033",
+        borderRadius: "16px", padding: "20px 20px",
+        fontSize: "68px", fontFamily: "monospace", fontWeight: "bold",
+        color: "white", textAlign: "center", marginTop: "8px",
+        minHeight: "80px", letterSpacing: "1px", wordBreak: "break-all",
       }}>
-        {displayStr || <span style={{ color: "#5a2a4a", fontSize: "15px" }}>3秒後にデモが始まるよ…</span>}
+        {displayStr || <span style={{ color: "#2a4a2a", fontSize: "28px" }}>3秒後にデモが始まるよ…</span>}
         {started && !done && <span style={{ animation: "blink 0.8s infinite" }}>|</span>}
       </div>
     </div>
