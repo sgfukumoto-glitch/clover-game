@@ -106,9 +106,9 @@ function CloverSVG({ size = 80 }) {
 function CloverCard({ number, isTarget = false, size = "normal" }) {
   const d = {
     large:  { w: 240, h: 348, numSz: 120, svgSz: 192, r: 26, bw: 7 },
-    normal: { w: 185, h: 220, numSz: 90,  svgSz: 136, r: 22, bw: 5 },
-    small:  { w: 139, h: 180, numSz: 70,  svgSz: 116, r: 17, bw: 5 },
-    xsmall: { w: 123, h: 160, numSz: 58,  svgSz: 92,  r: 14, bw: 4 },
+    normal: { w: 185, h: 270, numSz: 90,  svgSz: 136, r: 22, bw: 5 },
+    small:  { w: 139, h: 220, numSz: 70,  svgSz: 116, r: 17, bw: 5 },
+    xsmall: { w: 123, h: 195, numSz: 58,  svgSz: 92,  r: 14, bw: 4 },
   }[size];
   return (
     <div style={{
@@ -449,7 +449,7 @@ export default function App() {
             {isTutorial ? (
               <div style={{
                 flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px",
-                padding: "14px 20px", fontSize: "20px", fontWeight: "bold",
+                padding: "20px 24px", fontSize: "32px", fontWeight: "bold",
                 boxShadow: "0 3px 12px rgba(255,105,180,0.5)",
               }}>
                 チュートリアル中 🩷 — 説明に沿って操作手順を覚えてね
@@ -470,7 +470,7 @@ export default function App() {
             }}>{fmt(time)}</div>
             {isTutorial && tutStep === 1 && (
               <div>
-                <TutorialBubble text="⬆️ スタートと同時にタイムが動き出すよ！⏱ 早く解くほど速いタイムになるよ！" />
+                <TutorialBubble text="⬆️ スタートと同時にタイムが動き出すよ！⏱" />
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
