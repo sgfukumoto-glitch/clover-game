@@ -105,7 +105,7 @@ function CloverSVG({ size = 80 }) {
 
 function CloverCard({ number, isTarget = false, size = "normal" }) {
   const d = {
-    large:  { w: 200, h: 290, numSz: 100, svgSz: 160, r: 22, bw: 6 },
+    large:  { w: 240, h: 348, numSz: 120, svgSz: 192, r: 26, bw: 7 },
     normal: { w: 68,  h: 98,  numSz: 32, svgSz: 54, r: 9,  bw: 2 },
     small:  { w: 50,  h: 72,  numSz: 22, svgSz: 38, r: 7,  bw: 2 },
     xsmall: { w: 52,  h: 60,  numSz: 18, svgSz: 30, r: 6,  bw: 2 },
@@ -417,9 +417,9 @@ export default function App() {
             }}>やり方を学ぶ 📖</button>
           </div>
           <PBtn label="スタート 🃏" onClick={() => startGame(false)} />
-          <div style={{ fontSize: "25px", color: "#86efac", marginTop: "29px", lineHeight: "2.0" }}>
-            ⬆️ 「やり方を学ぶ」ピンクボタンを押すとチュートリアルで説明を聞きながら試しに出来るよ！<br/>
-            やり方がわかったら、⬆️ 黄色字ボタンを押してゲーム(本番)スタートだよ！
+          <div style={{ fontSize: "23px", color: "#86efac", marginTop: "29px", lineHeight: "2.0", textAlign: "left" }}>
+            📖 ピンク→チュートリアルで試し遊び！<br/>
+            🃏 黄色字→本番スタート！
           </div>
           <div style={{ marginTop: "36px", fontSize: "27px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>
             by NPO法人 Foster Partner®️
