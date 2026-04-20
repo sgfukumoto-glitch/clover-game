@@ -210,17 +210,19 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
       <TutorialBubble text="⬆️ こんなふうに数字と演算子を組み合わせて式を作るよ！（例を見てね）" />
       {/* アニメーション用の式表示のみ（カードは親が表示） */}
       <div style={{
-         minHeight: "100vh",
-         background: "#0a1a0f",
-         display: "flex",
-         flexDirection: "column",
-         alignItems: "center",
-         padding: "14px 12px 20px",
-         color: "white",
-         fontFamily: "Georgia,serif",
-         boxSizing: "border-box",
-         maxWidth: "100%",
-         overflowX: "hidden",
+        minHeight: "100svh",  // ← vhをsvhに変更！
+        background: "#0a1a0f",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "14px 12px 20px",
+        color: "white",
+        fontFamily: "Georgia,serif",
+        boxSizing: "border-box",
+        maxWidth: "430px",    // ← iPhone最大幅
+        margin: "0 auto",     // ← 中央寄せ
+        width: "100%",
+        overflowX: "hidden",
       }}>
         {displayStr || <span style={{ color: "#5a2a4a", fontSize: "15px" }}>3秒後にデモが始まるよ…</span>}
         {started && !done && <span style={{ animation: "blink 0.8s infinite" }}>|</span>}
