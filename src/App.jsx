@@ -368,7 +368,7 @@ export default function App() {
     <div style={{
       minHeight: "100svh", background: "#0a1a0f",
       display: "flex", flexDirection: "column", alignItems: "center",
-      padding: "36px 22px 54px", color: "white",
+      padding: "80px 22px 54px", color: "white",
       fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       {/* HEADER */}
