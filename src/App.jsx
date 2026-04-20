@@ -748,9 +748,9 @@ export default function App() {
               fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
               margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
               border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-              whiteSpace: "nowrap",
             }}>
-              式が入力されたよ！<br/>👇の「答え合わせ」ボタンを押してね。
+              式が入力されたよ！<br/>
+              <span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
             </div>
           )}
 
@@ -816,9 +816,9 @@ export default function App() {
               fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
               margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
               border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-              whiteSpace: "nowrap",
             }}>
-              式が入力されたよ！<br/>👇の「答え合わせ」ボタンを押してね。
+              式が入力されたよ！<br/>
+              <span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
             </div>
           )}
 
