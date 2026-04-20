@@ -106,9 +106,9 @@ function CloverSVG({ size = 80 }) {
 function CloverCard({ number, isTarget = false, size = "normal" }) {
   const d = {
     large:  { w: 240, h: 348, numSz: 120, svgSz: 192, r: 26, bw: 7 },
-    normal: { w: 168, h: 220, numSz: 90,  svgSz: 136, r: 22, bw: 5 },
-    small:  { w: 126, h: 180, numSz: 70,  svgSz: 116, r: 17, bw: 5 },
-    xsmall: { w: 112, h: 160, numSz: 58,  svgSz: 92,  r: 14, bw: 4 },
+    normal: { w: 185, h: 220, numSz: 90,  svgSz: 136, r: 22, bw: 5 },
+    small:  { w: 139, h: 180, numSz: 70,  svgSz: 116, r: 17, bw: 5 },
+    xsmall: { w: 123, h: 160, numSz: 58,  svgSz: 92,  r: 14, bw: 4 },
   }[size];
   return (
     <div style={{
@@ -147,8 +147,8 @@ function TutorialBubble({ text }) {
     <div style={{
       position: "relative", zIndex: 100,
       background: "#ff69b4", color: "white",
-      borderRadius: "14px", padding: "24px 28px",
-      fontSize: "34px", fontWeight: "bold", lineHeight: "1.6",
+      borderRadius: "14px", padding: "28px 32px",
+      fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
       margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
       border: "2px solid #ff1493",
       animation: "pulse-pink 2s infinite",
@@ -474,7 +474,7 @@ export default function App() {
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
-                  cursor: "pointer", fontSize: "40px", marginBottom: "20px",
+                  cursor: "pointer", fontSize: "60px", marginBottom: "24px",
                 }}>次へ →</button>
               </div>
             )}
@@ -496,7 +496,7 @@ export default function App() {
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
-                  cursor: "pointer", fontSize: "40px", marginBottom: "20px",
+                  cursor: "pointer", fontSize: "60px", marginBottom: "24px",
                 }}>次へ →</button>
               </div>
             )}
@@ -526,7 +526,7 @@ export default function App() {
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
-                  cursor: "pointer", fontSize: "40px", marginBottom: "20px",
+                  cursor: "pointer", fontSize: "60px", marginBottom: "24px",
                 }}>次へ →</button>
               </div>
             )}
