@@ -231,10 +231,12 @@ export default function App() {
   const [running, setRunning] = useState(false);
   const [expr, setExpr] = useState("");
   const [feedback, setFeedback] = useState(null);
-  const [bestTime, setBestTime] = useState(null);
+  const [bestTime, setBestTime] = useState(() => {
+    try { const s = localStorage.getItem("clover_best"); return s ? Number(s) : null; } catch { return null; }
+  });
+  const [isNewRecord, setIsNewRecord] = useState(false);
   const [isTutorial, setIsTutorial] = useState(false);
   const [tutStep, setTutStep] = useState(0);
-  // ✅ FIX #4: usedNums を cards に依存しない独立した状態として管理
   const [usedNums, setUsedNums] = useState([]);
   const timerRef = useRef(null);
 
@@ -287,7 +289,13 @@ export default function App() {
     const r = validateExpression(expr, cards.nums, cards.target);
     setFeedback(r);
     if (r.ok) {
-      if (!isTutorial && (bestTime === null || time < bestTime)) setBestTime(time);
+      if (!isTutorial && (bestTime === null || time < bestTime)) {
+        setBestTime(time);
+        setIsNewRecord(true);
+        try { localStorage.setItem("clover_best", String(time)); } catch {}
+      } else {
+        setIsNewRecord(false);
+      }
       setTimeout(() => setPhase("result"), 900);
     }
   };
@@ -351,7 +359,7 @@ export default function App() {
       background: `linear-gradient(135deg,${color},${color}dd)`,
       border: "none", borderRadius: "25px",
       color: textColor, fontWeight: "bold", fontSize: "36px",
-      padding: "32px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
+      padding: "40px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
       boxShadow: `0 5px 20px ${color}66`,
     }}>{label}</button>
   );
@@ -806,7 +814,7 @@ export default function App() {
       {phase === "result" && (
         <div style={{ textAlign: "center", width: "100%", maxWidth: "720px" }}>
           <div style={{ fontSize: "104px", marginBottom: "12px" }}>🍀</div>
-          <div style={{ fontSize: "64px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
+          <div style={{ fontSize: "80px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
             {isTutorial ? "チュートリアル完了！🎉" : "せいかい！🍬"}
           </div>
           <div style={{ fontSize: "104px", fontFamily: "monospace", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
@@ -818,7 +826,7 @@ export default function App() {
               <div style={{ fontSize: "26px", color: "#86efac", lineHeight: "1.8", marginBottom: "24px" }}>
                 ⬆️ はクリアしたタイムだよ！<br/>
                 本番では記録が出るたびに更新されるよ🏆<br/>
-                ⬇️ 新記録なら「新記録！」と出るよ！
+                ⬇️ 新記録なら「新記録」と金色に点滅するよ！
               </div>
               <div style={{
                 background: "#ff69b422", border: "2px solid #ff69b4",
@@ -828,12 +836,20 @@ export default function App() {
                 やり方わかったかな？🩷<br/>
                 次のゲームをスタートする時はここを押してね⬇️
               </div>
-              <PBtn label="スタート 🃏（本番！）" onClick={() => startGame(false)} />
+              <PBtn label="次の問題へ 🃏（本番！）" onClick={() => startGame(false)} />
             </div>
           ) : (
             <>
-              {bestTime !== null && time <= bestTime && (
-                <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>🏆 新記録！</div>
+              {isNewRecord && (
+                <div style={{
+                  color: "#fbbf24", fontSize: "40px", fontWeight: "900",
+                  marginBottom: "12px", animation: "blink-gold 0.6s infinite",
+                }}>🎉 新記録！ 🎉</div>
+              )}
+              {bestTime !== null && (
+                <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>
+                  🏆 ただ今のベスト：{fmt(bestTime)}秒
+                </div>
               )}
               <div style={{ color: "#555", fontSize: "24px", marginBottom: "8px" }}>{feedback?.msg}</div>
               <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>
@@ -841,7 +857,7 @@ export default function App() {
               </div>
               <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
                 <div style={{ flex: 1 }}>
-                  <PBtn label="スタート 🃏" onClick={() => startGame(false)} />
+                  <PBtn label="次の問題へ 🃏" onClick={() => startGame(false)} />
                 </div>
               </div>
             </>
@@ -852,7 +868,7 @@ export default function App() {
               <button onClick={() => startGame(true)} style={{
                 background: "linear-gradient(135deg,#ff69b4,#ff1493)",
                 border: "none", borderRadius: "24px", color: "white",
-                fontWeight: "bold", fontSize: "28px", padding: "22px 0",
+                fontWeight: "bold", fontSize: "28px", padding: "32px 0",
                 cursor: "pointer", width: "100%",
                 boxShadow: "0 4px 16px rgba(255,105,180,0.4)",
               }}>やり方を学ぶ 📖</button>
@@ -872,6 +888,10 @@ export default function App() {
         @keyframes blink {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
+        }
+        @keyframes blink-gold {
+          0%, 100% { color: #fbbf24; opacity: 1; }
+          50% { color: #f59e0b; opacity: 0.3; }
         }
       `}</style>
     </div>
