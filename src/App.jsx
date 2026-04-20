@@ -683,7 +683,7 @@ export default function App() {
               <button key={i} onClick={() => appNum(i, n)} style={{
                 background: ["#3b82f6", "#ec4899", "#f97316", "#8b5cf6", "#10b981"][i],
                 border: "none", borderRadius: "14px", color: "white",
-                fontWeight: "900", width: "90px", height: "90px", fontSize: "38px",
+                fontWeight: "900", width: "139px", height: "90px", fontSize: "38px",
                 cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
                 opacity: usedNums.includes(i) ? 0.25 : 1,
                 transition: "opacity 0.2s",
