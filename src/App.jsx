@@ -472,7 +472,7 @@ export default function App() {
               <div>
                 <div style={{
                   background: "#ff69b4", color: "white", borderRadius: "14px",
-                  padding: "28px 48px", fontSize: "50px", fontWeight: "bold",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
                   lineHeight: "1.6", margin: "16px 0",
                   boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
@@ -502,7 +502,7 @@ export default function App() {
               <div>
                 <div style={{
                   background: "#ff69b4", color: "white", borderRadius: "14px",
-                  padding: "28px 48px", fontSize: "50px", fontWeight: "bold",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
                   lineHeight: "1.6", margin: "16px 0",
                   boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
@@ -548,7 +548,7 @@ export default function App() {
               <div>
                 <div style={{
                   background: "#ff69b4", color: "white", borderRadius: "14px",
-                  padding: "28px 40px", fontSize: "50px", fontWeight: "bold",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
                   lineHeight: "1.6", margin: "16px 0",
                   boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
@@ -557,7 +557,7 @@ export default function App() {
                 </div>
                 <div style={{
                   background: "#e8336d", color: "white", borderRadius: "14px",
-                  padding: "20px 40px", fontSize: "50px", fontWeight: "bold",
+                  padding: "20px 16px", fontSize: "50px", fontWeight: "bold",
                   lineHeight: "1.6", margin: "12px 0",
                   boxShadow: "0 4px 20px rgba(232,51,109,0.5)",
                   border: "2px solid #c0145a",
@@ -587,7 +587,7 @@ export default function App() {
                 <div>
                   <div style={{
                     background: "#ff69b4", color: "white", borderRadius: "14px",
-                    padding: "28px 40px", fontSize: "50px", fontWeight: "bold",
+                    padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
                     lineHeight: "1.6", margin: "16px 0",
                     boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                     border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
@@ -595,9 +595,9 @@ export default function App() {
                     出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ
                   </div>
                   <div style={{
-                    fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left",
+                    fontSize: "34px", color: "white", marginBottom: "16px", textAlign: "left",
                     textDecoration: "underline", textDecorationStyle: "wavy",
-                    textDecorationColor: "#ef4444",
+                    textDecorationColor: "#ef4444", whiteSpace: "nowrap",
                   }}>
                     ※バスや電車の中では、心の中でね笑
                   </div>
