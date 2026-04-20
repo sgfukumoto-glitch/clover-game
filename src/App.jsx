@@ -421,7 +421,7 @@ export default function App() {
             📖 ピンク→チュートリアルで試し遊び！<br/>
             🃏 黄色字→本番スタート！
           </div>
-          <div style={{ marginTop: "36px", fontSize: "27px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>
+          <div style={{ marginTop: "36px", fontSize: "38px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>
             by NPO法人 Foster Partner®️
           </div>
         </div>
