@@ -358,9 +358,9 @@ export default function App() {
 
   const GBtn = ({ label, onClick }) => (
     <button onClick={onClick} style={{
-      background: "#111f14", border: "1px solid #4ade8033", borderRadius: "12px",
-      color: "#86efac", fontWeight: "bold", fontSize: "14px",
-      padding: "12px 0", cursor: "pointer", width: "100%",
+      background: "#111f14", border: "1px solid #4ade8033", borderRadius: "22px",
+      color: "#86efac", fontWeight: "bold", fontSize: "32px",
+      padding: "28px 0", cursor: "pointer", width: "100%",
     }}>{label}</button>
   );
 
@@ -477,7 +477,7 @@ export default function App() {
                   boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
                 }}>
-                  ⬆️ スタートと同時に<br/>タイムが動き出すよ！⏱
+                  👆 スタートと同時に<br/>タイムが動き出すよ！⏱
                 </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
@@ -553,7 +553,7 @@ export default function App() {
                   boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
                 }}>
-                  ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ
+                  👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ
                 </div>
                 <div style={{
                   background: "#e8336d", color: "white", borderRadius: "14px",
@@ -727,13 +727,13 @@ export default function App() {
           )}
 
           {/* Operators - アニメーション中はpointerEvents:none */}
-          <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "10px" }}>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "16px" }}>
             {[["＋", "+"], [" － ", "-"], ["×", "*"], ["÷", "/"], ["（", "("], ["）", ")"]].map(([l, v]) => (
               <button key={l} onClick={() => appOp(v)} style={{
                 background: "#111f14", border: "2px solid #4ade8033",
-                borderRadius: "9px", color: "#4ade80",
-                fontWeight: "900", width: "48px", height: "48px",
-                fontSize: "22px", cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
+                borderRadius: "14px", color: "#4ade80",
+                fontWeight: "900", width: "80px", height: "80px",
+                fontSize: "38px", cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
                 pointerEvents: isTutorial && tutStep === 5 ? "none" : "auto",
               }}>{l}</button>
             ))}
@@ -743,37 +743,37 @@ export default function App() {
           {(!isTutorial || tutStep !== 5) && (
             <div style={{
               background: "#111f14", border: "2px solid #4ade8033",
-              borderRadius: "11px", padding: "12px 14px",
-              fontSize: exprTokens.length > 12 ? "18px" : exprTokens.length > 8 ? "22px" : "26px",
+              borderRadius: "16px", padding: "20px 20px",
+              fontSize: exprTokens.length > 12 ? "32px" : exprTokens.length > 8 ? "40px" : "48px",
               fontFamily: "monospace", fontWeight: "bold",
-              color: "white", textAlign: "center", marginBottom: "8px",
-              minHeight: "52px", wordBreak: "break-all", letterSpacing: "1px",
+              color: "white", textAlign: "center", marginBottom: "12px",
+              minHeight: "80px", wordBreak: "break-all", letterSpacing: "1px",
               transition: "font-size 0.2s",
             }}>
               {exprTokens.length > 0
                 ? tokensToDisplay(exprTokens)
-                : <span style={{ color: "#2a4a2a", fontSize: "15px" }}>ここに式が入るよ</span>}
+                : <span style={{ color: "#2a4a2a", fontSize: "28px" }}>ここに式が入るよ</span>}
             </div>
           )}
 
           {(!isTutorial || tutStep !== 5) && (
-            <div style={{ display: "flex", gap: "6px", marginBottom: "10px" }}>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
               <button onClick={backspaceExpr} style={{
-                background: "#111f14", border: "1px solid #4ade8033", borderRadius: "9px",
-                color: "#86efac", fontWeight: "bold", width: "52px", height: "44px",
-                fontSize: "18px", cursor: "pointer", flexShrink: 0,
+                background: "#111f14", border: "1px solid #4ade8033", borderRadius: "14px",
+                color: "#86efac", fontWeight: "bold", width: "90px", height: "80px",
+                fontSize: "36px", cursor: "pointer", flexShrink: 0,
               }}>⌫</button>
               <button onClick={clearExpr} style={{
-                background: "#111f14", border: "1px solid #4ade8033", borderRadius: "9px",
-                color: "#86efac", fontWeight: "bold", flex: 1, height: "44px",
-                fontSize: "13px", cursor: "pointer",
+                background: "#111f14", border: "1px solid #4ade8033", borderRadius: "14px",
+                color: "#86efac", fontWeight: "bold", flex: 1, height: "80px",
+                fontSize: "32px", cursor: "pointer",
               }}>全消し</button>
             </div>
           )}
 
           {feedback && (
             <div style={{
-              padding: "12px", borderRadius: "9px", marginBottom: "10px", fontSize: "15px",
+              padding: "20px", borderRadius: "14px", marginBottom: "16px", fontSize: "32px",
               background: feedback.ok ? "#4ade8018" : "#ef444418",
               border: `1px solid ${feedback.ok ? "#4ade80" : "#ef4444"}`,
               color: feedback.ok ? "#4ade80" : "#fca5a5",
@@ -784,12 +784,12 @@ export default function App() {
             <TutorialBubble text="⬇️「答え合わせ！」ボタンを押して確認しよう！" />
           )}
 
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "12px" }}>
             <div style={{ flex: 2 }}>
               <button onClick={checkAnswer} style={{
                 background: "linear-gradient(135deg,#16a34a,#15803d)", border: "none",
-                borderRadius: "12px", color: "white", fontWeight: "bold", fontSize: "17px",
-                padding: "13px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
+                borderRadius: "22px", color: "white", fontWeight: "bold", fontSize: "40px",
+                padding: "28px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
                 boxShadow: isTutorial && tutStep === 6
                   ? "0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4"
                   : "0 5px 20px rgba(74,222,128,0.3)",
