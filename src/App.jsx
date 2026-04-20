@@ -147,9 +147,9 @@ function TutorialBubble({ text }) {
     <div style={{
       position: "relative", zIndex: 100,
       background: "#ff69b4", color: "white",
-      borderRadius: "14px", padding: "18px 22px",
-      fontSize: "24px", fontWeight: "bold", lineHeight: "1.6",
-      margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+      borderRadius: "14px", padding: "24px 28px",
+      fontSize: "34px", fontWeight: "bold", lineHeight: "1.6",
+      margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
       border: "2px solid #ff1493",
       animation: "pulse-pink 2s infinite",
     }}>
@@ -464,17 +464,17 @@ export default function App() {
           {/* Timer */}
           <div style={{ position: "relative" }}>
             <div style={{
-              fontSize: "90px", fontWeight: "900", fontFamily: "monospace",
+              fontSize: "120px", fontWeight: "900", fontFamily: "monospace",
               color: running ? "#4ade80" : "#1e3a22",
-              marginBottom: "14px", letterSpacing: "2px",
+              marginBottom: "18px", letterSpacing: "2px",
             }}>{fmt(time)}</div>
             {isTutorial && tutStep === 1 && (
               <div>
                 <TutorialBubble text="⬆️ スタートと同時にタイムが動き出すよ！⏱ 早く解くほど速いタイムになるよ！" />
                 <button onClick={advanceTutorial} style={{
-                  background: "#ff69b4", border: "none", borderRadius: "14px",
-                  color: "white", fontWeight: "bold", padding: "18px 40px",
-                  cursor: "pointer", fontSize: "30px", marginBottom: "16px",
+                  background: "#ff69b4", border: "none", borderRadius: "18px",
+                  color: "white", fontWeight: "bold", padding: "24px 50px",
+                  cursor: "pointer", fontSize: "40px", marginBottom: "20px",
                 }}>次へ →</button>
               </div>
             )}
@@ -482,10 +482,10 @@ export default function App() {
 
           {/* TARGET */}
           <div style={{ position: "relative" }}>
-            <div style={{ fontSize: "13px", letterSpacing: "4px", color: "#ef4444cc", marginBottom: "6px", fontWeight: "bold" }}>
+            <div style={{ fontSize: "30px", letterSpacing: "4px", color: "#ef4444cc", marginBottom: "10px", fontWeight: "bold" }}>
               ⑥ TARGET
             </div>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
               {revealedCount >= 0
                 ? <CloverCard number={cards.target} isTarget size="normal" />
                 : <CardBack size="normal" />}
@@ -494,26 +494,26 @@ export default function App() {
               <div>
                 <TutorialBubble text="⬆️ これが⑥TARGET！この数字にするのが目標だよ！カードに書かれた数字ね👆" />
                 <button onClick={advanceTutorial} style={{
-                  background: "#ff69b4", border: "none", borderRadius: "10px",
-                  color: "white", fontWeight: "bold", padding: "8px 20px",
-                  cursor: "pointer", fontSize: "14px", marginBottom: "8px",
+                  background: "#ff69b4", border: "none", borderRadius: "18px",
+                  color: "white", fontWeight: "bold", padding: "24px 50px",
+                  cursor: "pointer", fontSize: "40px", marginBottom: "20px",
                 }}>次へ →</button>
               </div>
             )}
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0", opacity: 0.2 }}>
-            <div style={{ flex: 1, height: "1px", background: "#4ade80" }}/>
-            <span style={{ fontSize: "10px" }}>🍀</span>
-            <div style={{ flex: 1, height: "1px", background: "#4ade80" }}/>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "10px 0", opacity: 0.2 }}>
+            <div style={{ flex: 1, height: "2px", background: "#4ade80" }}/>
+            <span style={{ fontSize: "20px" }}>🍀</span>
+            <div style={{ flex: 1, height: "2px", background: "#4ade80" }}/>
           </div>
 
           {/* 5 cards */}
           <div style={{ position: "relative" }}>
-            <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#4ade8044", marginBottom: "6px" }}>
+            <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginBottom: "10px" }}>
               ①②③④⑤
             </div>
-            <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "14px" }}>
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
               {cards.nums.map((n, i) => (
                 revealedCount >= i + 1
                   ? <CloverCard key={i} number={n} size="small" />
@@ -524,9 +524,9 @@ export default function App() {
               <div>
                 <TutorialBubble text="⬆️ ①②③④⑤の5枚！この数字を各1回ずつ使って、四則計算（＋－×÷）で繋げて⑥の数字にしよう！記号は何度使ってもOK！解き方は1つじゃないよ😊" />
                 <button onClick={advanceTutorial} style={{
-                  background: "#ff69b4", border: "none", borderRadius: "10px",
-                  color: "white", fontWeight: "bold", padding: "8px 20px",
-                  cursor: "pointer", fontSize: "14px", marginBottom: "8px",
+                  background: "#ff69b4", border: "none", borderRadius: "18px",
+                  color: "white", fontWeight: "bold", padding: "24px 50px",
+                  cursor: "pointer", fontSize: "40px", marginBottom: "20px",
                 }}>次へ →</button>
               </div>
             )}
@@ -542,8 +542,8 @@ export default function App() {
                 onPointerUp={() => { fospa(); }}
                 style={{
                   background: "linear-gradient(135deg,#16a34a,#15803d)", border: "none",
-                  borderRadius: "12px", color: isTutorial && tutStep === 4 ? "#fbbf24" : "white",
-                  fontWeight: "bold", fontSize: "17px", padding: "13px 0",
+                  borderRadius: "22px", color: isTutorial && tutStep === 4 ? "#fbbf24" : "white",
+                  fontWeight: "bold", fontSize: "40px", padding: "28px 0",
                   cursor: "pointer", width: "100%", letterSpacing: "2px",
                   boxShadow: isTutorial && tutStep === 4
                     ? "0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4"
