@@ -207,7 +207,17 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
 
   return (
     <div style={{ marginBottom: "10px" }}>
-      <TutorialBubble text="⬆️ こんなふうに数字と演算子を組み合わせて式を作るよ！（例を見てね）" />
+      <div style={{
+        position: "relative", zIndex: 100,
+        background: "#ff69b4", color: "white",
+        borderRadius: "14px", padding: "18px 22px",
+        fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
+        margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+        border: "2px solid #ff1493",
+        animation: "pulse-pink 2s infinite",
+      }}>
+        このように、数字と演算記号を<br/>組み合わせて解答していくよ！<br/><br/>出来たら「答え合わせ」を押してね
+      </div>
       {/* アニメーション用の式表示のみ（カードは親が表示） */}
       <div style={{
         background: "#111f14", border: "2px solid #4ade8033",
@@ -814,8 +824,8 @@ export default function App() {
       {phase === "result" && (
         <div style={{ textAlign: "center", width: "100%", maxWidth: "720px", position: "relative" }}>
 
-          {/* 紙吹雪アニメーション（本番のみ） */}
-          {!isTutorial && (
+          {/* 紙吹雪アニメーション（本番かつ新記録時のみ） */}
+          {!isTutorial && isNewRecord && (
             <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
               {[...Array(40)].map((_, i) => (
                 <div key={i} style={{
