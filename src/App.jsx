@@ -731,7 +731,7 @@ export default function App() {
           )}
 
           {isTutorial && tutStep === 6 && (
-            <TutorialBubble text="式が入力されたよ！⬇️「答え合わせ！」ボタンを押してみよう！" />
+            <TutorialBubble text="式が入力されたよ！👇「答え合わせ！」ボタンを押してみよう！" />
           )}
 
           {/* Operators - アニメーション中はpointerEvents:none */}
@@ -789,7 +789,7 @@ export default function App() {
           )}
 
           {isTutorial && tutStep === 6 && (
-            <TutorialBubble text="⬇️「答え合わせ！」ボタンを押して確認しよう！" />
+            <TutorialBubble text="👇「答え合わせ！」ボタンを押して確認しよう！" />
           )}
 
           <div style={{ display: "flex", gap: "12px" }}>
@@ -812,69 +812,89 @@ export default function App() {
 
       {/* ── RESULT ── */}
       {phase === "result" && (
-        <div style={{ textAlign: "center", width: "100%", maxWidth: "720px" }}>
-          <div style={{ fontSize: "104px", marginBottom: "12px" }}>🍀</div>
-          <div style={{ fontSize: "80px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
-            {isTutorial ? "チュートリアル完了！🎉" : "せいかい！🍬"}
-          </div>
-          <div style={{ fontSize: "104px", fontFamily: "monospace", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
-            {fmt(time)}秒
-          </div>
+        <div style={{ textAlign: "center", width: "100%", maxWidth: "720px", position: "relative" }}>
 
-          {isTutorial ? (
-            <div style={{ marginBottom: "32px" }}>
-              <div style={{ fontSize: "26px", color: "#86efac", lineHeight: "1.8", marginBottom: "24px" }}>
-                ⬆️ はクリアしたタイムだよ！<br/>
-                本番では記録が出るたびに更新されるよ🏆<br/>
-                ⬇️ 新記録なら「新記録」と金色に点滅するよ！
-              </div>
-              <div style={{
-                background: "#ff69b422", border: "2px solid #ff69b4",
-                borderRadius: "24px", padding: "24px", marginBottom: "24px",
-                color: "#ff69b4", fontSize: "28px", fontWeight: "bold",
-              }}>
-                やり方わかったかな？🩷<br/>
-                次のゲームをスタートする時はここを押してね⬇️
-              </div>
-              <PBtn label="次の問題へ 🃏（本番！）" onClick={() => startGame(false)} />
+          {/* 紙吹雪アニメーション（本番のみ） */}
+          {!isTutorial && (
+            <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+              {[...Array(40)].map((_, i) => (
+                <div key={i} style={{
+                  position: "absolute",
+                  left: `${(i * 7.3) % 100}%`,
+                  top: `-${10 + (i * 13) % 20}px`,
+                  fontSize: `${16 + (i * 7) % 24}px`,
+                  animation: `confetti-fall ${2 + (i * 0.17) % 3}s linear ${(i * 0.23) % 2}s infinite`,
+                  opacity: 0.9,
+                }}>
+                  {["🎉","🍀","✨","🌟","💚","🎊","⭐"][i % 7]}
+                </div>
+              ))}
             </div>
-          ) : (
-            <>
-              {isNewRecord && (
-                <div style={{
-                  color: "#fbbf24", fontSize: "40px", fontWeight: "900",
-                  marginBottom: "12px", animation: "blink-gold 0.6s infinite",
-                }}>🎉 新記録！ 🎉</div>
-              )}
-              {bestTime !== null && (
-                <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>
-                  🏆 ただ今のベスト：{fmt(bestTime)}秒
-                </div>
-              )}
-              <div style={{ color: "#555", fontSize: "24px", marginBottom: "8px" }}>{feedback?.msg}</div>
-              <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>
-                to be happy... 🍀
-              </div>
-              <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
-                <div style={{ flex: 1 }}>
-                  <PBtn label="次の問題へ 🃏" onClick={() => startGame(false)} />
-                </div>
-              </div>
-            </>
           )}
 
-          <div style={{ display: "flex", gap: "16px" }}>
-            <div style={{ flex: 1 }}>
-              <button onClick={() => startGame(true)} style={{
-                background: "linear-gradient(135deg,#ff69b4,#ff1493)",
-                border: "none", borderRadius: "24px", color: "white",
-                fontWeight: "bold", fontSize: "28px", padding: "32px 0",
-                cursor: "pointer", width: "100%",
-                boxShadow: "0 4px 16px rgba(255,105,180,0.4)",
-              }}>やり方を学ぶ 📖</button>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div style={{ fontSize: "104px", marginBottom: "12px" }}>🍀</div>
+            <div style={{ fontSize: "80px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
+              {isTutorial ? <span>チュートリアル<br/>完了！🎉</span> : "せいかい！🍬"}
             </div>
-            <div style={{ flex: 1 }}>
-              <GBtn label="タイトルへ" onClick={() => setPhase("start")} />
+            <div style={{ fontSize: "104px", fontFamily: "monospace", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
+              {fmt(time)}秒
+            </div>
+
+            {isTutorial ? (
+              <div style={{ marginBottom: "32px" }}>
+                <div style={{ fontSize: "26px", color: "#86efac", lineHeight: "1.8", marginBottom: "24px" }}>
+                  ⬆️ はクリアしたタイムだよ！<br/>
+                  本番では記録が出るたびに更新されるよ🏆<br/>
+                  👇 新記録なら「新記録」と金色に点滅するよ！
+                </div>
+                <div style={{
+                  background: "#ff69b422", border: "2px solid #ff69b4",
+                  borderRadius: "24px", padding: "24px", marginBottom: "24px",
+                  color: "#ff69b4", fontSize: "28px", fontWeight: "bold",
+                }}>
+                  やり方はわかったかな？<br/>さぁいよいよチャレンジだ👇
+                </div>
+                <PBtn label="次の問題へ 🃏（本番！）" onClick={() => startGame(false)} />
+              </div>
+            ) : (
+              <>
+                {isNewRecord && (
+                  <div style={{
+                    color: "#fbbf24", fontSize: "40px", fontWeight: "900",
+                    marginBottom: "12px", animation: "blink-gold 0.6s infinite",
+                  }}>🎉 新記録！ 🎉</div>
+                )}
+                {bestTime !== null && (
+                  <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>
+                    🏆 ただ今のベスト：{fmt(bestTime)}秒
+                  </div>
+                )}
+                <div style={{ color: "#555", fontSize: "24px", marginBottom: "8px" }}>{feedback?.msg}</div>
+                <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>
+                  to be happy... 🍀
+                </div>
+                <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
+                  <div style={{ flex: 1 }}>
+                    <PBtn label="次の問題へ 🃏" onClick={() => startGame(false)} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div style={{ display: "flex", gap: "16px" }}>
+              <div style={{ flex: 1 }}>
+                <button onClick={() => startGame(true)} style={{
+                  background: "linear-gradient(135deg,#ff69b4,#ff1493)",
+                  border: "none", borderRadius: "24px", color: "white",
+                  fontWeight: "bold", fontSize: "28px", padding: "32px 0",
+                  cursor: "pointer", width: "100%",
+                  boxShadow: "0 4px 16px rgba(255,105,180,0.4)",
+                }}>やり方を学ぶ 📖</button>
+              </div>
+              <div style={{ flex: 1 }}>
+                <GBtn label="タイトルへ" onClick={() => setPhase("start")} />
+              </div>
             </div>
           </div>
         </div>
@@ -892,6 +912,10 @@ export default function App() {
         @keyframes blink-gold {
           0%, 100% { color: #fbbf24; opacity: 1; }
           50% { color: #f59e0b; opacity: 0.3; }
+        }
+        @keyframes confetti-fall {
+          0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(110vh) rotate(720deg); opacity: 0.2; }
         }
       `}</style>
     </div>
