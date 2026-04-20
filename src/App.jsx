@@ -106,9 +106,9 @@ function CloverSVG({ size = 80 }) {
 function CloverCard({ number, isTarget = false, size = "normal" }) {
   const d = {
     large:  { w: 240, h: 348, numSz: 120, svgSz: 192, r: 26, bw: 7 },
-    normal: { w: 168, h: 296, numSz: 81, svgSz: 136, r: 22, bw: 5 },
-    small:  { w: 126, h: 221, numSz: 56, svgSz: 116, r: 17, bw: 5 },
-    xsmall: { w: 112, h: 184, numSz: 45, svgSz: 92,  r: 14, bw: 4 },
+    normal: { w: 168, h: 220, numSz: 90,  svgSz: 136, r: 22, bw: 5 },
+    small:  { w: 126, h: 180, numSz: 70,  svgSz: 116, r: 17, bw: 5 },
+    xsmall: { w: 112, h: 160, numSz: 58,  svgSz: 92,  r: 14, bw: 4 },
   }[size];
   return (
     <div style={{
@@ -147,9 +147,9 @@ function TutorialBubble({ text }) {
     <div style={{
       position: "relative", zIndex: 100,
       background: "#ff69b4", color: "white",
-      borderRadius: "14px", padding: "12px 16px",
-      fontSize: "14px", fontWeight: "bold", lineHeight: "1.6",
-      margin: "8px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+      borderRadius: "14px", padding: "18px 22px",
+      fontSize: "24px", fontWeight: "bold", lineHeight: "1.6",
+      margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
       border: "2px solid #ff1493",
       animation: "pulse-pink 2s infinite",
     }}>
@@ -464,17 +464,17 @@ export default function App() {
           {/* Timer */}
           <div style={{ position: "relative" }}>
             <div style={{
-              fontSize: "60px", fontWeight: "900", fontFamily: "monospace",
+              fontSize: "90px", fontWeight: "900", fontFamily: "monospace",
               color: running ? "#4ade80" : "#1e3a22",
-              marginBottom: "10px", letterSpacing: "2px",
+              marginBottom: "14px", letterSpacing: "2px",
             }}>{fmt(time)}</div>
             {isTutorial && tutStep === 1 && (
               <div>
                 <TutorialBubble text="⬆️ スタートと同時にタイムが動き出すよ！⏱ 早く解くほど速いタイムになるよ！" />
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "14px",
-                  color: "white", fontWeight: "bold", padding: "14px 30px",
-                  cursor: "pointer", fontSize: "22px", marginBottom: "12px",
+                  color: "white", fontWeight: "bold", padding: "18px 40px",
+                  cursor: "pointer", fontSize: "30px", marginBottom: "16px",
                 }}>次へ →</button>
               </div>
             )}
