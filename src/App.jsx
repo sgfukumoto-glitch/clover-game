@@ -429,7 +429,7 @@ export default function App() {
 
       {/* ── DEALING / PLAYING ── */}
       {(phase === "dealing" || phase === "playing") && cards && (
-        <div style={{ width: "100%", maxWidth: "600px", textAlign: "center" }}>
+        <div style={{ width: "100%", maxWidth: "900px", textAlign: "center" }}>
           {/* 戻るボタン：チュートリアルは1ステップ前、本番はタイトルへ */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <button onClick={() => {
