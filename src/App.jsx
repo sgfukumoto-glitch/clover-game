@@ -252,115 +252,94 @@ export default function App() {
   const [dealtCount, setDealtCount] = useState(0); // 配り終えた枚数（裏向き）
   const [allRevealed, setAllRevealed] = useState(false); // GO後に一斉表
   const timerRef = useRef(null);
-  const dealingTimeoutsRef = useRef([]);
+  const audioCtxRef = useRef(null);
+  const bgmRef = useRef(null);
+  const bgmCtxRef = useRef(null);
 
-  // Web Audio API で音を生成（著作権フリー）
-  const playBeep = useCallback((freq, duration, type = "sine", vol = 0.3) => {
+  // ユーザー操作時にAudioContextを初期化
+  const getAudioCtx = useCallback(() => {
+    if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  }, []);
+
+  const playBeep = useCallback((ctx, freq, duration, type = "sine", vol = 0.3, delay = 0) => {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = type;
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(vol, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + duration);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+      gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + duration);
     } catch(e) {}
   }, []);
 
   const speakWord = useCallback((word) => {
     try {
+      window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(word);
       utter.lang = "en-US";
-      utter.rate = 0.9;
+      utter.rate = 0.85;
       utter.pitch = 1.1;
       utter.volume = 1.0;
       window.speechSynthesis.speak(utter);
     } catch(e) {}
   }, []);
 
-  const playGO = useCallback(() => {
+  const playGO = useCallback((ctx) => {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
       [[523, 0], [659, 0.05], [784, 0.1]].forEach(([freq, delay]) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime + delay);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.5);
-        osc.start(ctx.currentTime + delay);
-        osc.stop(ctx.currentTime + delay + 0.5);
+        playBeep(ctx, freq, 0.5, "triangle", 0.25, delay);
       });
     } catch(e) {}
-  }, []);
+  }, [playBeep]);
 
-  const bgmRef = useRef(null);
-  const bgmCtxRef = useRef(null);
-
-  const startBGM = useCallback(() => {
+  const startBGM = useCallback((ctx) => {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
       bgmCtxRef.current = ctx;
-      // クシコスポスト風オリジナルBGM（疾走感のある8音符パターン）
-      // E4-E4-G4-E4-D4-C4-D4-E4 のリズムパターンをループ
-      const notes = [
+      const tempo = 0.18;
+      const melody = [
         329.6, 329.6, 392.0, 329.6,
         293.7, 261.6, 293.7, 329.6,
         349.2, 349.2, 392.0, 440.0,
         392.0, 349.2, 329.6, 293.7,
       ];
-      const tempo = 0.18; // 1音符の長さ(秒)
-      const totalLen = notes.length * tempo;
+      const bass = [
+        130.8, 130.8, 164.8, 130.8,
+        146.8, 130.8, 146.8, 164.8,
+        174.6, 174.6, 196.0, 220.0,
+        196.0, 174.6, 164.8, 146.8,
+      ];
+      const totalLen = melody.length * tempo;
 
       const playLoop = (startTime) => {
-        notes.forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = "square";
-          osc.frequency.setValueAtTime(freq, startTime + i * tempo);
-          gain.gain.setValueAtTime(0.08, startTime + i * tempo);
-          gain.gain.exponentialRampToValueAtTime(0.001, startTime + i * tempo + tempo * 0.8);
-          osc.start(startTime + i * tempo);
-          osc.stop(startTime + i * tempo + tempo);
+        melody.forEach((freq, i) => {
+          playBeep(ctx, freq, tempo * 0.8, "square", 0.08, startTime - ctx.currentTime + i * tempo);
         });
-        // ベースライン
-        const bassNotes = [130.8, 130.8, 164.8, 130.8, 146.8, 130.8, 146.8, 164.8,
-                           174.6, 174.6, 196.0, 220.0, 196.0, 174.6, 164.8, 146.8];
-        bassNotes.forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(freq, startTime + i * tempo);
-          gain.gain.setValueAtTime(0.06, startTime + i * tempo);
-          gain.gain.exponentialRampToValueAtTime(0.001, startTime + i * tempo + tempo * 0.9);
-          osc.start(startTime + i * tempo);
-          osc.stop(startTime + i * tempo + tempo);
+        bass.forEach((freq, i) => {
+          playBeep(ctx, freq, tempo * 0.9, "triangle", 0.06, startTime - ctx.currentTime + i * tempo);
         });
-        // 次のループをスケジュール
-        const loopId = setTimeout(() => playLoop(ctx.currentTime), (totalLen - 0.05) * 1000);
+        const loopId = setTimeout(() => {
+          if (bgmCtxRef.current === ctx) playLoop(ctx.currentTime + 0.05);
+        }, (totalLen - 0.1) * 1000);
         bgmRef.current = loopId;
       };
       playLoop(ctx.currentTime);
     } catch(e) {}
-  }, []);
+  }, [playBeep]);
 
   const stopBGM = useCallback(() => {
     try {
       clearTimeout(bgmRef.current);
-      if (bgmCtxRef.current) {
-        bgmCtxRef.current.close();
-        bgmCtxRef.current = null;
-      }
+      bgmCtxRef.current = null;
     } catch(e) {}
   }, []);
 
@@ -368,6 +347,9 @@ export default function App() {
     // 前回のカード配りタイマーを全部キャンセル
     dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
     dealingTimeoutsRef.current = [];
+
+    // ユーザー操作のタイミングでAudioContext取得（ここが重要！）
+    const ctx = getAudioCtx();
 
     setIsTutorial(tutorial);
     setTutStep(0);
@@ -391,19 +373,19 @@ export default function App() {
         setDealtCount(i + 1); // 裏向きで1枚ずつ追加
         if (i === 5) {
           // 全部配り終わったらカウントダウン開始
-          const c3 = setTimeout(() => { setCountdown(3); playBeep(440, 0.15); speakWord("three"); }, 400);
-          const c2 = setTimeout(() => { setCountdown(2); playBeep(440, 0.15); speakWord("two"); }, 1400);
-          const c1 = setTimeout(() => { setCountdown(1); playBeep(440, 0.15); speakWord("one"); }, 2400);
+          const c3 = setTimeout(() => { setCountdown(3); playBeep(ctx, 440, 0.15); speakWord("three"); }, 400);
+          const c2 = setTimeout(() => { setCountdown(2); playBeep(ctx, 440, 0.15); speakWord("two"); }, 1400);
+          const c1 = setTimeout(() => { setCountdown(1); playBeep(ctx, 440, 0.15); speakWord("one"); }, 2400);
           const cGo = setTimeout(() => {
             setCountdown("GO!");
-            playGO();
+            playGO(ctx);
             speakWord("GO!");
             setAllRevealed(true); // 一斉表に！
             const cStart = setTimeout(() => {
               setCountdown(null);
               setPhase("playing");
               setRunning(true);
-              startBGM();
+              startBGM(ctx);
               if (tutorial) setTutStep(1);
             }, 800);
             dealingTimeoutsRef.current.push(cStart);
@@ -413,7 +395,7 @@ export default function App() {
       }, d);
       dealingTimeoutsRef.current.push(id);
     });
-  }, [playBeep, playGO, speakWord, startBGM]);
+  }, [getAudioCtx, playBeep, playGO, speakWord, startBGM]);
 
   useEffect(() => {
     if (running) timerRef.current = setInterval(() => setTime(t => t + 10), 10);
