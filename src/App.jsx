@@ -248,32 +248,93 @@ export default function App() {
   const [isTutorial, setIsTutorial] = useState(false);
   const [tutStep, setTutStep] = useState(0);
   const [usedNums, setUsedNums] = useState([]);
+  const [countdown, setCountdown] = useState(null); // null, 3, 2, 1, "GO!"
   const timerRef = useRef(null);
+  const dealingTimeoutsRef = useRef([]);
+
+  // Web Audio API で音を生成（著作権フリー）
+  const playBeep = useCallback((freq, duration, type = "sine", vol = 0.3) => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(vol, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
+    } catch(e) {}
+  }, []);
+
+  const playGO = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // GO!は明るい和音
+      [[523, 0], [659, 0.05], [784, 0.1]].forEach(([freq, delay]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.5);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.5);
+      });
+    } catch(e) {}
+  }, []);
 
   const startGame = useCallback((tutorial = false) => {
+    // 前回のカード配りタイマーを全部キャンセル
+    dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
+    dealingTimeoutsRef.current = [];
+
     setIsTutorial(tutorial);
     setTutStep(0);
     setPhase("dealing");
+    setCountdown(null);
     setExpr("");
     setFeedback(null);
-    setUsedNums([]); // ✅ ここで必ずリセット
+    setUsedNums([]);
     setExprTokens([]);
     setTime(0);
     setRunning(false);
     setRevealedCount(-1);
     const drawn = tutorial ? TUTORIAL_CARDS : drawCards();
     setCards(drawn);
+
+    // 6枚を順番に伏せて配る（400ms間隔）
     [400, 800, 1200, 1600, 2000, 2400].forEach((d, i) => {
-      setTimeout(() => {
-        setRevealedCount(i);
-        if (i === 5) setTimeout(() => {
-          setPhase("playing");
-          setRunning(true);
-          if (tutorial) setTutStep(1);
-        }, 500);
+      const id = setTimeout(() => {
+        setRevealedCount(i - 1); // 裏向きで配る（-1=全部裏）
+        if (i === 5) {
+          // 全部配り終わったらカウントダウン開始
+          const c3 = setTimeout(() => { setCountdown(3); playBeep(440, 0.15); }, 400);
+          const c2 = setTimeout(() => { setCountdown(2); playBeep(440, 0.15); }, 1400);
+          const c1 = setTimeout(() => { setCountdown(1); playBeep(440, 0.15); }, 2400);
+          const cGo = setTimeout(() => {
+            setCountdown("GO!");
+            playGO();
+            // カード一斉表に
+            setRevealedCount(5);
+            const cStart = setTimeout(() => {
+              setCountdown(null);
+              setPhase("playing");
+              setRunning(true);
+              if (tutorial) setTutStep(1);
+            }, 800);
+            dealingTimeoutsRef.current.push(cStart);
+          }, 3400);
+          [c3, c2, c1, cGo].forEach(id => dealingTimeoutsRef.current.push(id));
+        }
       }, d);
+      dealingTimeoutsRef.current.push(id);
     });
-  }, []);
+  }, [playBeep, playGO]);
 
   useEffect(() => {
     if (running) timerRef.current = setInterval(() => setTime(t => t + 10), 10);
@@ -452,9 +513,16 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <button onClick={() => {
               if (isTutorial) {
-                if (tutStep <= 1) { setPhase("start"); setIsTutorial(false); setRunning(false); }
+                if (tutStep <= 1) {
+                  dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
+                  dealingTimeoutsRef.current = [];
+                  setPhase("start"); setIsTutorial(false); setRunning(false);
+                }
                 else setTutStep(s => s - 1);
+
               } else {
+                dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
+                dealingTimeoutsRef.current = [];
                 setPhase("start"); setRunning(false); clearExpr();
               }
             }} style={{
@@ -637,7 +705,22 @@ export default function App() {
             </div>
           )}
           {phase === "dealing" && (
-            <div style={{ color: "#4ade8033", fontSize: "12px", letterSpacing: "2px" }}>カードを配っています…</div>
+            <div style={{ position: "relative", minHeight: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {countdown !== null ? (
+                <div style={{
+                  fontSize: countdown === "GO!" ? "120px" : "160px",
+                  fontWeight: "900",
+                  color: countdown === "GO!" ? "#4ade80" : "#fbbf24",
+                  fontFamily: "monospace",
+                  animation: "countdown-pop 0.3s ease-out",
+                  textShadow: countdown === "GO!" ? "0 0 40px #4ade80" : "0 0 40px #fbbf24",
+                }}>
+                  {countdown}
+                </div>
+              ) : (
+                <div style={{ color: "#4ade8033", fontSize: "28px", letterSpacing: "2px" }}>カードを配っています…</div>
+              )}
+            </div>
           )}
 
           {isTutorial && phase === "playing" && tutStep === 0 && (
@@ -946,6 +1029,10 @@ export default function App() {
         @keyframes confetti-fall {
           0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
           100% { transform: translateY(110vh) rotate(720deg); opacity: 0.2; }
+        }
+        @keyframes countdown-pop {
+          0% { transform: scale(1.8); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>
