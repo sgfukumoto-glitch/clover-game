@@ -403,6 +403,7 @@ export default function App() {
               setCountdown(null);
               setPhase("playing");
               setRunning(true);
+              startBGM();
               if (tutorial) setTutStep(1);
             }, 800);
             dealingTimeoutsRef.current.push(cStart);
@@ -412,7 +413,7 @@ export default function App() {
       }, d);
       dealingTimeoutsRef.current.push(id);
     });
-  }, [playBeep, playGO, speakWord]);
+  }, [playBeep, playGO, speakWord, startBGM]);
 
   useEffect(() => {
     if (running) timerRef.current = setInterval(() => setTime(t => t + 10), 10);
@@ -429,6 +430,7 @@ export default function App() {
 
   const fospa = () => {
     setRunning(false);
+    stopBGM();
     setPhase("fospa");
     if (isTutorial) setTutStep(5);
   };
@@ -594,13 +596,14 @@ export default function App() {
                 if (tutStep <= 1) {
                   dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
                   dealingTimeoutsRef.current = [];
+                  stopBGM();
                   setPhase("start"); setIsTutorial(false); setRunning(false);
                 }
                 else setTutStep(s => s - 1);
-
               } else {
                 dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
                 dealingTimeoutsRef.current = [];
+                stopBGM();
                 setPhase("start"); setRunning(false); clearExpr();
               }
             }} style={{
@@ -1088,7 +1091,7 @@ export default function App() {
                 }}>やり方を学ぶ 📖</button>
               </div>
               <div style={{ flex: 1 }}>
-                <GBtn label="タイトルへ" onClick={() => setPhase("start")} />
+                <GBtn label="タイトルへ" onClick={() => { stopBGM(); setPhase("start"); }} />
               </div>
             </div>
           </div>
