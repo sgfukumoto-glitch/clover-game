@@ -249,6 +249,8 @@ export default function App() {
   const [tutStep, setTutStep] = useState(0);
   const [usedNums, setUsedNums] = useState([]);
   const [countdown, setCountdown] = useState(null); // null, 3, 2, 1, "GO!"
+  const [dealtCount, setDealtCount] = useState(0); // 配り終えた枚数（裏向き）
+  const [allRevealed, setAllRevealed] = useState(false); // GO後に一斉表
   const timerRef = useRef(null);
   const dealingTimeoutsRef = useRef([]);
 
@@ -269,10 +271,20 @@ export default function App() {
     } catch(e) {}
   }, []);
 
+  const speakWord = useCallback((word) => {
+    try {
+      const utter = new SpeechSynthesisUtterance(word);
+      utter.lang = "en-US";
+      utter.rate = 0.9;
+      utter.pitch = 1.1;
+      utter.volume = 1.0;
+      window.speechSynthesis.speak(utter);
+    } catch(e) {}
+  }, []);
+
   const playGO = useCallback(() => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      // GO!は明るい和音
       [[523, 0], [659, 0.05], [784, 0.1]].forEach(([freq, delay]) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -285,6 +297,70 @@ export default function App() {
         osc.start(ctx.currentTime + delay);
         osc.stop(ctx.currentTime + delay + 0.5);
       });
+    } catch(e) {}
+  }, []);
+
+  const bgmRef = useRef(null);
+  const bgmCtxRef = useRef(null);
+
+  const startBGM = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      bgmCtxRef.current = ctx;
+      // クシコスポスト風オリジナルBGM（疾走感のある8音符パターン）
+      // E4-E4-G4-E4-D4-C4-D4-E4 のリズムパターンをループ
+      const notes = [
+        329.6, 329.6, 392.0, 329.6,
+        293.7, 261.6, 293.7, 329.6,
+        349.2, 349.2, 392.0, 440.0,
+        392.0, 349.2, 329.6, 293.7,
+      ];
+      const tempo = 0.18; // 1音符の長さ(秒)
+      const totalLen = notes.length * tempo;
+
+      const playLoop = (startTime) => {
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "square";
+          osc.frequency.setValueAtTime(freq, startTime + i * tempo);
+          gain.gain.setValueAtTime(0.08, startTime + i * tempo);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + i * tempo + tempo * 0.8);
+          osc.start(startTime + i * tempo);
+          osc.stop(startTime + i * tempo + tempo);
+        });
+        // ベースライン
+        const bassNotes = [130.8, 130.8, 164.8, 130.8, 146.8, 130.8, 146.8, 164.8,
+                           174.6, 174.6, 196.0, 220.0, 196.0, 174.6, 164.8, 146.8];
+        bassNotes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, startTime + i * tempo);
+          gain.gain.setValueAtTime(0.06, startTime + i * tempo);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + i * tempo + tempo * 0.9);
+          osc.start(startTime + i * tempo);
+          osc.stop(startTime + i * tempo + tempo);
+        });
+        // 次のループをスケジュール
+        const loopId = setTimeout(() => playLoop(ctx.currentTime), (totalLen - 0.05) * 1000);
+        bgmRef.current = loopId;
+      };
+      playLoop(ctx.currentTime);
+    } catch(e) {}
+  }, []);
+
+  const stopBGM = useCallback(() => {
+    try {
+      clearTimeout(bgmRef.current);
+      if (bgmCtxRef.current) {
+        bgmCtxRef.current.close();
+        bgmCtxRef.current = null;
+      }
     } catch(e) {}
   }, []);
 
@@ -304,23 +380,25 @@ export default function App() {
     setTime(0);
     setRunning(false);
     setRevealedCount(-1);
+    setDealtCount(0);
+    setAllRevealed(false);
     const drawn = tutorial ? TUTORIAL_CARDS : drawCards();
     setCards(drawn);
 
-    // 6枚を順番に伏せて配る（400ms間隔）
+    // 6枚を順番に裏向きで配る（400ms間隔）
     [400, 800, 1200, 1600, 2000, 2400].forEach((d, i) => {
       const id = setTimeout(() => {
-        setRevealedCount(i - 1); // 裏向きで配る（-1=全部裏）
+        setDealtCount(i + 1); // 裏向きで1枚ずつ追加
         if (i === 5) {
           // 全部配り終わったらカウントダウン開始
-          const c3 = setTimeout(() => { setCountdown(3); playBeep(440, 0.15); }, 400);
-          const c2 = setTimeout(() => { setCountdown(2); playBeep(440, 0.15); }, 1400);
-          const c1 = setTimeout(() => { setCountdown(1); playBeep(440, 0.15); }, 2400);
+          const c3 = setTimeout(() => { setCountdown(3); playBeep(440, 0.15); speakWord("three"); }, 400);
+          const c2 = setTimeout(() => { setCountdown(2); playBeep(440, 0.15); speakWord("two"); }, 1400);
+          const c1 = setTimeout(() => { setCountdown(1); playBeep(440, 0.15); speakWord("one"); }, 2400);
           const cGo = setTimeout(() => {
             setCountdown("GO!");
             playGO();
-            // カード一斉表に
-            setRevealedCount(5);
+            speakWord("GO!");
+            setAllRevealed(true); // 一斉表に！
             const cStart = setTimeout(() => {
               setCountdown(null);
               setPhase("playing");
@@ -334,7 +412,7 @@ export default function App() {
       }, d);
       dealingTimeoutsRef.current.push(id);
     });
-  }, [playBeep, playGO]);
+  }, [playBeep, playGO, speakWord]);
 
   useEffect(() => {
     if (running) timerRef.current = setInterval(() => setTime(t => t + 10), 10);
@@ -580,9 +658,11 @@ export default function App() {
               ⑥ TARGET
             </div>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-              {revealedCount >= 0
-                ? <CloverCard number={cards.target} isTarget size="normal" />
-                : <CardBack size="normal" />}
+              {dealtCount >= 1
+                ? (allRevealed
+                    ? <CloverCard number={cards.target} isTarget size="normal" />
+                    : <CardBack size="normal" />)
+                : null}
             </div>
             {isTutorial && tutStep === 2 && (
               <div>
@@ -625,9 +705,11 @@ export default function App() {
             </div>
             <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
               {cards.nums.map((n, i) => (
-                revealedCount >= i + 1
-                  ? <CloverCard key={i} number={n} size="small" />
-                  : <CardBack key={i} size="small" />
+                dealtCount >= i + 2
+                  ? (allRevealed
+                      ? <CloverCard key={i} number={n} size="small" />
+                      : <CardBack key={i} size="small" />)
+                  : <div key={i} style={{ width: 139, height: 220 }} />
               ))}
             </div>
             {isTutorial && tutStep === 3 && (
