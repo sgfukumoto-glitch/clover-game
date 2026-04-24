@@ -78,134 +78,166 @@ function validateExpression(expr, nums, target) {
 
 const TUTORIAL_CARDS = { target: 18, nums: [1, 17, 5, 2, 6] };
 
-// ── Safari対応カウントダウンボイス ──────────────────────────────
-// speechSynthesisの代わりにWeb Audio APIで音程モチーフを使って
-// Three/Two/One/GO! を表現する
-function makeCountdownVoice(ctx, word) {
-  const t = ctx.currentTime + 0.01;
-  const configs = {
-    three: { notes: [[330,0],[294,0.10],[262,0.20]], dur: 0.12, vol: 0.20 },
-    two:   { notes: [[392,0],[349,0.12]],            dur: 0.14, vol: 0.20 },
-    one:   { notes: [[523,0]],                       dur: 0.30, vol: 0.25 },
-    go:    { notes: [[523,0],[659,0.10],[784,0.20],[1047,0.30]], dur: 0.16, vol: 0.28 },
-  };
-  const c = configs[word];
-  if (!c) return;
-  c.notes.forEach(([freq, delay]) => {
-    try {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      // ビブラートLFOでボイスっぽく
-      const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-      lfo.frequency.value = 6;
-      lfoGain.gain.value = 5;
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      lfo.start(t + delay);
-      lfo.stop(t + delay + c.dur + 0.1);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, t + delay);
-      gain.gain.setValueAtTime(c.vol, t + delay);
-      gain.gain.setValueAtTime(c.vol, t + delay + c.dur * 0.6);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + c.dur + 0.08);
-      osc.start(t + delay);
-      osc.stop(t + delay + c.dur + 0.12);
-    } catch(e) {}
-  });
-}
-
-// ── クシコスポスト風BGM ──────────────────────────────────────────
-// チャチャチャーン×2、チャチャチャチャチャチャッジャン…
-// sawtoothメロディ＋triangleピチカート伴奏で弦楽器感を出す
+// ── クシコスポスト風ファミコンBGM ────────────────────────────────
 function startCsikosBGM(ctx) {
-  const BPM = 172;
-  const Q  = 60 / BPM;   // 四分音符
-  const E  = Q / 2;       // 八分音符
-  const H  = Q * 2;       // 二分音符
-  const DQ = Q * 1.5;     // 付点四分音符
+  const BPM = 210;
+  const Q  = 60 / BPM;
+  const E  = Q / 2;
+  const S  = Q / 4;
+  const DQ = Q * 1.5;
+  const H  = Q * 2;
 
-  // クシコスポスト冒頭メロディ [周波数Hz, 長さ秒]
-  // E4=330 F#4=370 G4=392 A4=440 B4=494 C5=523 D5=587 E5=659
-  const melody = [
-    // チャチャチャーン (×2)
-    [330,E],[330,E],[330,H],
-    [330,E],[330,E],[330,H],
-    // チャチャチャチャチャチャッジャン
-    [330,E],[330,E],[330,E],[330,E],[330,E],[370,E],[392,DQ],
-    // チャンチャラチャンチャー
-    [440,E],[392,E],[440,E],[494,E],[440,Q],
-    // チャッチャッチャーン
-    [392,E],[330,E],[392,H],
-    // チャーチャ チャーチャ チャーチャン
-    [440,Q],[392,E],[440,Q],[392,E],[440,DQ],
-    // チャチャチャ (下降)
-    [494,E],[440,E],[392,E],
-    // 【繰り返しフレーズ】チャンチャラチャッチャー
-    [440,E],[392,E],[440,E],[494,E],[440,Q],
-    // チャッチャッチャーン
-    [392,E],[330,E],[392,H],
-    // チャーチャ チャーチャ チャーチャン
-    [440,Q],[392,E],[440,Q],[392,E],[440,DQ],
-    // 締め上昇
-    [494,E],[523,E],[494,E],[440,H],
-  ];
+  const B4  = 493.88;
+  const Ds5 = 622.25;
+  const Fs5 = 739.99;
+  const B5  = 987.77;
+  const C4  = 261.63;
+  const D4  = 293.66;
+  const F4  = 349.23;
+  const A4  = 440.00;
+  const C5  = 523.25;
+  const E5  = 659.25;
+  const F5  = 698.46;
+  const G5  = 783.99;
+  const A5  = 880.00;
+  const C6  = 1046.50;
+  const E6  = 1318.51;
 
-  const totalLen = melody.reduce((s,[,d]) => s + d, 0);
   let stopped = false;
   let loopTimer = null;
+  const nodes = [];
 
-  const playOnce = (startTime) => {
+  function beep(freq, startTime, noteDur, vol = 0.18, stac = 0.55) {
     if (stopped) return;
-    let t = startTime;
-    melody.forEach(([freq, dur]) => {
-      if (stopped) return;
-      // メロディ: sawtooth + lowpass filter で弦っぽく
-      try {
-        const osc = ctx.createOscillator();
-        const filter = ctx.createBiquadFilter();
-        const gain = ctx.createGain();
-        filter.type = "lowpass";
-        filter.frequency.value = 2000;
-        filter.Q.value = 1.5;
-        osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(freq, t);
-        gain.gain.setValueAtTime(0.13, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.88);
-        osc.start(t); osc.stop(t + dur);
-      } catch(e) {}
+    const soundDur = noteDur * stac;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, startTime);
+    gain.gain.setValueAtTime(vol, startTime + soundDur * 0.8);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + soundDur);
+    osc.start(startTime);
+    osc.stop(startTime + soundDur + 0.01);
+    nodes.push(osc);
+  }
 
-      // ピチカート伴奏: triangle 1オクターブ下
-      try {
-        const osc2 = ctx.createOscillator();
-        const g2 = ctx.createGain();
-        osc2.connect(g2); g2.connect(ctx.destination);
-        osc2.type = "triangle";
-        osc2.frequency.setValueAtTime(freq * 0.5, t);
-        g2.gain.setValueAtTime(0.08, t);
-        g2.gain.exponentialRampToValueAtTime(0.001, t + Math.min(dur, E) * 0.65);
-        osc2.start(t); osc2.stop(t + Math.min(dur, E) * 0.7);
-      } catch(e) {}
-
-      t += dur;
+  function fchord(freqs, startTime, noteDur, vol = 0.12) {
+    if (stopped) return;
+    const soundDur = noteDur * 0.92;
+    freqs.forEach(freq => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + soundDur);
+      osc.start(startTime);
+      osc.stop(startTime + soundDur + 0.01);
+      nodes.push(osc);
     });
+  }
 
-    if (!stopped) {
-      loopTimer = setTimeout(() => {
-        if (!stopped) playOnce(ctx.currentTime + 0.05);
-      }, (totalLen - 0.2) * 1000);
-    }
+  function scheduleIntro(startTime) {
+    let t = startTime;
+    // フレーズ1 ×2
+    beep(B5,  t, E,  0.20); t += E;
+    beep(Fs5, t, E,  0.20); t += E;
+    beep(B5,  t, DQ, 0.20); t += DQ;
+    t += H;
+    beep(B5,  t, E,  0.20); t += E;
+    beep(Fs5, t, E,  0.20); t += E;
+    beep(B5,  t, DQ, 0.20); t += DQ;
+    t += H;
+    // フレーズ2
+    beep(B5,  t, E, 0.20); t += E;
+    beep(Fs5, t, E, 0.20); t += E;
+    beep(B4,  t, E, 0.20); t += E;
+    beep(Ds5, t, E, 0.20); t += E;
+    beep(Fs5, t, E, 0.20); t += E;
+    beep(B5,  t, E, 0.20); t += E;
+    // ジャン！
+    fchord([C4, D4, F4], t, DQ, 0.12); t += DQ;
+    return t;
+  }
+
+  function scheduleLoop(startTime) {
+    let t = startTime;
+    // ミ5(16)ソ5(16)シ5(16)ミ6(8)ミ5(8)ファ#5(8)ソ5(8)シ5(8)ド6(8)ミ6(8)
+    beep(E5,  t, S, 0.18); t += S;
+    beep(G5,  t, S, 0.18); t += S;
+    beep(B5,  t, S, 0.18); t += S;
+    beep(E6,  t, E, 0.20); t += E;
+    beep(E5,  t, E, 0.18); t += E;
+    beep(Fs5, t, E, 0.18); t += E;
+    beep(G5,  t, E, 0.18); t += E;
+    beep(B5,  t, E, 0.18); t += E;
+    beep(C6,  t, E, 0.18); t += E;
+    beep(E6,  t, E, 0.20); t += E;
+    // シ5ー(4分)
+    beep(B5, t, Q, 0.20, 0.85); t += Q;
+    // ラ5(8)・ミ5(8)・ソ5(8)・シ5(8)
+    beep(A5, t, E, 0.18); t += E;
+    beep(E5, t, E, 0.18); t += E;
+    beep(G5, t, E, 0.18); t += E;
+    beep(B5, t, E, 0.18); t += E;
+    // ソ5(8)・ミ5(8)・ファ5(8)・シ5(8)
+    beep(G5, t, E, 0.18); t += E;
+    beep(E5, t, E, 0.18); t += E;
+    beep(F5, t, E, 0.18); t += E;
+    beep(B5, t, E, 0.18); t += E;
+    // ミ5(4)・シ4(8)・ド5(8)・シ4(8)・ラ4(8)
+    beep(E5, t, Q, 0.20); t += Q;
+    beep(B4, t, E, 0.18); t += E;
+    beep(C5, t, E, 0.18); t += E;
+    beep(B4, t, E, 0.18); t += E;
+    beep(A4, t, E, 0.18); t += E;
+    return t;
+  }
+
+  // イントロ1回 → ループ
+  const loopStart = scheduleIntro(ctx.currentTime + 0.05);
+
+  const playLoop = (startTime) => {
+    if (stopped) return;
+    const endTime = scheduleLoop(startTime);
+    const waitMs = (endTime - ctx.currentTime - 0.15) * 1000;
+    loopTimer = setTimeout(() => {
+      if (!stopped) playLoop(ctx.currentTime + 0.05);
+    }, waitMs);
   };
 
-  playOnce(ctx.currentTime + 0.05);
-  return { stop: () => { stopped = true; clearTimeout(loopTimer); } };
+  setTimeout(() => {
+    if (!stopped) playLoop(loopStart);
+  }, (loopStart - ctx.currentTime - 0.05) * 1000);
+
+  return {
+    stop: () => {
+      stopped = true;
+      clearTimeout(loopTimer);
+      nodes.forEach(n => { try { n.stop(); } catch(e){} });
+    }
+  };
 }
 
-// ──────────────────────────────────────────────────────────────────
+// ── GO!ファンファーレ ─────────────────────────────────────────────
+function playGO(ctx) {
+  try {
+    [[523,0],[659,0.08],[784,0.16],[1047,0.26]].forEach(([freq, delay]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.35);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.4);
+    });
+  } catch(e) {}
+}
 
 function CloverSVG({ size = 80 }) {
   return (
@@ -344,10 +376,10 @@ export default function App() {
   const [allRevealed, setAllRevealed] = useState(false);
   const [exprTokens, setExprTokens] = useState([]);
 
-  // ✅ すべてのRefをstartGameより前に定義
   const timerRef = useRef(null);
   const audioCtxRef = useRef(null);
   const bgmRef = useRef(null);
+  const countdownAudioRef = useRef(null); // 肉声mp3用
   const dealingTimeoutsRef = useRef([]);
 
   const getAudioCtx = useCallback(() => {
@@ -362,20 +394,17 @@ export default function App() {
     if (bgmRef.current) { bgmRef.current.stop(); bgmRef.current = null; }
   }, []);
 
-  // GO!ファンファーレ
-  const playGO = useCallback((ctx) => {
+  // 肉声カウントダウン再生
+  const playCountdown = useCallback(() => {
     try {
-      [[523,0],[659,0.08],[784,0.16],[1047,0.26]].forEach(([freq, delay]) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-        gain.gain.setValueAtTime(0.28, ctx.currentTime + delay);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.4);
-        osc.start(ctx.currentTime + delay);
-        osc.stop(ctx.currentTime + delay + 0.45);
-      });
+      if (countdownAudioRef.current) {
+        countdownAudioRef.current.pause();
+        countdownAudioRef.current.currentTime = 0;
+      }
+      const audio = new Audio('/countdown.mp3');
+      audio.volume = 1.0;
+      audio.play().catch(() => {});
+      countdownAudioRef.current = audio;
     } catch(e) {}
   }, []);
 
@@ -383,6 +412,12 @@ export default function App() {
     dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
     dealingTimeoutsRef.current = [];
     stopBGM();
+
+    // 肉声止める
+    if (countdownAudioRef.current) {
+      countdownAudioRef.current.pause();
+      countdownAudioRef.current.currentTime = 0;
+    }
 
     const ctx = getAudioCtx();
 
@@ -397,13 +432,18 @@ export default function App() {
       const id = setTimeout(() => {
         setDealtCount(i + 1);
         if (i === 5) {
-          const c3 = setTimeout(() => { setCountdown(3); makeCountdownVoice(ctx, "three"); }, 400);
-          const c2 = setTimeout(() => { setCountdown(2); makeCountdownVoice(ctx, "two"); }, 1400);
-          const c1 = setTimeout(() => { setCountdown(1); makeCountdownVoice(ctx, "one"); }, 2400);
-          const cGo = setTimeout(() => {
+          // カード配り終わり→400ms後にカウントダウン音声スタート
+          const cVoice = setTimeout(() => {
+            playCountdown(); // 肉声「さーん・にー・いちー・ごー！」
+          }, 400);
+
+          // 表示だけタイミング合わせる（3→2→1→GO!）
+          const c3   = setTimeout(() => setCountdown(3),     400);
+          const c2   = setTimeout(() => setCountdown(2),    1400);
+          const c1   = setTimeout(() => setCountdown(1),    2400);
+          const cGo  = setTimeout(() => {
             setCountdown("GO!");
             playGO(ctx);
-            makeCountdownVoice(ctx, "go");
             setAllRevealed(true);
             const cStart = setTimeout(() => {
               setCountdown(null);
@@ -414,12 +454,13 @@ export default function App() {
             }, 900);
             dealingTimeoutsRef.current.push(cStart);
           }, 3400);
-          [c3, c2, c1, cGo].forEach(id => dealingTimeoutsRef.current.push(id));
+
+          [cVoice, c3, c2, c1, cGo].forEach(id => dealingTimeoutsRef.current.push(id));
         }
       }, d);
       dealingTimeoutsRef.current.push(id);
     });
-  }, [getAudioCtx, playGO, stopBGM]);
+  }, [getAudioCtx, stopBGM, playCountdown]);
 
   useEffect(() => {
     if (running) timerRef.current = setInterval(() => setTime(t => t + 10), 10);
@@ -587,9 +628,7 @@ export default function App() {
                 <div style={{ background:"#ff69b4", color:"white", borderRadius:"14px", padding:"28px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"16px 0", boxShadow:"0 4px 20px rgba(255,105,180,0.5)", border:"2px solid #ff1493", animation:"pulse-pink 2s infinite" }}>
                   👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ
                 </div>
-                <div style={{ background:"#e8336d", color:"white", borderRadius:"14px", padding:"20px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"12px 0", boxShadow:"0 4px 20px rgba(232,51,109,0.5)", border:"2px solid #c0145a" }}>
-                  記号(+-×÷)は<br/>何度使ってもいいよ
-                </div>
+                <div style={{ background:"#e8336d", color:"white", borderRadius:"14px", padding:"20px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"12px 0", boxShadow:"0 4px 20px rgba(232,51,109,0.5)", border:"2px solid #c0145a" }}>記号(+-×÷)は<br/>何度使ってもいいよ</div>
                 <div style={{ fontSize:"36px", color:"white", marginBottom:"16px", textAlign:"left", textDecoration:"underline", textDecorationStyle:"wavy", textDecorationColor:"#ef4444" }}>※解法は一つではないよ</div>
                 <button onClick={advanceTutorial} style={{ background:"#ff69b4", border:"none", borderRadius:"18px", color:"white", fontWeight:"bold", padding:"24px 50px", cursor:"pointer", fontSize:"60px", marginBottom:"24px" }}>次へ →</button>
               </div>
