@@ -78,7 +78,7 @@ function validateExpression(expr, nums, target) {
 
 const TUTORIAL_CARDS = { target: 18, nums: [1, 17, 5, 2, 6] };
 
-// ── クシコスポスト風ファミコンBGM ────────────────────────────────
+// ── クシコスポスト風ファミコンBGM ─────────────────────────────────
 function startCsikosBGM(ctx) {
   const BPM = 210;
   const Q  = 60 / BPM;
@@ -87,6 +87,7 @@ function startCsikosBGM(ctx) {
   const DQ = Q * 1.5;
   const H  = Q * 2;
 
+  // 音程
   const B4  = 493.88;
   const Ds5 = 622.25;
   const Fs5 = 739.99;
@@ -110,39 +111,43 @@ function startCsikosBGM(ctx) {
   function beep(freq, startTime, noteDur, vol = 0.18, stac = 0.55) {
     if (stopped) return;
     const soundDur = noteDur * stac;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type = 'square';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol, startTime);
-    gain.gain.setValueAtTime(vol, startTime + soundDur * 0.8);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + soundDur);
-    osc.start(startTime);
-    osc.stop(startTime + soundDur + 0.01);
-    nodes.push(osc);
-  }
-
-  function fchord(freqs, startTime, noteDur, vol = 0.12) {
-    if (stopped) return;
-    const soundDur = noteDur * 0.92;
-    freqs.forEach(freq => {
+    try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
       osc.type = 'square';
       osc.frequency.value = freq;
       gain.gain.setValueAtTime(vol, startTime);
+      gain.gain.setValueAtTime(vol, startTime + soundDur * 0.8);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + soundDur);
       osc.start(startTime);
       osc.stop(startTime + soundDur + 0.01);
       nodes.push(osc);
+    } catch(e) {}
+  }
+
+  function fchord(freqs, startTime, noteDur, vol = 0.12) {
+    if (stopped) return;
+    const soundDur = noteDur * 0.92;
+    freqs.forEach(freq => {
+      try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(vol, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + soundDur);
+        osc.start(startTime);
+        osc.stop(startTime + soundDur + 0.01);
+        nodes.push(osc);
+      } catch(e) {}
     });
   }
 
   function scheduleIntro(startTime) {
     let t = startTime;
-    // フレーズ1 ×2
+    // フレーズ1 ×2: シ5(8)・ファ#5(8)・シ5ー(付点4) 半休符
     beep(B5,  t, E,  0.20); t += E;
     beep(Fs5, t, E,  0.20); t += E;
     beep(B5,  t, DQ, 0.20); t += DQ;
@@ -151,14 +156,14 @@ function startCsikosBGM(ctx) {
     beep(Fs5, t, E,  0.20); t += E;
     beep(B5,  t, DQ, 0.20); t += DQ;
     t += H;
-    // フレーズ2
+    // フレーズ2: シ5(8)・ファ#5(8)・シ4(8)・レ#5(8)・ファ#5(8)・シ5(8)
     beep(B5,  t, E, 0.20); t += E;
     beep(Fs5, t, E, 0.20); t += E;
     beep(B4,  t, E, 0.20); t += E;
     beep(Ds5, t, E, 0.20); t += E;
     beep(Fs5, t, E, 0.20); t += E;
     beep(B5,  t, E, 0.20); t += E;
-    // ジャン！
+    // ジャン！[ド4・レ4・ファ4] 付点4
     fchord([C4, D4, F4], t, DQ, 0.12); t += DQ;
     return t;
   }
@@ -206,12 +211,12 @@ function startCsikosBGM(ctx) {
     const waitMs = (endTime - ctx.currentTime - 0.15) * 1000;
     loopTimer = setTimeout(() => {
       if (!stopped) playLoop(ctx.currentTime + 0.05);
-    }, waitMs);
+    }, Math.max(waitMs, 100));
   };
 
   setTimeout(() => {
     if (!stopped) playLoop(loopStart);
-  }, (loopStart - ctx.currentTime - 0.05) * 1000);
+  }, Math.max((loopStart - ctx.currentTime - 0.05) * 1000, 0));
 
   return {
     stop: () => {
@@ -220,23 +225,6 @@ function startCsikosBGM(ctx) {
       nodes.forEach(n => { try { n.stop(); } catch(e){} });
     }
   };
-}
-
-// ── GO!ファンファーレ ─────────────────────────────────────────────
-function playGO(ctx) {
-  try {
-    [[523,0],[659,0.08],[784,0.16],[1047,0.26]].forEach(([freq, delay]) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-      gain.gain.setValueAtTime(0.18, ctx.currentTime + delay);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.35);
-      osc.start(ctx.currentTime + delay);
-      osc.stop(ctx.currentTime + delay + 0.4);
-    });
-  } catch(e) {}
 }
 
 function CloverSVG({ size = 80 }) {
@@ -301,11 +289,16 @@ function CardBack({ size = "normal" }) {
 function TutorialBubble({ text }) {
   return (
     <div style={{
-      position: "relative", zIndex: 100, background: "#ff69b4", color: "white",
-      borderRadius: "14px", padding: "28px 32px", fontSize: "50px", fontWeight: "bold",
-      lineHeight: "1.6", margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
-      border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-    }}>{text}</div>
+      position: "relative", zIndex: 100,
+      background: "#ff69b4", color: "white",
+      borderRadius: "14px", padding: "28px 32px",
+      fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
+      margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+      border: "2px solid #ff1493",
+      animation: "pulse-pink 2s infinite",
+    }}>
+      {text}
+    </div>
   );
 }
 
@@ -343,9 +336,11 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
         borderRadius: "14px", padding: "18px 22px", fontSize: "50px", fontWeight: "bold",
         lineHeight: "1.6", margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
         border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-      }}>このように、数字と演算記号を<br/>組み合わせて解答していくよ！<br/><br/>出来たら「答え合わせ」を押してね</div>
+      }}>
+        このように、数字と演算記号を<br/>組み合わせて解答していくよ！<br/><br/>出来たら「答え合わせ」を押してね
+      </div>
       <div style={{
-        background: "#111f14", border: "2px solid #4ade8033", borderRadius: "16px", padding: "20px",
+        background: "#111f14", border: "2px solid #4ade8033", borderRadius: "16px", padding: "20px 20px",
         fontSize: "68px", fontFamily: "monospace", fontWeight: "bold", color: "white",
         textAlign: "center", marginTop: "8px", minHeight: "80px", letterSpacing: "1px", wordBreak: "break-all",
       }}>
@@ -376,10 +371,11 @@ export default function App() {
   const [allRevealed, setAllRevealed] = useState(false);
   const [exprTokens, setExprTokens] = useState([]);
 
+  // ✅ 全Refをstartより前に定義
   const timerRef = useRef(null);
   const audioCtxRef = useRef(null);
-  const bgmRef = useRef(null);
-  const countdownAudioRef = useRef(null); // 肉声mp3用
+  const bgmRef = useRef(null);        // { stop } オブジェクト
+  const countdownAudioRef = useRef(null);
   const dealingTimeoutsRef = useRef([]);
 
   const getAudioCtx = useCallback(() => {
@@ -408,6 +404,23 @@ export default function App() {
     } catch(e) {}
   }, []);
 
+  // GO!ファンファーレ（ビープ）
+  const playGO = useCallback((ctx) => {
+    try {
+      [[523,0],[659,0.08],[784,0.16],[1047,0.26]].forEach(([freq, delay]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.35);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.4);
+      });
+    } catch(e) {}
+  }, []);
+
   const startGame = useCallback((tutorial = false) => {
     dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
     dealingTimeoutsRef.current = [];
@@ -432,16 +445,13 @@ export default function App() {
       const id = setTimeout(() => {
         setDealtCount(i + 1);
         if (i === 5) {
-          // カード配り終わり→400ms後にカウントダウン音声スタート
-          const cVoice = setTimeout(() => {
-            playCountdown(); // 肉声「さーん・にー・いちー・ごー！」
-          }, 400);
-
-          // 表示だけタイミング合わせる（3→2→1→GO!）
-          const c3   = setTimeout(() => setCountdown(3),     400);
-          const c2   = setTimeout(() => setCountdown(2),    1400);
-          const c1   = setTimeout(() => setCountdown(1),    2400);
-          const cGo  = setTimeout(() => {
+          // 肉声スタート（カード配り終わり+400ms）
+          const cVoice = setTimeout(() => { playCountdown(); }, 400);
+          // 表示タイミング
+          const c3  = setTimeout(() => setCountdown(3),    400);
+          const c2  = setTimeout(() => setCountdown(2),   1400);
+          const c1  = setTimeout(() => setCountdown(1),   2400);
+          const cGo = setTimeout(() => {
             setCountdown("GO!");
             playGO(ctx);
             setAllRevealed(true);
@@ -449,18 +459,18 @@ export default function App() {
               setCountdown(null);
               setPhase("playing");
               setRunning(true);
+              // ✅ クシコスポスト風BGMスタート
               bgmRef.current = startCsikosBGM(ctx);
               if (tutorial) setTutStep(1);
             }, 900);
             dealingTimeoutsRef.current.push(cStart);
           }, 3400);
-
           [cVoice, c3, c2, c1, cGo].forEach(id => dealingTimeoutsRef.current.push(id));
         }
       }, d);
       dealingTimeoutsRef.current.push(id);
     });
-  }, [getAudioCtx, stopBGM, playCountdown]);
+  }, [getAudioCtx, stopBGM, playCountdown, playGO]);
 
   useEffect(() => {
     if (running) timerRef.current = setInterval(() => setTime(t => t + 10), 10);
@@ -468,8 +478,18 @@ export default function App() {
     return () => clearInterval(timerRef.current);
   }, [running]);
 
-  const goBackToPlaying = () => { setPhase("playing"); setRunning(true); if (isTutorial) setTutStep(4); };
-  const fospa = () => { setRunning(false); stopBGM(); setPhase("fospa"); if (isTutorial) setTutStep(5); };
+  const goBackToPlaying = () => {
+    setPhase("playing");
+    setRunning(true);
+    if (isTutorial) setTutStep(4);
+  };
+
+  const fospa = () => {
+    setRunning(false);
+    stopBGM();
+    setPhase("fospa");
+    if (isTutorial) setTutStep(5);
+  };
 
   const checkAnswer = () => {
     if (!cards) return;
@@ -516,21 +536,29 @@ export default function App() {
   const GBtn = ({ label, onClick }) => (
     <button onClick={onClick} style={{
       background: "#111f14", border: "1px solid #4ade8033", borderRadius: "22px",
-      color: "#86efac", fontWeight: "bold", fontSize: "32px", padding: "28px 0", cursor: "pointer", width: "100%",
+      color: "#86efac", fontWeight: "bold", fontSize: "32px",
+      padding: "28px 0", cursor: "pointer", width: "100%",
     }}>{label}</button>
   );
 
   return (
     <div style={{
-      minHeight: "100svh", background: "#0a1a0f", display: "flex", flexDirection: "column",
-      alignItems: "center", padding: "80px 22px 54px", color: "white",
+      minHeight: "100svh", background: "#0a1a0f",
+      display: "flex", flexDirection: "column", alignItems: "center",
+      padding: "80px 22px 54px", color: "white",
       fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       {/* HEADER */}
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
-        <div style={{ fontSize: "94px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>🍀 CLOVER™️</div>
-        <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginTop: "7px" }}>♣ NUMBER CARD GAME ♣</div>
-        {bestTime !== null && <div style={{ fontSize: "25px", color: "#fbbf24", marginTop: "11px" }}>🏆 ベスト: {fmt(bestTime)}秒</div>}
+        <div style={{ fontSize: "94px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>
+          🍀 CLOVER™️
+        </div>
+        <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginTop: "7px" }}>
+          ♣ NUMBER CARD GAME ♣
+        </div>
+        {bestTime !== null && (
+          <div style={{ fontSize: "25px", color: "#fbbf24", marginTop: "11px" }}>🏆 ベスト: {fmt(bestTime)}秒</div>
+        )}
       </div>
 
       {/* ── START ── */}
@@ -539,26 +567,36 @@ export default function App() {
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "43px" }}>
             <CloverCard number="？" size="large" />
           </div>
-          <div style={{ background: "#111f14", border: "1px solid #4ade8020", borderRadius: "32px", padding: "36px", marginBottom: "43px" }}>
+          <div style={{
+            background: "#111f14", border: "1px solid #4ade8020",
+            borderRadius: "32px", padding: "36px 36px", marginBottom: "43px",
+          }}>
             <div style={{ fontSize: "28px", lineHeight: "2.2", color: "#86efac" }}>
               52枚の山からカードを引いて<br/>
               <span style={{ color: "#60a5fa", fontWeight: "bold" }}>①②③④⑤</span> に書かれた数字を四則計算で
               繋げて並び替えて <span style={{ color: "#ef4444", fontWeight: "bold" }}>⑥</span> の数字(target)にしよう！！<br/>
               タイムを競うカードゲームだよ！
             </div>
-            <div style={{ fontSize: "27px", color: "#5cb85c", marginTop: "25px", fontStyle: "italic" }}>to be happy... 🍀</div>
+            <div style={{ fontSize: "27px", color: "#5cb85c", marginTop: "25px", fontStyle: "italic" }}>
+              to be happy... 🍀
+            </div>
           </div>
-          <div style={{ fontSize: "25px", color: "#aaa", marginBottom: "22px" }}>⬇️ のボタンを押すと…</div>
+          <div style={{ fontSize: "25px", color: "#aaa", marginBottom: "22px" }}>
+            ⬇️ のボタンを押すと…
+          </div>
           <div style={{ marginBottom: "25px" }}>
             <button onClick={() => startGame(true)} style={{
-              background: "linear-gradient(135deg,#ff69b4,#ff1493)", border: "none", borderRadius: "25px",
-              color: "white", fontWeight: "bold", fontSize: "36px", padding: "32px 0",
-              cursor: "pointer", width: "100%", letterSpacing: "2px", boxShadow: "0 5px 20px rgba(255,105,180,0.4)",
+              background: "linear-gradient(135deg,#ff69b4,#ff1493)",
+              border: "none", borderRadius: "25px", color: "white",
+              fontWeight: "bold", fontSize: "36px", padding: "32px 0",
+              cursor: "pointer", width: "100%", letterSpacing: "2px",
+              boxShadow: "0 5px 20px rgba(255,105,180,0.4)",
             }}>やり方を学ぶ 📖</button>
           </div>
           <PBtn label="スタート 🃏" onClick={() => startGame(false)} />
           <div style={{ fontSize: "23px", color: "#86efac", marginTop: "29px", lineHeight: "2.0", textAlign: "left" }}>
-            📖 ピンク→チュートリアルで試し遊び！<br/>🃏 黄色字→本番スタート！
+            📖 ピンク→チュートリアルで試し遊び！<br/>
+            🃏 黄色字→本番スタート！
           </div>
           <div style={{ marginTop: "36px", fontSize: "38px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>
             by NPO法人 Foster Partner®️
@@ -572,101 +610,178 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <button onClick={() => {
               if (isTutorial) {
-                if (tutStep <= 1) { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; stopBGM(); setPhase("start"); setIsTutorial(false); setRunning(false); }
-                else setTutStep(s => s - 1);
-              } else { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; stopBGM(); setPhase("start"); setRunning(false); clearExpr(); }
+                if (tutStep <= 1) {
+                  dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
+                  dealingTimeoutsRef.current = [];
+                  stopBGM();
+                  setPhase("start"); setIsTutorial(false); setRunning(false);
+                } else setTutStep(s => s - 1);
+              } else {
+                dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
+                dealingTimeoutsRef.current = [];
+                stopBGM();
+                setPhase("start"); setRunning(false); clearExpr();
+              }
             }} style={{
-              background: "linear-gradient(135deg,#1a3a22,#0d2414)", border: "2px solid #4ade80",
-              borderRadius: "14px", color: "#4ade80", fontWeight: "900", padding: "14px 24px",
-              cursor: "pointer", fontSize: "22px", flexShrink: 0, boxShadow: "0 2px 10px rgba(74,222,128,0.3)",
+              background: "linear-gradient(135deg,#1a3a22,#0d2414)",
+              border: "2px solid #4ade80", borderRadius: "14px",
+              color: "#4ade80", fontWeight: "900", padding: "14px 24px",
+              cursor: "pointer", fontSize: "22px", flexShrink: 0,
+              boxShadow: "0 2px 10px rgba(74,222,128,0.3)",
             }}>← 戻る</button>
-            {isTutorial
-              ? <div style={{ flex:1, background:"#ff69b4", color:"white", borderRadius:"14px", padding:"20px 24px", fontSize:"32px", fontWeight:"bold", boxShadow:"0 3px 12px rgba(255,105,180,0.5)" }}>チュートリアル中 🩷 — 説明に沿って操作手順を覚えてね</div>
-              : <div style={{ flex:1, textAlign:"left", fontSize:"18px", color:"#4ade8066" }}>タイトルへ戻る</div>}
+            {isTutorial ? (
+              <div style={{
+                flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px",
+                padding: "20px 24px", fontSize: "32px", fontWeight: "bold",
+                boxShadow: "0 3px 12px rgba(255,105,180,0.5)",
+              }}>チュートリアル中 🩷 — 説明に沿って操作手順を覚えてね</div>
+            ) : (
+              <div style={{ flex: 1, textAlign: "left", fontSize: "18px", color: "#4ade8066" }}>タイトルへ戻る</div>
+            )}
           </div>
 
           <div style={{ position: "relative" }}>
-            <div style={{ fontSize:"120px", fontWeight:"900", fontFamily:"monospace", color: running?"#4ade80":"#1e3a22", marginBottom:"18px", letterSpacing:"2px" }}>{fmt(time)}</div>
+            <div style={{
+              fontSize: "120px", fontWeight: "900", fontFamily: "monospace",
+              color: running ? "#4ade80" : "#1e3a22", marginBottom: "18px", letterSpacing: "2px",
+            }}>{fmt(time)}</div>
             {isTutorial && tutStep === 1 && (
               <div>
-                <div style={{ background:"#ff69b4", color:"white", borderRadius:"14px", padding:"28px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"16px 0", boxShadow:"0 4px 20px rgba(255,105,180,0.5)", border:"2px solid #ff1493", animation:"pulse-pink 2s infinite" }}>
-                  👆 スタートと同時に<br/>タイムが動き出すよ！⏱
-                </div>
-                <button onClick={advanceTutorial} style={{ background:"#ff69b4", border:"none", borderRadius:"18px", color:"white", fontWeight:"bold", padding:"24px 50px", cursor:"pointer", fontSize:"60px", marginBottom:"24px" }}>次へ →</button>
+                <div style={{
+                  background: "#ff69b4", color: "white", borderRadius: "14px",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
+                  margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                }}>👆 スタートと同時に<br/>タイムが動き出すよ！⏱</div>
+                <button onClick={advanceTutorial} style={{
+                  background: "#ff69b4", border: "none", borderRadius: "18px",
+                  color: "white", fontWeight: "bold", padding: "24px 50px",
+                  cursor: "pointer", fontSize: "60px", marginBottom: "24px",
+                }}>次へ →</button>
               </div>
             )}
           </div>
 
           <div style={{ position: "relative" }}>
-            <div style={{ fontSize:"30px", letterSpacing:"4px", color:"#ef4444cc", marginBottom:"10px", fontWeight:"bold" }}>⑥ TARGET</div>
-            <div style={{ display:"flex", justifyContent:"center", marginBottom:"16px" }}>
+            <div style={{ fontSize: "30px", letterSpacing: "4px", color: "#ef4444cc", marginBottom: "10px", fontWeight: "bold" }}>⑥ TARGET</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
               {dealtCount >= 1 ? (allRevealed ? <CloverCard number={cards.target} isTarget size="normal"/> : <CardBack size="normal"/>) : null}
             </div>
             {isTutorial && tutStep === 2 && (
               <div>
-                <div style={{ background:"#ff69b4", color:"white", borderRadius:"14px", padding:"28px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"16px 0", boxShadow:"0 4px 20px rgba(255,105,180,0.5)", border:"2px solid #ff1493", animation:"pulse-pink 2s infinite" }}>
-                  これが👆⑥ターゲット<br/>この数字を答えにするのが<br/>目標だよ！
-                </div>
-                <button onClick={advanceTutorial} style={{ background:"#ff69b4", border:"none", borderRadius:"18px", color:"white", fontWeight:"bold", padding:"24px 50px", cursor:"pointer", fontSize:"60px", marginBottom:"24px" }}>次へ →</button>
+                <div style={{
+                  background: "#ff69b4", color: "white", borderRadius: "14px",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
+                  margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                }}>これが👆⑥ターゲット<br/>この数字を答えにするのが<br/>目標だよ！</div>
+                <button onClick={advanceTutorial} style={{
+                  background: "#ff69b4", border: "none", borderRadius: "18px",
+                  color: "white", fontWeight: "bold", padding: "24px 50px",
+                  cursor: "pointer", fontSize: "60px", marginBottom: "24px",
+                }}>次へ →</button>
               </div>
             )}
           </div>
 
-          <div style={{ display:"flex", alignItems:"center", gap:"6px", margin:"10px 0", opacity:0.2 }}>
-            <div style={{ flex:1, height:"2px", background:"#4ade80" }}/><span style={{ fontSize:"20px" }}>🍀</span><div style={{ flex:1, height:"2px", background:"#4ade80" }}/>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "10px 0", opacity: 0.2 }}>
+            <div style={{ flex: 1, height: "2px", background: "#4ade80" }}/>
+            <span style={{ fontSize: "20px" }}>🍀</span>
+            <div style={{ flex: 1, height: "2px", background: "#4ade80" }}/>
           </div>
 
           <div style={{ position: "relative" }}>
-            <div style={{ display:"flex", gap:"8px", justifyContent:"center", marginBottom:"4px" }}>
-              {["①","②","③","④","⑤"].map((n,i) => <div key={i} style={{ width:139, textAlign:"center", fontSize:"36px", fontWeight:"900", color:"#aaa" }}>{n}</div>)}
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "4px" }}>
+              {["①","②","③","④","⑤"].map((n, i) => (
+                <div key={i} style={{ width: 139, textAlign: "center", fontSize: "36px", fontWeight: "900", color: "#aaa" }}>{n}</div>
+              ))}
             </div>
-            <div style={{ display:"flex", gap:"8px", justifyContent:"center", marginBottom:"20px" }}>
-              {cards.nums.map((n,i) => dealtCount>=i+2 ? (allRevealed?<CloverCard key={i} number={n} size="small"/>:<CardBack key={i} size="small"/>) : <div key={i} style={{ width:139, height:220 }}/>)}
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
+              {cards.nums.map((n, i) => (
+                dealtCount >= i + 2
+                  ? (allRevealed ? <CloverCard key={i} number={n} size="small"/> : <CardBack key={i} size="small"/>)
+                  : <div key={i} style={{ width: 139, height: 220 }}/>
+              ))}
             </div>
             {isTutorial && tutStep === 3 && (
               <div>
-                <div style={{ background:"#ff69b4", color:"white", borderRadius:"14px", padding:"28px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"16px 0", boxShadow:"0 4px 20px rgba(255,105,180,0.5)", border:"2px solid #ff1493", animation:"pulse-pink 2s infinite" }}>
-                  👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ
-                </div>
-                <div style={{ background:"#e8336d", color:"white", borderRadius:"14px", padding:"20px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"12px 0", boxShadow:"0 4px 20px rgba(232,51,109,0.5)", border:"2px solid #c0145a" }}>記号(+-×÷)は<br/>何度使ってもいいよ</div>
-                <div style={{ fontSize:"36px", color:"white", marginBottom:"16px", textAlign:"left", textDecoration:"underline", textDecorationStyle:"wavy", textDecorationColor:"#ef4444" }}>※解法は一つではないよ</div>
-                <button onClick={advanceTutorial} style={{ background:"#ff69b4", border:"none", borderRadius:"18px", color:"white", fontWeight:"bold", padding:"24px 50px", cursor:"pointer", fontSize:"60px", marginBottom:"24px" }}>次へ →</button>
+                <div style={{
+                  background: "#ff69b4", color: "white", borderRadius: "14px",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
+                  margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                }}>👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ</div>
+                <div style={{
+                  background: "#e8336d", color: "white", borderRadius: "14px",
+                  padding: "20px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
+                  margin: "12px 0", boxShadow: "0 4px 20px rgba(232,51,109,0.5)", border: "2px solid #c0145a",
+                }}>記号(+-×÷)は<br/>何度使ってもいいよ</div>
+                <div style={{
+                  fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left",
+                  textDecoration: "underline", textDecorationStyle: "wavy", textDecorationColor: "#ef4444",
+                }}>※解法は一つではないよ</div>
+                <button onClick={advanceTutorial} style={{
+                  background: "#ff69b4", border: "none", borderRadius: "18px",
+                  color: "white", fontWeight: "bold", padding: "24px 50px",
+                  cursor: "pointer", fontSize: "60px", marginBottom: "24px",
+                }}>次へ →</button>
               </div>
             )}
           </div>
 
           {phase === "playing" && (isTutorial ? tutStep >= 4 : true) && (
-            <div style={{ position:"relative" }}>
+            <div style={{ position: "relative" }}>
               {isTutorial && tutStep === 4 && (
                 <div>
-                  <div style={{ background:"#ff69b4", color:"white", borderRadius:"14px", padding:"28px 16px", fontSize:"50px", fontWeight:"bold", lineHeight:"1.6", margin:"16px 0", boxShadow:"0 4px 20px rgba(255,105,180,0.5)", border:"2px solid #ff1493", animation:"pulse-pink 2s infinite" }}>
-                    出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ
-                  </div>
-                  <div style={{ fontSize:"34px", color:"white", marginBottom:"16px", textAlign:"left", textDecoration:"underline", textDecorationStyle:"wavy", textDecorationColor:"#ef4444", whiteSpace:"nowrap" }}>※バスや電車の中では、心の中でね笑</div>
+                  <div style={{
+                    background: "#ff69b4", color: "white", borderRadius: "14px",
+                    padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
+                    margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                    border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+                  }}>出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ</div>
+                  <div style={{
+                    fontSize: "34px", color: "white", marginBottom: "16px", textAlign: "left",
+                    textDecoration: "underline", textDecorationStyle: "wavy",
+                    textDecorationColor: "#ef4444", whiteSpace: "nowrap",
+                  }}>※バスや電車の中では、心の中でね笑</div>
                 </div>
               )}
               <button onPointerUp={() => { fospa(); }} style={{
-                background:"linear-gradient(135deg,#16a34a,#15803d)", border:"none", borderRadius:"22px",
-                color: isTutorial&&tutStep===4?"#fbbf24":"white", fontWeight:"bold", fontSize:"40px",
-                padding:"28px 0", cursor:"pointer", width:"100%", letterSpacing:"2px",
-                boxShadow: isTutorial&&tutStep===4?"0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4":"0 5px 20px rgba(74,222,128,0.3)",
-                touchAction:"manipulation", WebkitTapHighlightColor:"transparent",
+                background: "linear-gradient(135deg,#16a34a,#15803d)", border: "none",
+                borderRadius: "22px", color: isTutorial && tutStep === 4 ? "#fbbf24" : "white",
+                fontWeight: "bold", fontSize: "40px", padding: "28px 0",
+                cursor: "pointer", width: "100%", letterSpacing: "2px",
+                boxShadow: isTutorial && tutStep === 4
+                  ? "0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4"
+                  : "0 5px 20px rgba(74,222,128,0.3)",
+                touchAction: "manipulation", WebkitTapHighlightColor: "transparent",
               }}>フォスパ！🙋</button>
             </div>
           )}
 
           {phase === "dealing" && (
-            <div style={{ position:"relative", minHeight:"120px", display:"flex", alignItems:"center", justifyContent:"center" }}>
-              {countdown !== null
-                ? <div style={{ fontSize:countdown==="GO!"?"120px":"160px", fontWeight:"900", color:countdown==="GO!"?"#4ade80":"#fbbf24", fontFamily:"monospace", animation:"countdown-pop 0.3s ease-out", textShadow:countdown==="GO!"?"0 0 40px #4ade80":"0 0 40px #fbbf24" }}>{countdown}</div>
-                : <div style={{ color:"#4ade8033", fontSize:"28px", letterSpacing:"2px" }}>カードを配っています…</div>}
+            <div style={{ position: "relative", minHeight: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {countdown !== null ? (
+                <div style={{
+                  fontSize: countdown === "GO!" ? "120px" : "160px", fontWeight: "900",
+                  color: countdown === "GO!" ? "#4ade80" : "#fbbf24", fontFamily: "monospace",
+                  animation: "countdown-pop 0.3s ease-out",
+                  textShadow: countdown === "GO!" ? "0 0 40px #4ade80" : "0 0 40px #fbbf24",
+                }}>{countdown}</div>
+              ) : (
+                <div style={{ color: "#4ade8033", fontSize: "28px", letterSpacing: "2px" }}>カードを配っています…</div>
+              )}
             </div>
           )}
 
           {isTutorial && phase === "playing" && tutStep === 0 && (
-            <div style={{ marginTop:"10px" }}>
+            <div style={{ marginTop: "10px" }}>
               <TutorialBubble text="カードが全部めくれたよ！⬆️ タイマーを見てね👆" />
-              <button onClick={() => setTutStep(1)} style={{ background:"#ff69b4", border:"none", borderRadius:"10px", color:"white", fontWeight:"bold", padding:"8px 20px", cursor:"pointer", fontSize:"14px", marginTop:"8px" }}>次へ →</button>
+              <button onClick={() => setTutStep(1)} style={{
+                background: "#ff69b4", border: "none", borderRadius: "10px",
+                color: "white", fontWeight: "bold", padding: "8px 20px",
+                cursor: "pointer", fontSize: "14px", marginTop: "8px",
+              }}>次へ →</button>
             </div>
           )}
         </div>
@@ -674,115 +789,213 @@ export default function App() {
 
       {/* ── FOSPA ── */}
       {phase === "fospa" && cards && (
-        <div style={{ width:"100%", maxWidth:"900px", textAlign:"center" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"16px" }}>
-            <button onClick={goBackToPlaying} style={{ background:"linear-gradient(135deg,#1a3a22,#0d2414)", border:"2px solid #4ade80", borderRadius:"14px", color:"#4ade80", fontWeight:"900", padding:"14px 24px", cursor:"pointer", fontSize:"28px", flexShrink:0, boxShadow:"0 2px 10px rgba(74,222,128,0.3)" }}>← 戻る</button>
-            {isTutorial
-              ? <div style={{ flex:1, background:"#ff69b4", color:"white", borderRadius:"14px", padding:"14px 20px", fontSize:"28px", fontWeight:"bold" }}>チュートリアル中 🩷</div>
-              : <div style={{ flex:1, textAlign:"left", fontSize:"22px", color:"#4ade8066" }}>解き直したい時は戻れるよ</div>}
+        <div style={{ width: "100%", maxWidth: "900px", textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <button onClick={goBackToPlaying} style={{
+              background: "linear-gradient(135deg,#1a3a22,#0d2414)", border: "2px solid #4ade80",
+              borderRadius: "14px", color: "#4ade80", fontWeight: "900", padding: "14px 24px",
+              cursor: "pointer", fontSize: "28px", flexShrink: 0, boxShadow: "0 2px 10px rgba(74,222,128,0.3)",
+            }}>← 戻る</button>
+            {isTutorial ? (
+              <div style={{ flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px", padding: "14px 20px", fontSize: "28px", fontWeight: "bold" }}>
+                チュートリアル中 🩷
+              </div>
+            ) : (
+              <div style={{ flex: 1, textAlign: "left", fontSize: "22px", color: "#4ade8066" }}>解き直したい時は戻れるよ</div>
+            )}
           </div>
-          <div style={{ fontSize:"36px", color:"#4ade80", letterSpacing:"2px", marginBottom:"16px" }}>フォスパ！ ⏱ {fmt(time)}秒</div>
-          <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"10px", marginBottom:"20px" }}>
+
+          <div style={{ fontSize: "36px", color: "#4ade80", letterSpacing: "2px", marginBottom: "16px" }}>
+            フォスパ！ ⏱ {fmt(time)}秒
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
             <CloverCard number={cards.target} isTarget size="normal"/>
-            <div style={{ display:"flex", gap:"8px", justifyContent:"center" }}>
-              {cards.nums.map((n,i) => <div key={i} style={{ opacity:usedNums.includes(i)?0.25:1, transition:"opacity 0.2s" }}><CloverCard number={n} size="small"/></div>)}
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+              {cards.nums.map((n, i) => (
+                <div key={i} style={{ opacity: usedNums.includes(i) ? 0.25 : 1, transition: "opacity 0.2s" }}>
+                  <CloverCard number={n} size="small"/>
+                </div>
+              ))}
             </div>
           </div>
-          <div style={{ display:"flex", gap:"8px", justifyContent:"center", marginBottom:"14px" }}>
-            {cards.nums.map((n,i) => (
-              <button key={i} onClick={() => appNum(i,n)} style={{
-                background:["#3b82f6","#ec4899","#f97316","#8b5cf6","#10b981"][i],
-                border:"none", borderRadius:"14px", color:"white", fontWeight:"900",
-                width:"139px", height:"90px", fontSize:"38px",
-                cursor:isTutorial&&tutStep===5?"default":"pointer",
-                opacity:usedNums.includes(i)?0.25:1, transition:"opacity 0.2s",
-                pointerEvents:isTutorial&&tutStep===5?"none":"auto",
+
+          <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "14px" }}>
+            {cards.nums.map((n, i) => (
+              <button key={i} onClick={() => appNum(i, n)} style={{
+                background: ["#3b82f6","#ec4899","#f97316","#8b5cf6","#10b981"][i],
+                border: "none", borderRadius: "14px", color: "white",
+                fontWeight: "900", width: "139px", height: "90px", fontSize: "38px",
+                cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
+                opacity: usedNums.includes(i) ? 0.25 : 1, transition: "opacity 0.2s",
+                pointerEvents: isTutorial && tutStep === 5 ? "none" : "auto",
               }}>{n}</button>
             ))}
           </div>
+
           {isTutorial && tutStep === 5 && (
             <AnimatedExprDemo nums={cards.nums} onUsedIdxsChange={(idxs) => setUsedNums(idxs)}
               onDone={(finalExpr) => {
                 setExpr(finalExpr);
                 const nums = cards.nums;
                 const tokens = [
-                  {type:"num",idx:0,val:String(nums[0])},{type:"op",val:"*"},{type:"op",val:"("},
-                  {type:"num",idx:3,val:String(nums[3])},{type:"op",val:"+"},{type:"num",idx:2,val:String(nums[2])},
-                  {type:"op",val:")"},{type:"op",val:"+"},{type:"num",idx:1,val:String(nums[1])},
-                  {type:"op",val:"-"},{type:"num",idx:4,val:String(nums[4])},
+                  { type:"num", idx:0, val:String(nums[0]) }, { type:"op", val:"*" }, { type:"op", val:"(" },
+                  { type:"num", idx:3, val:String(nums[3]) }, { type:"op", val:"+" }, { type:"num", idx:2, val:String(nums[2]) },
+                  { type:"op", val:")" }, { type:"op", val:"+" }, { type:"num", idx:1, val:String(nums[1]) },
+                  { type:"op", val:"-" }, { type:"num", idx:4, val:String(nums[4]) },
                 ];
                 setExprTokens(tokens); setUsedNums([0,3,2,1,4]); setTutStep(6);
               }}
             />
           )}
+
           {isTutorial && tutStep === 6 && (
-            <div style={{ position:"relative", zIndex:100, background:"#ff69b4", color:"white", borderRadius:"14px", padding:"18px 22px", fontSize:"38px", fontWeight:"bold", lineHeight:"1.6", margin:"12px 0", boxShadow:"0 4px 20px rgba(255,105,180,0.5)", border:"2px solid #ff1493", animation:"pulse-pink 2s infinite" }}>
-              式が入力されたよ！<br/><span style={{ fontSize:"32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
+            <div style={{
+              position: "relative", zIndex: 100, background: "#ff69b4", color: "white",
+              borderRadius: "14px", padding: "18px 22px", fontSize: "38px", fontWeight: "bold",
+              lineHeight: "1.6", margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+              border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+            }}>
+              式が入力されたよ！<br/><span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
             </div>
           )}
-          <div style={{ display:"flex", gap:"10px", justifyContent:"center", marginBottom:"16px" }}>
-            {[["＋","+"],[" － ","-"],["×","*"],["÷","/"],["（","("],["）",")"]].map(([l,v]) => (
-              <button key={l} onClick={() => appOp(v)} style={{ background:"#111f14", border:"2px solid #4ade8033", borderRadius:"14px", color:"#4ade80", fontWeight:"900", width:"80px", height:"80px", fontSize:"38px", cursor:isTutorial&&tutStep===5?"default":"pointer", pointerEvents:isTutorial&&tutStep===5?"none":"auto" }}>{l}</button>
+
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "16px" }}>
+            {[["＋","+"],[" － ","-"],["×","*"],["÷","/"],["（","("],["）",")"]].map(([l, v]) => (
+              <button key={l} onClick={() => appOp(v)} style={{
+                background: "#111f14", border: "2px solid #4ade8033", borderRadius: "14px",
+                color: "#4ade80", fontWeight: "900", width: "80px", height: "80px",
+                fontSize: "38px", cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
+                pointerEvents: isTutorial && tutStep === 5 ? "none" : "auto",
+              }}>{l}</button>
             ))}
           </div>
+
           {(!isTutorial || tutStep !== 5) && (
-            <div style={{ background:"#111f14", border:"2px solid #4ade8033", borderRadius:"16px", padding:"20px", fontSize:exprTokens.length>12?"48px":exprTokens.length>8?"58px":"68px", fontFamily:"monospace", fontWeight:"bold", color:"white", textAlign:"center", marginBottom:"12px", minHeight:"80px", wordBreak:"break-all", letterSpacing:"1px", transition:"font-size 0.2s" }}>
-              {exprTokens.length>0 ? tokensToDisplay(exprTokens) : <span style={{ color:"#2a4a2a", fontSize:"28px" }}>ここに式が入るよ</span>}
+            <div style={{
+              background: "#111f14", border: "2px solid #4ade8033", borderRadius: "16px", padding: "20px 20px",
+              fontSize: exprTokens.length > 12 ? "48px" : exprTokens.length > 8 ? "58px" : "68px",
+              fontFamily: "monospace", fontWeight: "bold", color: "white", textAlign: "center",
+              marginBottom: "12px", minHeight: "80px", wordBreak: "break-all", letterSpacing: "1px", transition: "font-size 0.2s",
+            }}>
+              {exprTokens.length > 0
+                ? tokensToDisplay(exprTokens)
+                : <span style={{ color: "#2a4a2a", fontSize: "28px" }}>ここに式が入るよ</span>}
             </div>
           )}
+
           {(!isTutorial || tutStep !== 5) && (
-            <div style={{ display:"flex", gap:"10px", marginBottom:"16px" }}>
-              <button onClick={backspaceExpr} style={{ background:"#111f14", border:"1px solid #4ade8033", borderRadius:"14px", color:"#86efac", fontWeight:"bold", width:"90px", height:"80px", fontSize:"36px", cursor:"pointer", flexShrink:0 }}>⌫</button>
-              <button onClick={clearExpr} style={{ background:"#111f14", border:"1px solid #4ade8033", borderRadius:"14px", color:"#86efac", fontWeight:"bold", flex:1, height:"80px", fontSize:"32px", cursor:"pointer" }}>全消し</button>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
+              <button onClick={backspaceExpr} style={{
+                background: "#111f14", border: "1px solid #4ade8033", borderRadius: "14px",
+                color: "#86efac", fontWeight: "bold", width: "90px", height: "80px",
+                fontSize: "36px", cursor: "pointer", flexShrink: 0,
+              }}>⌫</button>
+              <button onClick={clearExpr} style={{
+                background: "#111f14", border: "1px solid #4ade8033", borderRadius: "14px",
+                color: "#86efac", fontWeight: "bold", flex: 1, height: "80px",
+                fontSize: "32px", cursor: "pointer",
+              }}>全消し</button>
             </div>
           )}
+
           {feedback && (
-            <div style={{ padding:"20px", borderRadius:"14px", marginBottom:"16px", fontSize:"32px", background:feedback.ok?"#4ade8018":"#ef444418", border:`1px solid ${feedback.ok?"#4ade80":"#ef4444"}`, color:feedback.ok?"#4ade80":"#fca5a5" }}>{feedback.msg}</div>
+            <div style={{
+              padding: "20px", borderRadius: "14px", marginBottom: "16px", fontSize: "32px",
+              background: feedback.ok ? "#4ade8018" : "#ef444418",
+              border: `1px solid ${feedback.ok ? "#4ade80" : "#ef4444"}`,
+              color: feedback.ok ? "#4ade80" : "#fca5a5",
+            }}>{feedback.msg}</div>
           )}
+
           {isTutorial && tutStep === 6 && (
-            <div style={{ position:"relative", zIndex:100, background:"#ff69b4", color:"white", borderRadius:"14px", padding:"18px 22px", fontSize:"38px", fontWeight:"bold", lineHeight:"1.6", margin:"12px 0", boxShadow:"0 4px 20px rgba(255,105,180,0.5)", border:"2px solid #ff1493", animation:"pulse-pink 2s infinite" }}>
-              式が入力されたよ！<br/><span style={{ fontSize:"32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
+            <div style={{
+              position: "relative", zIndex: 100, background: "#ff69b4", color: "white",
+              borderRadius: "14px", padding: "18px 22px", fontSize: "38px", fontWeight: "bold",
+              lineHeight: "1.6", margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+              border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+            }}>
+              式が入力されたよ！<br/><span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
             </div>
           )}
-          <div style={{ display:"flex", gap:"12px" }}>
-            <div style={{ flex:2 }}>
-              <button onClick={checkAnswer} style={{ background:"linear-gradient(135deg,#16a34a,#15803d)", border:"none", borderRadius:"22px", color:"white", fontWeight:"bold", fontSize:"40px", padding:"28px 0", cursor:"pointer", width:"100%", letterSpacing:"2px", boxShadow:isTutorial&&tutStep===6?"0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4":"0 5px 20px rgba(74,222,128,0.3)" }}>答え合わせ！</button>
+
+          <div style={{ display: "flex", gap: "12px" }}>
+            <div style={{ flex: 2 }}>
+              <button onClick={checkAnswer} style={{
+                background: "linear-gradient(135deg,#16a34a,#15803d)", border: "none",
+                borderRadius: "22px", color: "white", fontWeight: "bold", fontSize: "40px",
+                padding: "28px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
+                boxShadow: isTutorial && tutStep === 6
+                  ? "0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4"
+                  : "0 5px 20px rgba(74,222,128,0.3)",
+              }}>答え合わせ！</button>
             </div>
-            <div style={{ flex:1 }}><GBtn label="やり直す" onClick={() => startGame(false)} /></div>
+            <div style={{ flex: 1 }}>
+              <GBtn label="やり直す" onClick={() => startGame(false)} />
+            </div>
           </div>
         </div>
       )}
 
       {/* ── RESULT ── */}
       {phase === "result" && (
-        <div style={{ textAlign:"center", width:"100%", maxWidth:"720px", position:"relative" }}>
+        <div style={{ textAlign: "center", width: "100%", maxWidth: "720px", position: "relative" }}>
           {!isTutorial && isNewRecord && (
-            <div style={{ position:"fixed", top:0, left:0, width:"100%", height:"100%", pointerEvents:"none", zIndex:0, overflow:"hidden" }}>
-              {[...Array(40)].map((_,i) => <div key={i} style={{ position:"absolute", left:`${(i*7.3)%100}%`, top:`-${10+(i*13)%20}px`, fontSize:`${16+(i*7)%24}px`, animation:`confetti-fall ${2+(i*0.17)%3}s linear ${(i*0.23)%2}s infinite`, opacity:0.9 }}>{["🎉","🍀","✨","🌟","💚","🎊","⭐"][i%7]}</div>)}
+            <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+              {[...Array(40)].map((_, i) => (
+                <div key={i} style={{
+                  position: "absolute", left: `${(i * 7.3) % 100}%`, top: `-${10 + (i * 13) % 20}px`,
+                  fontSize: `${16 + (i * 7) % 24}px`,
+                  animation: `confetti-fall ${2 + (i * 0.17) % 3}s linear ${(i * 0.23) % 2}s infinite`, opacity: 0.9,
+                }}>{["🎉","🍀","✨","🌟","💚","🎊","⭐"][i % 7]}</div>
+              ))}
             </div>
           )}
-          <div style={{ position:"relative", zIndex:1 }}>
-            <div style={{ fontSize:"104px", marginBottom:"12px" }}>🍀</div>
-            <div style={{ fontSize:"80px", fontWeight:"900", color:"#4ade80", marginBottom:"8px" }}>{isTutorial?<span>チュートリアル<br/>完了！🎉</span>:"せいかい！🍬"}</div>
-            <div style={{ fontSize:"104px", fontFamily:"monospace", fontWeight:"900", color:"#4ade80", marginBottom:"8px" }}>{fmt(time)}秒</div>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div style={{ fontSize: "104px", marginBottom: "12px" }}>🍀</div>
+            <div style={{ fontSize: "80px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
+              {isTutorial ? <span>チュートリアル<br/>完了！🎉</span> : "せいかい！🍬"}
+            </div>
+            <div style={{ fontSize: "104px", fontFamily: "monospace", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
+              {fmt(time)}秒
+            </div>
             {isTutorial ? (
-              <div style={{ marginBottom:"32px" }}>
-                <div style={{ fontSize:"26px", color:"#86efac", lineHeight:"1.8", marginBottom:"24px" }}>⬆️ はクリアしたタイムだよ！<br/>本番では記録が出るたびに更新されるよ🏆<br/>👇 新記録なら「新記録」と金色に点滅するよ！</div>
-                <div style={{ background:"#ff69b422", border:"2px solid #ff69b4", borderRadius:"24px", padding:"24px", marginBottom:"24px", color:"#ff69b4", fontSize:"28px", fontWeight:"bold" }}>やり方はわかったかな？<br/>さぁいよいよチャレンジだ👇</div>
+              <div style={{ marginBottom: "32px" }}>
+                <div style={{ fontSize: "26px", color: "#86efac", lineHeight: "1.8", marginBottom: "24px" }}>
+                  ⬆️ はクリアしたタイムだよ！<br/>本番では記録が出るたびに更新されるよ🏆<br/>👇 新記録なら「新記録」と金色に点滅するよ！
+                </div>
+                <div style={{
+                  background: "#ff69b422", border: "2px solid #ff69b4", borderRadius: "24px",
+                  padding: "24px", marginBottom: "24px", color: "#ff69b4", fontSize: "28px", fontWeight: "bold",
+                }}>やり方はわかったかな？<br/>さぁいよいよチャレンジだ👇</div>
                 <PBtn label="次の問題へ 🃏（本番！）" onClick={() => startGame(false)} />
               </div>
             ) : (
               <>
-                {isNewRecord && <div style={{ color:"#fbbf24", fontSize:"40px", fontWeight:"900", marginBottom:"12px", animation:"blink-gold 1.8s infinite" }}>🎉 新記録！ 🎉</div>}
-                {bestTime !== null && <div style={{ color:"#fbbf24", fontSize:"30px", marginBottom:"12px" }}>🏆 ただ今のベスト：{fmt(bestTime)}秒</div>}
-                <div style={{ color:"#555", fontSize:"24px", marginBottom:"8px" }}>{feedback?.msg}</div>
-                <div style={{ fontSize:"28px", color:"#5cb85c", fontStyle:"italic", marginBottom:"32px" }}>to be happy... 🍀</div>
-                <div style={{ display:"flex", gap:"16px", marginBottom:"20px" }}><div style={{ flex:1 }}><PBtn label="次の問題へ 🃏" onClick={() => startGame(false)} /></div></div>
+                {isNewRecord && (
+                  <div style={{ color: "#fbbf24", fontSize: "40px", fontWeight: "900", marginBottom: "12px", animation: "blink-gold 1.8s infinite" }}>🎉 新記録！ 🎉</div>
+                )}
+                {bestTime !== null && (
+                  <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>🏆 ただ今のベスト：{fmt(bestTime)}秒</div>
+                )}
+                <div style={{ color: "#555", fontSize: "24px", marginBottom: "8px" }}>{feedback?.msg}</div>
+                <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>to be happy... 🍀</div>
+                <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
+                  <div style={{ flex: 1 }}><PBtn label="次の問題へ 🃏" onClick={() => startGame(false)} /></div>
+                </div>
               </>
             )}
-            <div style={{ display:"flex", gap:"16px" }}>
-              <div style={{ flex:1 }}><button onClick={() => startGame(true)} style={{ background:"linear-gradient(135deg,#ff69b4,#ff1493)", border:"none", borderRadius:"24px", color:"white", fontWeight:"bold", fontSize:"28px", padding:"32px 0", cursor:"pointer", width:"100%", boxShadow:"0 4px 16px rgba(255,105,180,0.4)" }}>やり方を学ぶ 📖</button></div>
-              <div style={{ flex:1 }}><GBtn label="タイトルへ" onClick={() => { stopBGM(); setPhase("start"); }} /></div>
+            <div style={{ display: "flex", gap: "16px" }}>
+              <div style={{ flex: 1 }}>
+                <button onClick={() => startGame(true)} style={{
+                  background: "linear-gradient(135deg,#ff69b4,#ff1493)", border: "none", borderRadius: "24px",
+                  color: "white", fontWeight: "bold", fontSize: "28px", padding: "32px 0",
+                  cursor: "pointer", width: "100%", boxShadow: "0 4px 16px rgba(255,105,180,0.4)",
+                }}>やり方を学ぶ 📖</button>
+              </div>
+              <div style={{ flex: 1 }}>
+                <GBtn label="タイトルへ" onClick={() => { stopBGM(); setPhase("start"); }} />
+              </div>
             </div>
           </div>
         </div>
