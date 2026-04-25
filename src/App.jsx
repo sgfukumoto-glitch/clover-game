@@ -60,13 +60,18 @@ function drawCards() {
   return { target: 10, nums: [1, 2, 3, 4, 5] };
 }
 
+// ✅ FIX #2: 数字は各1回ずつ、演算子は何度でもOK
 function validateExpression(expr, nums, target) {
+  // 式から数値トークンを抽出
   const tokens = expr.replace(/[+\-*/()]/g, " ").trim().split(/\s+/).filter(Boolean);
   const usedNums = tokens.map(Number).filter(n => !isNaN(n));
+
+  // 各数字が1回ずつ使われているか確認
   const sortedUsed = [...usedNums].sort((a, b) => a - b);
   const sortedNums = [...nums].sort((a, b) => a - b);
   if (JSON.stringify(sortedUsed) !== JSON.stringify(sortedNums))
     return { ok: false, msg: "①〜⑤の数字を各1回ずつ全部使ってね！" };
+
   try {
     const safe = expr.replace(/[^0-9+\-*/().]/g, "");
     // eslint-disable-next-line no-new-func
@@ -77,155 +82,6 @@ function validateExpression(expr, nums, target) {
 }
 
 const TUTORIAL_CARDS = { target: 18, nums: [1, 17, 5, 2, 6] };
-
-// ── クシコスポスト風ファミコンBGM ─────────────────────────────────
-function startCsikosBGM(ctx) {
-  const BPM = 210;
-  const Q  = 60 / BPM;
-  const E  = Q / 2;
-  const S  = Q / 4;
-  const DQ = Q * 1.5;
-  const H  = Q * 2;
-
-  // 音程
-  const B4  = 493.88;
-  const Ds5 = 622.25;
-  const Fs5 = 739.99;
-  const B5  = 987.77;
-  const C4  = 261.63;
-  const D4  = 293.66;
-  const F4  = 349.23;
-  const A4  = 440.00;
-  const C5  = 523.25;
-  const E5  = 659.25;
-  const F5  = 698.46;
-  const G5  = 783.99;
-  const A5  = 880.00;
-  const C6  = 1046.50;
-  const E6  = 1318.51;
-
-  let stopped = false;
-  let loopTimer = null;
-  const nodes = [];
-
-  function beep(freq, startTime, noteDur, vol = 0.18, stac = 0.55) {
-    if (stopped) return;
-    const soundDur = noteDur * stac;
-    try {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'square';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(vol, startTime);
-      gain.gain.setValueAtTime(vol, startTime + soundDur * 0.8);
-      gain.gain.exponentialRampToValueAtTime(0.001, startTime + soundDur);
-      osc.start(startTime);
-      osc.stop(startTime + soundDur + 0.01);
-      nodes.push(osc);
-    } catch(e) {}
-  }
-
-  function fchord(freqs, startTime, noteDur, vol = 0.12) {
-    if (stopped) return;
-    const soundDur = noteDur * 0.92;
-    freqs.forEach(freq => {
-      try {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = 'square';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(vol, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + soundDur);
-        osc.start(startTime);
-        osc.stop(startTime + soundDur + 0.01);
-        nodes.push(osc);
-      } catch(e) {}
-    });
-  }
-
-  function scheduleIntro(startTime) {
-    let t = startTime;
-    // フレーズ1 ×2: シ5(8)・ファ#5(8)・シ5ー(付点4) 半休符
-    beep(B5,  t, E,  0.20); t += E;
-    beep(Fs5, t, E,  0.20); t += E;
-    beep(B5,  t, DQ, 0.20); t += DQ;
-    t += H;
-    beep(B5,  t, E,  0.20); t += E;
-    beep(Fs5, t, E,  0.20); t += E;
-    beep(B5,  t, DQ, 0.20); t += DQ;
-    t += H;
-    // フレーズ2: シ5(8)・ファ#5(8)・シ4(8)・レ#5(8)・ファ#5(8)・シ5(8)
-    beep(B5,  t, E, 0.20); t += E;
-    beep(Fs5, t, E, 0.20); t += E;
-    beep(B4,  t, E, 0.20); t += E;
-    beep(Ds5, t, E, 0.20); t += E;
-    beep(Fs5, t, E, 0.20); t += E;
-    beep(B5,  t, E, 0.20); t += E;
-    // ジャン！[ド4・レ4・ファ4] 付点4
-    fchord([C4, D4, F4], t, DQ, 0.12); t += DQ;
-    return t;
-  }
-
-  function scheduleLoop(startTime) {
-    let t = startTime;
-    // ミ5(16)ソ5(16)シ5(16)ミ6(8)ミ5(8)ファ#5(8)ソ5(8)シ5(8)ド6(8)ミ6(8)
-    beep(E5,  t, S, 0.18); t += S;
-    beep(G5,  t, S, 0.18); t += S;
-    beep(B5,  t, S, 0.18); t += S;
-    beep(E6,  t, E, 0.20); t += E;
-    beep(E5,  t, E, 0.18); t += E;
-    beep(Fs5, t, E, 0.18); t += E;
-    beep(G5,  t, E, 0.18); t += E;
-    beep(B5,  t, E, 0.18); t += E;
-    beep(C6,  t, E, 0.18); t += E;
-    beep(E6,  t, E, 0.20); t += E;
-    // シ5ー(4分)
-    beep(B5, t, Q, 0.20, 0.85); t += Q;
-    // ラ5(8)・ミ5(8)・ソ5(8)・シ5(8)
-    beep(A5, t, E, 0.18); t += E;
-    beep(E5, t, E, 0.18); t += E;
-    beep(G5, t, E, 0.18); t += E;
-    beep(B5, t, E, 0.18); t += E;
-    // ソ5(8)・ミ5(8)・ファ5(8)・シ5(8)
-    beep(G5, t, E, 0.18); t += E;
-    beep(E5, t, E, 0.18); t += E;
-    beep(F5, t, E, 0.18); t += E;
-    beep(B5, t, E, 0.18); t += E;
-    // ミ5(4)・シ4(8)・ド5(8)・シ4(8)・ラ4(8)
-    beep(E5, t, Q, 0.20); t += Q;
-    beep(B4, t, E, 0.18); t += E;
-    beep(C5, t, E, 0.18); t += E;
-    beep(B4, t, E, 0.18); t += E;
-    beep(A4, t, E, 0.18); t += E;
-    return t;
-  }
-
-  // イントロ1回 → ループ
-  const loopStart = scheduleIntro(ctx.currentTime + 0.05);
-
-  const playLoop = (startTime) => {
-    if (stopped) return;
-    const endTime = scheduleLoop(startTime);
-    const waitMs = (endTime - ctx.currentTime - 0.15) * 1000;
-    loopTimer = setTimeout(() => {
-      if (!stopped) playLoop(ctx.currentTime + 0.05);
-    }, Math.max(waitMs, 100));
-  };
-
-  setTimeout(() => {
-    if (!stopped) playLoop(loopStart);
-  }, Math.max((loopStart - ctx.currentTime - 0.05) * 1000, 0));
-
-  return {
-    stop: () => {
-      stopped = true;
-      clearTimeout(loopTimer);
-      nodes.forEach(n => { try { n.stop(); } catch(e){} });
-    }
-  };
-}
 
 function CloverSVG({ size = 80 }) {
   return (
@@ -302,47 +158,73 @@ function TutorialBubble({ text }) {
   );
 }
 
+// アニメーション: 1*(2+5)+17-6 を自動入力し、完了したら式をexprに書き込む
+// nums = [1, 17, 5, 2, 6] → idx: 0=1, 1=17, 2=5, 3=2, 4=6
 function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   const sequence = [
-    { type: "num", idx: 0, val: String(nums[0]) },
+    { type: "num", idx: 0, val: String(nums[0]) },   // 1
     { type: "op", val: "*" },
     { type: "op", val: "(" },
-    { type: "num", idx: 3, val: String(nums[3]) },
+    { type: "num", idx: 3, val: String(nums[3]) },   // 2
     { type: "op", val: "+" },
-    { type: "num", idx: 2, val: String(nums[2]) },
+    { type: "num", idx: 2, val: String(nums[2]) },   // 5
     { type: "op", val: ")" },
     { type: "op", val: "+" },
-    { type: "num", idx: 1, val: String(nums[1]) },
+    { type: "num", idx: 1, val: String(nums[1]) },   // 17
     { type: "op", val: "-" },
-    { type: "num", idx: 4, val: String(nums[4]) },
+    { type: "num", idx: 4, val: String(nums[4]) },   // 6
   ];
   const FINAL_EXPR = `${nums[0]}*(${nums[3]}+${nums[2]})+${nums[1]}-${nums[4]}`;
+
   const [started, setStarted] = useState(false);
   const [shown, setShown] = useState(0);
   const [done, setDone] = useState(false);
+
   const usedIdxs = sequence.slice(0, shown).filter(s => s.type === "num").map(s => s.idx);
   const displayStr = sequence.slice(0, shown).map(s => s.val).join("").replace(/\*/g, "×");
-  useEffect(() => { onUsedIdxsChange(usedIdxs); }, [shown]);
-  useEffect(() => { const t = setTimeout(() => setStarted(true), 3000); return () => clearTimeout(t); }, []);
+
+  // usedIdxsが変わるたびに親へ通知
+  useEffect(() => {
+    onUsedIdxsChange(usedIdxs);
+  }, [shown]);
+
+  // 3秒後にアニメーション開始
+  useEffect(() => {
+    const t = setTimeout(() => setStarted(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     if (!started) return;
-    if (shown < sequence.length) { const t = setTimeout(() => setShown(s => s + 1), 700); return () => clearTimeout(t); }
-    else if (!done) { const t = setTimeout(() => { setDone(true); onDone(FINAL_EXPR); }, 600); return () => clearTimeout(t); }
+    if (shown < sequence.length) {
+      const t = setTimeout(() => setShown(s => s + 1), 700);
+      return () => clearTimeout(t);
+    } else if (!done) {
+      const t = setTimeout(() => { setDone(true); onDone(FINAL_EXPR); }, 600);
+      return () => clearTimeout(t);
+    }
   }, [started, shown, done]);
+
   return (
     <div style={{ marginBottom: "10px" }}>
       <div style={{
-        position: "relative", zIndex: 100, background: "#ff69b4", color: "white",
-        borderRadius: "14px", padding: "18px 22px", fontSize: "50px", fontWeight: "bold",
-        lineHeight: "1.6", margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
-        border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
+        position: "relative", zIndex: 100,
+        background: "#ff69b4", color: "white",
+        borderRadius: "14px", padding: "18px 22px",
+        fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
+        margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+        border: "2px solid #ff1493",
+        animation: "pulse-pink 2s infinite",
       }}>
         このように、数字と演算記号を<br/>組み合わせて解答していくよ！<br/><br/>出来たら「答え合わせ」を押してね
       </div>
+      {/* アニメーション用の式表示のみ（カードは親が表示） */}
       <div style={{
-        background: "#111f14", border: "2px solid #4ade8033", borderRadius: "16px", padding: "20px 20px",
-        fontSize: "68px", fontFamily: "monospace", fontWeight: "bold", color: "white",
-        textAlign: "center", marginTop: "8px", minHeight: "80px", letterSpacing: "1px", wordBreak: "break-all",
+        background: "#111f14", border: "2px solid #4ade8033",
+        borderRadius: "16px", padding: "20px 20px",
+        fontSize: "68px", fontFamily: "monospace", fontWeight: "bold",
+        color: "white", textAlign: "center", marginTop: "8px",
+        minHeight: "80px", letterSpacing: "1px", wordBreak: "break-all",
       }}>
         {displayStr || <span style={{ color: "#2a4a2a", fontSize: "28px" }}>3秒後にデモが始まるよ…</span>}
         {started && !done && <span style={{ animation: "blink 0.8s infinite" }}>|</span>}
@@ -366,78 +248,31 @@ export default function App() {
   const [isTutorial, setIsTutorial] = useState(false);
   const [tutStep, setTutStep] = useState(0);
   const [usedNums, setUsedNums] = useState([]);
-  const [countdown, setCountdown] = useState(null);
-  const [dealtCount, setDealtCount] = useState(0);
-  const [allRevealed, setAllRevealed] = useState(false);
-  const [exprTokens, setExprTokens] = useState([]);
-
-  // ✅ 全Refをstartより前に定義
+  const [countdown, setCountdown] = useState(null); // null, 3, 2, 1, "GO!"
+  const [dealtCount, setDealtCount] = useState(0); // 配り終えた枚数（裏向き）
+  const [allRevealed, setAllRevealed] = useState(false); // GO後に一斉表
   const timerRef = useRef(null);
-  const audioCtxRef = useRef(null);
-  const bgmRef = useRef(null);        // { stop } オブジェクト
-  const countdownAudioRef = useRef(null);
   const dealingTimeoutsRef = useRef([]);
 
-  const getAudioCtx = useCallback(() => {
-    if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
-      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtxRef.current.state === "suspended") audioCtxRef.current.resume();
-    return audioCtxRef.current;
-  }, []);
 
-  const stopBGM = useCallback(() => {
-    if (bgmRef.current) { bgmRef.current.stop(); bgmRef.current = null; }
-  }, []);
-
-  // 肉声カウントダウン再生
-  const playCountdown = useCallback(() => {
-    try {
-      if (countdownAudioRef.current) {
-        countdownAudioRef.current.pause();
-        countdownAudioRef.current.currentTime = 0;
-      }
-      const audio = new Audio('/countdown.mp3');
-      audio.volume = 1.0;
-      audio.play().catch(() => {});
-      countdownAudioRef.current = audio;
-    } catch(e) {}
-  }, []);
-
-  // GO!ファンファーレ（ビープ）
-  const playGO = useCallback((ctx) => {
-    try {
-      [[523,0],[659,0.08],[784,0.16],[1047,0.26]].forEach(([freq, delay]) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-        gain.gain.setValueAtTime(0.18, ctx.currentTime + delay);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.35);
-        osc.start(ctx.currentTime + delay);
-        osc.stop(ctx.currentTime + delay + 0.4);
-      });
-    } catch(e) {}
-  }, []);
 
   const startGame = useCallback((tutorial = false) => {
     dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
     dealingTimeoutsRef.current = [];
-    stopBGM();
 
-    // 肉声止める
-    if (countdownAudioRef.current) {
-      countdownAudioRef.current.pause();
-      countdownAudioRef.current.currentTime = 0;
-    }
-
-    const ctx = getAudioCtx();
-
-    setIsTutorial(tutorial); setTutStep(0); setPhase("dealing");
-    setCountdown(null); setExpr(""); setFeedback(null);
-    setUsedNums([]); setExprTokens([]); setTime(0); setRunning(false);
-    setRevealedCount(-1); setDealtCount(0); setAllRevealed(false);
+    setIsTutorial(tutorial);
+    setTutStep(0);
+    setPhase("dealing");
+    setCountdown(null);
+    setExpr("");
+    setFeedback(null);
+    setUsedNums([]);
+    setExprTokens([]);
+    setTime(0);
+    setRunning(false);
+    setRevealedCount(-1);
+    setDealtCount(0);
+    setAllRevealed(false);
     const drawn = tutorial ? TUTORIAL_CARDS : drawCards();
     setCards(drawn);
 
@@ -445,32 +280,26 @@ export default function App() {
       const id = setTimeout(() => {
         setDealtCount(i + 1);
         if (i === 5) {
-          // 肉声スタート（カード配り終わり+400ms）
-          const cVoice = setTimeout(() => { playCountdown(); }, 400);
-          // 表示タイミング
-          const c3  = setTimeout(() => setCountdown(3),    400);
-          const c2  = setTimeout(() => setCountdown(2),   1400);
-          const c1  = setTimeout(() => setCountdown(1),   2400);
+          const c3 = setTimeout(() => setCountdown(3),    400);
+          const c2 = setTimeout(() => setCountdown(2),   1400);
+          const c1 = setTimeout(() => setCountdown(1),   2400);
           const cGo = setTimeout(() => {
             setCountdown("GO!");
-            playGO(ctx);
             setAllRevealed(true);
             const cStart = setTimeout(() => {
               setCountdown(null);
               setPhase("playing");
               setRunning(true);
-              // ✅ クシコスポスト風BGMスタート
-              bgmRef.current = startCsikosBGM(ctx);
               if (tutorial) setTutStep(1);
-            }, 900);
+            }, 800);
             dealingTimeoutsRef.current.push(cStart);
           }, 3400);
-          [cVoice, c3, c2, c1, cGo].forEach(id => dealingTimeoutsRef.current.push(id));
+          [c3, c2, c1, cGo].forEach(id => dealingTimeoutsRef.current.push(id));
         }
       }, d);
       dealingTimeoutsRef.current.push(id);
     });
-  }, [getAudioCtx, stopBGM, playCountdown, playGO]);
+  }, []);
 
   useEffect(() => {
     if (running) timerRef.current = setInterval(() => setTime(t => t + 10), 10);
@@ -478,6 +307,7 @@ export default function App() {
     return () => clearInterval(timerRef.current);
   }, [running]);
 
+  // ✅ FIX #1: フォスパ→playing戻るボタン用
   const goBackToPlaying = () => {
     setPhase("playing");
     setRunning(true);
@@ -486,7 +316,6 @@ export default function App() {
 
   const fospa = () => {
     setRunning(false);
-    stopBGM();
     setPhase("fospa");
     if (isTutorial) setTutStep(5);
   };
@@ -497,42 +326,80 @@ export default function App() {
     setFeedback(r);
     if (r.ok) {
       if (!isTutorial && (bestTime === null || time < bestTime)) {
-        setBestTime(time); setIsNewRecord(true);
+        setBestTime(time);
+        setIsNewRecord(true);
         try { localStorage.setItem("clover_best", String(time)); } catch {}
-      } else { setIsNewRecord(false); }
+      } else {
+        setIsNewRecord(false);
+      }
       setTimeout(() => setPhase("result"), 900);
     }
   };
 
   const advanceTutorial = () => setTutStep(s => s + 1);
+
   const fmt = ms => `${Math.floor(ms / 1000)}.${String(Math.floor((ms % 1000) / 10)).padStart(2, "0")}`;
-  const tokensToDisplay = (tokens) => tokens.map(t => t.val).join("").replace(/\*/g, "×").replace(/\//g, "÷");
-  const tokensToExpr = (tokens) => tokens.map(t => t.val).join("");
-  const tokensToUsedIdxs = (tokens) => tokens.filter(t => t.type === "num").map(t => t.idx);
-  const clearExpr = () => { setExpr(""); setUsedNums([]); setExprTokens([]); };
+
+  // exprTokens: 入力順に {type:"num",idx,val} or {type:"op",val} の配列で管理
+  const [exprTokens, setExprTokens] = useState([]);
+
+  // exprTokensから表示用文字列を生成
+  const tokensToDisplay = (tokens) =>
+    tokens.map(t => t.val).join("").replace(/\*/g, "×").replace(/\//g, "÷");
+
+  // exprTokensからeval用文字列を生成
+  const tokensToExpr = (tokens) =>
+    tokens.map(t => t.val).join("");
+
+  // exprTokensから使用済みインデックスを取得
+  const tokensToUsedIdxs = (tokens) =>
+    tokens.filter(t => t.type === "num").map(t => t.idx);
+
+  const clearExpr = () => {
+    setExpr("");
+    setUsedNums([]);
+    setExprTokens([]);
+  };
+
   const backspaceExpr = () => {
     if (!cards) return;
-    const nt = exprTokens.slice(0, -1);
-    setExprTokens(nt); setExpr(tokensToExpr(nt)); setUsedNums(tokensToUsedIdxs(nt));
+    // 最後のトークンを削除
+    const newTokens = exprTokens.slice(0, -1);
+    setExprTokens(newTokens);
+    const newExpr = tokensToExpr(newTokens);
+    setExpr(newExpr);
+    setUsedNums(tokensToUsedIdxs(newTokens));
   };
+
+  // 数字ボタン押下: インデックスで追跡
   const appNum = (idx, val) => {
     if (!cards) return;
-    const nt = [...exprTokens, { type:"num", idx, val: String(val) }];
-    setExprTokens(nt); setExpr(tokensToExpr(nt)); setUsedNums(tokensToUsedIdxs(nt));
+    const token = { type: "num", idx, val: String(val) };
+    const newTokens = [...exprTokens, token];
+    setExprTokens(newTokens);
+    setExpr(tokensToExpr(newTokens));
+    setUsedNums(tokensToUsedIdxs(newTokens));
   };
+
+  // 演算子ボタン押下
   const appOp = (val) => {
     if (!cards) return;
-    const nt = [...exprTokens, { type:"op", val }];
-    setExprTokens(nt); setExpr(tokensToExpr(nt));
+    const token = { type: "op", val };
+    const newTokens = [...exprTokens, token];
+    setExprTokens(newTokens);
+    setExpr(tokensToExpr(newTokens));
   };
 
   const PBtn = ({ label, onClick, color = "#16a34a", textColor = "#fbbf24" }) => (
     <button onClick={onClick} style={{
-      background: `linear-gradient(135deg,${color},${color}dd)`, border: "none", borderRadius: "25px",
-      color: textColor, fontWeight: "bold", fontSize: "36px", padding: "40px 0",
-      cursor: "pointer", width: "100%", letterSpacing: "2px", boxShadow: `0 5px 20px ${color}66`,
+      background: `linear-gradient(135deg,${color},${color}dd)`,
+      border: "none", borderRadius: "25px",
+      color: textColor, fontWeight: "bold", fontSize: "36px",
+      padding: "40px 0", cursor: "pointer", width: "100%", letterSpacing: "2px",
+      boxShadow: `0 5px 20px ${color}66`,
     }}>{label}</button>
   );
+
   const GBtn = ({ label, onClick }) => (
     <button onClick={onClick} style={{
       background: "#111f14", border: "1px solid #4ade8033", borderRadius: "22px",
@@ -607,19 +474,19 @@ export default function App() {
       {/* ── DEALING / PLAYING ── */}
       {(phase === "dealing" || phase === "playing") && cards && (
         <div style={{ width: "100%", maxWidth: "900px", textAlign: "center" }}>
+          {/* 戻るボタン：チュートリアルは1ステップ前、本番はタイトルへ */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <button onClick={() => {
               if (isTutorial) {
                 if (tutStep <= 1) {
                   dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
                   dealingTimeoutsRef.current = [];
-                  stopBGM();
                   setPhase("start"); setIsTutorial(false); setRunning(false);
-                } else setTutStep(s => s - 1);
+                }
+                else setTutStep(s => s - 1);
               } else {
                 dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
                 dealingTimeoutsRef.current = [];
-                stopBGM();
                 setPhase("start"); setRunning(false); clearExpr();
               }
             }} style={{
@@ -634,25 +501,34 @@ export default function App() {
                 flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px",
                 padding: "20px 24px", fontSize: "32px", fontWeight: "bold",
                 boxShadow: "0 3px 12px rgba(255,105,180,0.5)",
-              }}>チュートリアル中 🩷 — 説明に沿って操作手順を覚えてね</div>
+              }}>
+                チュートリアル中 🩷 — 説明に沿って操作手順を覚えてね
+              </div>
             ) : (
-              <div style={{ flex: 1, textAlign: "left", fontSize: "18px", color: "#4ade8066" }}>タイトルへ戻る</div>
+              <div style={{ flex: 1, textAlign: "left", fontSize: "18px", color: "#4ade8066" }}>
+                タイトルへ戻る
+              </div>
             )}
           </div>
 
+          {/* Timer */}
           <div style={{ position: "relative" }}>
             <div style={{
               fontSize: "120px", fontWeight: "900", fontFamily: "monospace",
-              color: running ? "#4ade80" : "#1e3a22", marginBottom: "18px", letterSpacing: "2px",
+              color: running ? "#4ade80" : "#1e3a22",
+              marginBottom: "18px", letterSpacing: "2px",
             }}>{fmt(time)}</div>
             {isTutorial && tutStep === 1 && (
               <div>
                 <div style={{
                   background: "#ff69b4", color: "white", borderRadius: "14px",
-                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
-                  margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "16px 0",
+                  boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-                }}>👆 スタートと同時に<br/>タイムが動き出すよ！⏱</div>
+                }}>
+                  👆 スタートと同時に<br/>タイムが動き出すよ！⏱
+                </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
@@ -662,19 +538,29 @@ export default function App() {
             )}
           </div>
 
+          {/* TARGET */}
           <div style={{ position: "relative" }}>
-            <div style={{ fontSize: "30px", letterSpacing: "4px", color: "#ef4444cc", marginBottom: "10px", fontWeight: "bold" }}>⑥ TARGET</div>
+            <div style={{ fontSize: "30px", letterSpacing: "4px", color: "#ef4444cc", marginBottom: "10px", fontWeight: "bold" }}>
+              ⑥ TARGET
+            </div>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-              {dealtCount >= 1 ? (allRevealed ? <CloverCard number={cards.target} isTarget size="normal"/> : <CardBack size="normal"/>) : null}
+              {dealtCount >= 1
+                ? (allRevealed
+                    ? <CloverCard number={cards.target} isTarget size="normal" />
+                    : <CardBack size="normal" />)
+                : null}
             </div>
             {isTutorial && tutStep === 2 && (
               <div>
                 <div style={{
                   background: "#ff69b4", color: "white", borderRadius: "14px",
-                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
-                  margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "16px 0",
+                  boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-                }}>これが👆⑥ターゲット<br/>この数字を答えにするのが<br/>目標だよ！</div>
+                }}>
+                  これが👆⑥ターゲット<br/>この数字を答えにするのが<br/>目標だよ！
+                </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
@@ -690,36 +576,55 @@ export default function App() {
             <div style={{ flex: 1, height: "2px", background: "#4ade80" }}/>
           </div>
 
+          {/* 5 cards */}
           <div style={{ position: "relative" }}>
+            {/* 各カードの直上に①②③④⑤ */}
             <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "4px" }}>
               {["①","②","③","④","⑤"].map((n, i) => (
-                <div key={i} style={{ width: 139, textAlign: "center", fontSize: "36px", fontWeight: "900", color: "#aaa" }}>{n}</div>
+                <div key={i} style={{
+                  width: 139, textAlign: "center",
+                  fontSize: "36px", fontWeight: "900", color: "#aaa",
+                }}>
+                  {n}
+                </div>
               ))}
             </div>
             <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "20px" }}>
               {cards.nums.map((n, i) => (
                 dealtCount >= i + 2
-                  ? (allRevealed ? <CloverCard key={i} number={n} size="small"/> : <CardBack key={i} size="small"/>)
-                  : <div key={i} style={{ width: 139, height: 220 }}/>
+                  ? (allRevealed
+                      ? <CloverCard key={i} number={n} size="small" />
+                      : <CardBack key={i} size="small" />)
+                  : <div key={i} style={{ width: 139, height: 220 }} />
               ))}
             </div>
             {isTutorial && tutStep === 3 && (
               <div>
                 <div style={{
                   background: "#ff69b4", color: "white", borderRadius: "14px",
-                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
-                  margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                  padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "16px 0",
+                  boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                   border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-                }}>👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ</div>
+                }}>
+                  👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ
+                </div>
                 <div style={{
                   background: "#e8336d", color: "white", borderRadius: "14px",
-                  padding: "20px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
-                  margin: "12px 0", boxShadow: "0 4px 20px rgba(232,51,109,0.5)", border: "2px solid #c0145a",
-                }}>記号(+-×÷)は<br/>何度使ってもいいよ</div>
+                  padding: "20px 16px", fontSize: "50px", fontWeight: "bold",
+                  lineHeight: "1.6", margin: "12px 0",
+                  boxShadow: "0 4px 20px rgba(232,51,109,0.5)",
+                  border: "2px solid #c0145a",
+                }}>
+                  記号(+-×÷)は<br/>何度使ってもいいよ
+                </div>
                 <div style={{
                   fontSize: "36px", color: "white", marginBottom: "16px", textAlign: "left",
-                  textDecoration: "underline", textDecorationStyle: "wavy", textDecorationColor: "#ef4444",
-                }}>※解法は一つではないよ</div>
+                  textDecoration: "underline", textDecorationStyle: "wavy",
+                  textDecorationColor: "#ef4444",
+                }}>
+                  ※解法は一つではないよ
+                </div>
                 <button onClick={advanceTutorial} style={{
                   background: "#ff69b4", border: "none", borderRadius: "18px",
                   color: "white", fontWeight: "bold", padding: "24px 50px",
@@ -729,45 +634,57 @@ export default function App() {
             )}
           </div>
 
+          {/* Fospa button */}
           {phase === "playing" && (isTutorial ? tutStep >= 4 : true) && (
             <div style={{ position: "relative" }}>
               {isTutorial && tutStep === 4 && (
                 <div>
                   <div style={{
                     background: "#ff69b4", color: "white", borderRadius: "14px",
-                    padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6",
-                    margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+                    padding: "28px 16px", fontSize: "50px", fontWeight: "bold",
+                    lineHeight: "1.6", margin: "16px 0",
+                    boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
                     border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
-                  }}>出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ</div>
+                  }}>
+                    出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ
+                  </div>
                   <div style={{
                     fontSize: "34px", color: "white", marginBottom: "16px", textAlign: "left",
                     textDecoration: "underline", textDecorationStyle: "wavy",
                     textDecorationColor: "#ef4444", whiteSpace: "nowrap",
-                  }}>※バスや電車の中では、心の中でね笑</div>
+                  }}>
+                    ※バスや電車の中では、心の中でね笑
+                  </div>
                 </div>
               )}
-              <button onPointerUp={() => { fospa(); }} style={{
-                background: "linear-gradient(135deg,#16a34a,#15803d)", border: "none",
-                borderRadius: "22px", color: isTutorial && tutStep === 4 ? "#fbbf24" : "white",
-                fontWeight: "bold", fontSize: "40px", padding: "28px 0",
-                cursor: "pointer", width: "100%", letterSpacing: "2px",
-                boxShadow: isTutorial && tutStep === 4
-                  ? "0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4"
-                  : "0 5px 20px rgba(74,222,128,0.3)",
-                touchAction: "manipulation", WebkitTapHighlightColor: "transparent",
-              }}>フォスパ！🙋</button>
+              <button
+                onPointerUp={() => { fospa(); }}
+                style={{
+                  background: "linear-gradient(135deg,#16a34a,#15803d)", border: "none",
+                  borderRadius: "22px", color: isTutorial && tutStep === 4 ? "#fbbf24" : "white",
+                  fontWeight: "bold", fontSize: "40px", padding: "28px 0",
+                  cursor: "pointer", width: "100%", letterSpacing: "2px",
+                  boxShadow: isTutorial && tutStep === 4
+                    ? "0 5px 20px rgba(255,105,180,0.6), 0 0 0 3px #ff69b4"
+                    : "0 5px 20px rgba(74,222,128,0.3)",
+                  touchAction: "manipulation", WebkitTapHighlightColor: "transparent",
+                }}
+              >フォスパ！🙋</button>
             </div>
           )}
-
           {phase === "dealing" && (
             <div style={{ position: "relative", minHeight: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
               {countdown !== null ? (
                 <div style={{
-                  fontSize: countdown === "GO!" ? "120px" : "160px", fontWeight: "900",
-                  color: countdown === "GO!" ? "#4ade80" : "#fbbf24", fontFamily: "monospace",
+                  fontSize: countdown === "GO!" ? "120px" : "160px",
+                  fontWeight: "900",
+                  color: countdown === "GO!" ? "#4ade80" : "#fbbf24",
+                  fontFamily: "monospace",
                   animation: "countdown-pop 0.3s ease-out",
                   textShadow: countdown === "GO!" ? "0 0 40px #4ade80" : "0 0 40px #fbbf24",
-                }}>{countdown}</div>
+                }}>
+                  {countdown}
+                </div>
               ) : (
                 <div style={{ color: "#4ade8033", fontSize: "28px", letterSpacing: "2px" }}>カードを配っています…</div>
               )}
@@ -790,18 +707,26 @@ export default function App() {
       {/* ── FOSPA ── */}
       {phase === "fospa" && cards && (
         <div style={{ width: "100%", maxWidth: "900px", textAlign: "center" }}>
+          {/* 戻るボタン＋チュートリアルバナー */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
             <button onClick={goBackToPlaying} style={{
-              background: "linear-gradient(135deg,#1a3a22,#0d2414)", border: "2px solid #4ade80",
-              borderRadius: "14px", color: "#4ade80", fontWeight: "900", padding: "14px 24px",
-              cursor: "pointer", fontSize: "28px", flexShrink: 0, boxShadow: "0 2px 10px rgba(74,222,128,0.3)",
+              background: "linear-gradient(135deg,#1a3a22,#0d2414)",
+              border: "2px solid #4ade80", borderRadius: "14px",
+              color: "#4ade80", fontWeight: "900", padding: "14px 24px",
+              cursor: "pointer", fontSize: "28px", flexShrink: 0,
+              boxShadow: "0 2px 10px rgba(74,222,128,0.3)",
             }}>← 戻る</button>
             {isTutorial ? (
-              <div style={{ flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px", padding: "14px 20px", fontSize: "28px", fontWeight: "bold" }}>
+              <div style={{
+                flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px",
+                padding: "14px 20px", fontSize: "28px", fontWeight: "bold",
+              }}>
                 チュートリアル中 🩷
               </div>
             ) : (
-              <div style={{ flex: 1, textAlign: "left", fontSize: "22px", color: "#4ade8066" }}>解き直したい時は戻れるよ</div>
+              <div style={{ flex: 1, textAlign: "left", fontSize: "22px", color: "#4ade8066" }}>
+                解き直したい時は戻れるよ
+              </div>
             )}
           </div>
 
@@ -809,74 +734,100 @@ export default function App() {
             フォスパ！ ⏱ {fmt(time)}秒
           </div>
 
+          {/* Mini cards - 常に表示 */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
-            <CloverCard number={cards.target} isTarget size="normal"/>
+            <CloverCard number={cards.target} isTarget size="normal" />
             <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
               {cards.nums.map((n, i) => (
                 <div key={i} style={{ opacity: usedNums.includes(i) ? 0.25 : 1, transition: "opacity 0.2s" }}>
-                  <CloverCard number={n} size="small"/>
+                  <CloverCard number={n} size="small" />
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Number tap buttons - アニメーション中はpointerEvents:none */}
           <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "14px" }}>
             {cards.nums.map((n, i) => (
               <button key={i} onClick={() => appNum(i, n)} style={{
-                background: ["#3b82f6","#ec4899","#f97316","#8b5cf6","#10b981"][i],
+                background: ["#3b82f6", "#ec4899", "#f97316", "#8b5cf6", "#10b981"][i],
                 border: "none", borderRadius: "14px", color: "white",
                 fontWeight: "900", width: "139px", height: "90px", fontSize: "38px",
                 cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
-                opacity: usedNums.includes(i) ? 0.25 : 1, transition: "opacity 0.2s",
+                opacity: usedNums.includes(i) ? 0.25 : 1,
+                transition: "opacity 0.2s",
                 pointerEvents: isTutorial && tutStep === 5 ? "none" : "auto",
               }}>{n}</button>
             ))}
           </div>
 
+          {/* アニメーション: tutStep===5のときのみ表示、usedNumsを親に伝える */}
           {isTutorial && tutStep === 5 && (
-            <AnimatedExprDemo nums={cards.nums} onUsedIdxsChange={(idxs) => setUsedNums(idxs)}
+            <AnimatedExprDemo
+              nums={cards.nums}
+              onUsedIdxsChange={(idxs) => setUsedNums(idxs)}
               onDone={(finalExpr) => {
+                // アニメーション完了時: exprとexprTokensを両方セット
                 setExpr(finalExpr);
+                // tokensを再構築: 1*(2+5)+17-6
                 const nums = cards.nums;
                 const tokens = [
-                  { type:"num", idx:0, val:String(nums[0]) }, { type:"op", val:"*" }, { type:"op", val:"(" },
-                  { type:"num", idx:3, val:String(nums[3]) }, { type:"op", val:"+" }, { type:"num", idx:2, val:String(nums[2]) },
-                  { type:"op", val:")" }, { type:"op", val:"+" }, { type:"num", idx:1, val:String(nums[1]) },
-                  { type:"op", val:"-" }, { type:"num", idx:4, val:String(nums[4]) },
+                  { type:"num", idx:0, val:String(nums[0]) },
+                  { type:"op", val:"*" },
+                  { type:"op", val:"(" },
+                  { type:"num", idx:3, val:String(nums[3]) },
+                  { type:"op", val:"+" },
+                  { type:"num", idx:2, val:String(nums[2]) },
+                  { type:"op", val:")" },
+                  { type:"op", val:"+" },
+                  { type:"num", idx:1, val:String(nums[1]) },
+                  { type:"op", val:"-" },
+                  { type:"num", idx:4, val:String(nums[4]) },
                 ];
-                setExprTokens(tokens); setUsedNums([0,3,2,1,4]); setTutStep(6);
+                setExprTokens(tokens);
+                setUsedNums([0,3,2,1,4]);
+                setTutStep(6);
               }}
             />
           )}
 
           {isTutorial && tutStep === 6 && (
             <div style={{
-              position: "relative", zIndex: 100, background: "#ff69b4", color: "white",
-              borderRadius: "14px", padding: "18px 22px", fontSize: "38px", fontWeight: "bold",
-              lineHeight: "1.6", margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+              position: "relative", zIndex: 100,
+              background: "#ff69b4", color: "white",
+              borderRadius: "14px", padding: "18px 22px",
+              fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
+              margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
               border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
             }}>
-              式が入力されたよ！<br/><span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
+              式が入力されたよ！<br/>
+              <span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
             </div>
           )}
 
+          {/* Operators - アニメーション中はpointerEvents:none */}
           <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "16px" }}>
-            {[["＋","+"],[" － ","-"],["×","*"],["÷","/"],["（","("],["）",")"]].map(([l, v]) => (
+            {[["＋", "+"], [" － ", "-"], ["×", "*"], ["÷", "/"], ["（", "("], ["）", ")"]].map(([l, v]) => (
               <button key={l} onClick={() => appOp(v)} style={{
-                background: "#111f14", border: "2px solid #4ade8033", borderRadius: "14px",
-                color: "#4ade80", fontWeight: "900", width: "80px", height: "80px",
+                background: "#111f14", border: "2px solid #4ade8033",
+                borderRadius: "14px", color: "#4ade80",
+                fontWeight: "900", width: "80px", height: "80px",
                 fontSize: "38px", cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
                 pointerEvents: isTutorial && tutStep === 5 ? "none" : "auto",
               }}>{l}</button>
             ))}
           </div>
 
+          {/* Expression display - アニメーション中は非表示 */}
           {(!isTutorial || tutStep !== 5) && (
             <div style={{
-              background: "#111f14", border: "2px solid #4ade8033", borderRadius: "16px", padding: "20px 20px",
+              background: "#111f14", border: "2px solid #4ade8033",
+              borderRadius: "16px", padding: "20px 20px",
               fontSize: exprTokens.length > 12 ? "48px" : exprTokens.length > 8 ? "58px" : "68px",
-              fontFamily: "monospace", fontWeight: "bold", color: "white", textAlign: "center",
-              marginBottom: "12px", minHeight: "80px", wordBreak: "break-all", letterSpacing: "1px", transition: "font-size 0.2s",
+              fontFamily: "monospace", fontWeight: "bold",
+              color: "white", textAlign: "center", marginBottom: "12px",
+              minHeight: "80px", wordBreak: "break-all", letterSpacing: "1px",
+              transition: "font-size 0.2s",
             }}>
               {exprTokens.length > 0
                 ? tokensToDisplay(exprTokens)
@@ -910,12 +861,15 @@ export default function App() {
 
           {isTutorial && tutStep === 6 && (
             <div style={{
-              position: "relative", zIndex: 100, background: "#ff69b4", color: "white",
-              borderRadius: "14px", padding: "18px 22px", fontSize: "38px", fontWeight: "bold",
-              lineHeight: "1.6", margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
+              position: "relative", zIndex: 100,
+              background: "#ff69b4", color: "white",
+              borderRadius: "14px", padding: "18px 22px",
+              fontSize: "38px", fontWeight: "bold", lineHeight: "1.6",
+              margin: "12px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)",
               border: "2px solid #ff1493", animation: "pulse-pink 2s infinite",
             }}>
-              式が入力されたよ！<br/><span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
+              式が入力されたよ！<br/>
+              <span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span>
             </div>
           )}
 
@@ -940,17 +894,25 @@ export default function App() {
       {/* ── RESULT ── */}
       {phase === "result" && (
         <div style={{ textAlign: "center", width: "100%", maxWidth: "720px", position: "relative" }}>
+
+          {/* 紙吹雪アニメーション（本番かつ新記録時のみ） */}
           {!isTutorial && isNewRecord && (
             <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
               {[...Array(40)].map((_, i) => (
                 <div key={i} style={{
-                  position: "absolute", left: `${(i * 7.3) % 100}%`, top: `-${10 + (i * 13) % 20}px`,
+                  position: "absolute",
+                  left: `${(i * 7.3) % 100}%`,
+                  top: `-${10 + (i * 13) % 20}px`,
                   fontSize: `${16 + (i * 7) % 24}px`,
-                  animation: `confetti-fall ${2 + (i * 0.17) % 3}s linear ${(i * 0.23) % 2}s infinite`, opacity: 0.9,
-                }}>{["🎉","🍀","✨","🌟","💚","🎊","⭐"][i % 7]}</div>
+                  animation: `confetti-fall ${2 + (i * 0.17) % 3}s linear ${(i * 0.23) % 2}s infinite`,
+                  opacity: 0.9,
+                }}>
+                  {["🎉","🍀","✨","🌟","💚","🎊","⭐"][i % 7]}
+                </div>
               ))}
             </div>
           )}
+
           <div style={{ position: "relative", zIndex: 1 }}>
             <div style={{ fontSize: "104px", marginBottom: "12px" }}>🍀</div>
             <div style={{ fontSize: "80px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
@@ -959,42 +921,60 @@ export default function App() {
             <div style={{ fontSize: "104px", fontFamily: "monospace", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
               {fmt(time)}秒
             </div>
+
             {isTutorial ? (
               <div style={{ marginBottom: "32px" }}>
                 <div style={{ fontSize: "26px", color: "#86efac", lineHeight: "1.8", marginBottom: "24px" }}>
-                  ⬆️ はクリアしたタイムだよ！<br/>本番では記録が出るたびに更新されるよ🏆<br/>👇 新記録なら「新記録」と金色に点滅するよ！
+                  ⬆️ はクリアしたタイムだよ！<br/>
+                  本番では記録が出るたびに更新されるよ🏆<br/>
+                  👇 新記録なら「新記録」と金色に点滅するよ！
                 </div>
                 <div style={{
-                  background: "#ff69b422", border: "2px solid #ff69b4", borderRadius: "24px",
-                  padding: "24px", marginBottom: "24px", color: "#ff69b4", fontSize: "28px", fontWeight: "bold",
-                }}>やり方はわかったかな？<br/>さぁいよいよチャレンジだ👇</div>
+                  background: "#ff69b422", border: "2px solid #ff69b4",
+                  borderRadius: "24px", padding: "24px", marginBottom: "24px",
+                  color: "#ff69b4", fontSize: "28px", fontWeight: "bold",
+                }}>
+                  やり方はわかったかな？<br/>さぁいよいよチャレンジだ👇
+                </div>
                 <PBtn label="次の問題へ 🃏（本番！）" onClick={() => startGame(false)} />
               </div>
             ) : (
               <>
                 {isNewRecord && (
-                  <div style={{ color: "#fbbf24", fontSize: "40px", fontWeight: "900", marginBottom: "12px", animation: "blink-gold 1.8s infinite" }}>🎉 新記録！ 🎉</div>
+                  <div style={{
+                    color: "#fbbf24", fontSize: "40px", fontWeight: "900",
+                    marginBottom: "12px", animation: "blink-gold 1.8s infinite",
+                  }}>🎉 新記録！ 🎉</div>
                 )}
                 {bestTime !== null && (
-                  <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>🏆 ただ今のベスト：{fmt(bestTime)}秒</div>
+                  <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>
+                    🏆 ただ今のベスト：{fmt(bestTime)}秒
+                  </div>
                 )}
                 <div style={{ color: "#555", fontSize: "24px", marginBottom: "8px" }}>{feedback?.msg}</div>
-                <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>to be happy... 🍀</div>
+                <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>
+                  to be happy... 🍀
+                </div>
                 <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
-                  <div style={{ flex: 1 }}><PBtn label="次の問題へ 🃏" onClick={() => startGame(false)} /></div>
+                  <div style={{ flex: 1 }}>
+                    <PBtn label="次の問題へ 🃏" onClick={() => startGame(false)} />
+                  </div>
                 </div>
               </>
             )}
+
             <div style={{ display: "flex", gap: "16px" }}>
               <div style={{ flex: 1 }}>
                 <button onClick={() => startGame(true)} style={{
-                  background: "linear-gradient(135deg,#ff69b4,#ff1493)", border: "none", borderRadius: "24px",
-                  color: "white", fontWeight: "bold", fontSize: "28px", padding: "32px 0",
-                  cursor: "pointer", width: "100%", boxShadow: "0 4px 16px rgba(255,105,180,0.4)",
+                  background: "linear-gradient(135deg,#ff69b4,#ff1493)",
+                  border: "none", borderRadius: "24px", color: "white",
+                  fontWeight: "bold", fontSize: "28px", padding: "32px 0",
+                  cursor: "pointer", width: "100%",
+                  boxShadow: "0 4px 16px rgba(255,105,180,0.4)",
                 }}>やり方を学ぶ 📖</button>
               </div>
               <div style={{ flex: 1 }}>
-                <GBtn label="タイトルへ" onClick={() => { stopBGM(); setPhase("start"); }} />
+                <GBtn label="タイトルへ" onClick={() => { setPhase("start"); }} />
               </div>
             </div>
           </div>
@@ -1002,11 +982,26 @@ export default function App() {
       )}
 
       <style>{`
-        @keyframes pulse-pink { 0%,100%{box-shadow:0 4px 20px rgba(255,105,180,0.5);} 50%{box-shadow:0 6px 28px rgba(255,105,180,0.9);transform:scale(1.01);} }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
-        @keyframes blink-gold { 0%,100%{color:#fbbf24;opacity:1;} 50%{color:#f59e0b;opacity:0.3;} }
-        @keyframes confetti-fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1;} 100%{transform:translateY(110vh) rotate(720deg);opacity:0.2;} }
-        @keyframes countdown-pop { 0%{transform:scale(1.8);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+        @keyframes pulse-pink {
+          0%, 100% { box-shadow: 0 4px 20px rgba(255,105,180,0.5); }
+          50% { box-shadow: 0 6px 28px rgba(255,105,180,0.9); transform: scale(1.01); }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        @keyframes blink-gold {
+          0%, 100% { color: #fbbf24; opacity: 1; }
+          50% { color: #f59e0b; opacity: 0.3; }
+        }
+        @keyframes confetti-fall {
+          0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(110vh) rotate(720deg); opacity: 0.2; }
+        }
+        @keyframes countdown-pop {
+          0% { transform: scale(1.8); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
       `}</style>
     </div>
   );
