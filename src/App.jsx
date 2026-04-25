@@ -752,7 +752,7 @@ export default function App() {
               <button key={i} onClick={() => appNum(i, n)} style={{
                 background: ["#3b82f6", "#ec4899", "#f97316", "#8b5cf6", "#10b981"][i],
                 border: "none", borderRadius: "14px", color: "white",
-                fontWeight: "900", width: "139px", height: "90px", fontSize: "38px",
+                fontWeight: "900", width: "120px", height: "120px", fontSize: "52px",
                 cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
                 opacity: usedNums.includes(i) ? 0.25 : 1,
                 transition: "opacity 0.2s",
@@ -811,8 +811,8 @@ export default function App() {
               <button key={l} onClick={() => appOp(v)} style={{
                 background: "#111f14", border: "2px solid #4ade8033",
                 borderRadius: "14px", color: "#4ade80",
-                fontWeight: "900", width: "80px", height: "80px",
-                fontSize: "38px", cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
+                fontWeight: "900", width: "120px", height: "120px",
+                fontSize: "52px", cursor: isTutorial && tutStep === 5 ? "default" : "pointer",
                 pointerEvents: isTutorial && tutStep === 5 ? "none" : "auto",
               }}>{l}</button>
             ))}
