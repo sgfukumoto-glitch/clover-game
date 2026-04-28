@@ -66,7 +66,7 @@ const T = {
     about3title: "👨‍👩‍👧‍👦 こんな人に",
     about3: <>四則計算ができれば<strong style={{ color: "white" }}>小学3年生(?)から</strong>プレイ可能！<br/>大人だから強いとも言えないので、子どもから大人まで本気で勝負できます。<br/><br/>家族が揃っているのにやることない…そんな時に！<br/><span style={{ color: "#fbbf24" }}>・在宅勤務でおうち時間が増えた</span><br/><span style={{ color: "#fbbf24" }}>・祖父母と孫でボケ防止にも笑</span><br/><span style={{ color: "#fbbf24", fontWeight: "bold" }}>・家族全員が本気で競える！</span></>,
     about4title: "🍀 CLOVERの由来",
-    about4: <>四葉のクローバー → 幸せを呼ぶ → 一見困難でも、工夫すれば（並び変えて四則計算で組むことで）答えを導き出せるかもしれない、という意味を込めました！<br/><br/><strong style={{ color: "#fbbf24", fontSize: "28px" }}>※CLO<span style={{ color: "#ef4444" }}>LOVE</span>R™️の中には「LOVE（愛）」があるのがまたポイント笑</strong></>,
+    about4: <>四葉のクローバー → 幸せを呼ぶ → 一見困難でも、工夫すれば（並び変えて四則計算で組むことで）答えを導き出せるかもしれない、という意味を込めました！<br/><br/><strong style={{ color: "#fbbf24", fontSize: "28px" }}>※C<span style={{ color: "#ef4444" }}>LOVE</span>R™️の中には「LOVE（愛）」があるのがまたポイント笑</strong></>,
   },
   en: {
     title: "🍀 CLOVER™️",
@@ -133,7 +133,7 @@ const T = {
     about3title: "👨‍👩‍👧‍👦 Who Is It For?",
     about3: <>Anyone who can do basic arithmetic — <strong style={{ color: "white" }}>from about 3rd grade</strong> and up!<br/>Adults don't necessarily have the advantage, so the whole family can compete for real.<br/><br/>Perfect for when the family is home but bored！<br/><span style={{ color: "#fbbf24" }}>・Working from home? Great indoor activity!</span><br/><span style={{ color: "#fbbf24" }}>・Grandparents vs grandkids — great for the brain!</span><br/><span style={{ color: "#fbbf24", fontWeight: "bold" }}>・The whole family competing for real！</span></>,
     about4title: "🍀 The Name CLOVER",
-    about4: <>Four-leaf clover → brings happiness → even something that looks difficult might have a solution if you rearrange and combine it creatively！<br/><br/><strong style={{ color: "#fbbf24", fontSize: "28px" }}>※ CLO<span style={{ color: "#ef4444" }}>LOVE</span>R™️ — there's LOVE right in the name！ 😄</strong></>,
+    about4: <>Four-leaf clover → brings happiness → even something that looks difficult might have a solution if you rearrange and combine it creatively！<br/><br/><strong style={{ color: "#fbbf24", fontSize: "28px" }}>※ C<span style={{ color: "#ef4444", fontWeight:"900" }}>LOVE</span>R™️ — there's LOVE right in the name！ 😄</strong></>,
   },
 };
 
@@ -510,13 +510,13 @@ export default function App() {
       padding: "80px 22px 54px", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
           <button
-            onPointerDown={e=>btnDown(e,"0 1px 0 #333")}
-            onPointerUp={e=>btnUp(e,"0 4px 0 #333",()=>setLang(l=>l==="ja"?"en":"ja"))}
-            onPointerLeave={e=>btnLeave(e,"0 4px 0 #333")}
-            style={{ background: "linear-gradient(145deg,#333,#222)", border: "1px solid #555", borderRadius: "20px", color: "white", fontWeight: "bold", fontSize: "22px", padding: "8px 20px", cursor: "pointer", boxShadow: "0 4px 0 #111", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>
-            {lang === "ja" ? "🇺🇸 EN" : "🇯🇵 JP"}
+            onPointerDown={e=>btnDown(e,"0 4px 0 #333")}
+            onPointerUp={e=>btnUp(e,"0 16px 0 #333",()=>setLang(l=>l==="ja"?"en":"ja"))}
+            onPointerLeave={e=>btnLeave(e,"0 16px 0 #333")}
+            style={{ background: "linear-gradient(145deg,#444,#222)", border: "3px solid #888", borderRadius: "36px", color: "white", fontWeight: "bold", fontSize: "52px", padding: "36px 72px", cursor: "pointer", boxShadow: "0 16px 0 #111", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s", letterSpacing: "2px" }}>
+            {lang === "ja" ? "🇺🇸 English" : "🇯🇵 日本語"}
           </button>
         </div>
         <div style={{ fontSize: "94px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>{t.title}</div>
