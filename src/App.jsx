@@ -514,6 +514,9 @@ export default function App() {
       color: "white",
       fontFamily: "Georgia,serif",
       boxSizing: "border-box",
+      width: "100%",
+      maxWidth: "480px",
+      margin: "0 auto",
     }}>
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px", paddingRight: "8px" }}>
