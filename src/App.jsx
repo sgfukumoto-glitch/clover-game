@@ -751,7 +751,7 @@ export default function App() {
           {(!isTutorial || tutStep !== 5) && (
             <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
               <button onPointerDown={e=>btnDown(e,"0 2px 0 #0a1a0f")} onPointerUp={e=>btnUp(e,"0 7px 0 #0a1a0f",backspaceExpr)} onPointerLeave={e=>btnLeave(e,"0 7px 0 #0a1a0f")} style={{ background: "#1a2f1e", border: "1px solid #4ade8033", borderRadius: "14px", color: "#86efac", fontWeight: "bold", width: "90px", height: "80px", fontSize: "36px", cursor: "pointer", flexShrink: 0, boxShadow: "0 7px 0 #0a1a0f", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>⌫</button>
-              <button onPointerDown={e=>btnDown(e,"0 2px 0 #0a1a0f")} onPointerUp={e=>btnUp(e,"0 7px 0 #0a1a0f",clearExpr)} onPointerLeave={e=>btnLeave(e,"0 7px 0 #0a1a0f")} style={{ background: "#1a2f1e", border: "1px solid #4ade8033", borderRadius: "14px", color: "#86efac", fontWeight: "bold", flex: 1, height: "80px", fontSize: "32px", cursor: "pointer", boxShadow: "0 7px 0 #0a1a0f", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{lang === "ja" ? "全消し" : "Clear"}</button>
+              <button onPointerDown={e=>btnDown(e,"0 2px 0 #0a1a0f")} onPointerUp={e=>btnUp(e,"0 7px 0 #0a1a0f",clearExpr)} onPointerLeave={e=>btnLeave(e,"0 7px 0 #0a1a0f")} style={{ background: "#1a2f1e", border: "1px solid #4ade8033", borderRadius: "14px", color: "#86efac", fontWeight: "bold", flex: 1, height: "80px", fontSize: "32px", cursor: "pointer", boxShadow: "0 7px 0 #0a1a0f", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{lang === "ja" ? "全消し" : "All Clear"}</button>
             </div>
           )}
           {feedback && (
