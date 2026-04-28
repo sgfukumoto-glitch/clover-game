@@ -507,7 +507,7 @@ export default function App() {
   return (
     <div style={{
       minHeight: "100svh", background: "#0a1a0f", display: "flex", flexDirection: "column", alignItems: "center",
-      padding: "80px 22px 80px", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
+      padding: "80px 22px 54px", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px", paddingRight: "8px" }}>
