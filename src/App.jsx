@@ -1,5 +1,142 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
+const T = {
+  ja: {
+    title: "🍀 CLOVER™️",
+    subtitle: "♣ NUMBER CARD GAME ♣",
+    best: "🏆 ベスト",
+    sec: "秒",
+    reset: "リセット",
+    resetConfirm: "ベストタイムをリセットしますか？",
+    howToPlay: "やり方を学ぶ 📖",
+    start: "スタート 🃏",
+    hint1: "⬇️ のボタンを押すと…",
+    desc: (
+      <>
+        52枚の山からカードを引いて<br/>
+        <span style={{ color: "#60a5fa", fontWeight: "bold" }}>①②③④⑤</span> に書かれた数字を四則計算で繋げて並び替えて{" "}
+        <span style={{ color: "#ef4444", fontWeight: "bold" }}>⑥</span> の数字(target)にしよう！！<br/>タイムを競うカードゲームだよ！
+      </>
+    ),
+    toBeHappy: "to be happy... 🍀",
+    tutHint1: "📖 ピンク→チュートリアルで試し遊び！",
+    tutHint2: "🃏 黄色字→本番スタート！",
+    by: "by NPO法人 Foster Partner®️",
+    back: "← 戻る",
+    tutBanner: "チュートリアル中 🩷 — 説明に沿って操作手順を覚えてね",
+    backToTitle: "タイトルへ戻る",
+    next: "次へ →",
+    tut1: <>👆 スタートと同時に<br/>タイムが動き出すよ！⏱</>,
+    target: "⑥ TARGET",
+    tut2: <>これが👆⑥ターゲット<br/>この数字を答えにするのが<br/>目標だよ！</>,
+    tut3: <>👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ</>,
+    tut3b: <>記号(+-×÷)は<br/>何度使ってもいいよ</>,
+    tut3c: "※解法は一つではないよ",
+    tut4: <>出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ</>,
+    tut4b: "※バスや電車の中では、心の中でね笑",
+    fospa: "フォスパ！🙋",
+    dealing: "カードを配っています…",
+    fospaTime: "フォスパ！ ⏱",
+    tutBanner2: "チュートリアル中 🩷",
+    backOk: "解き直したい時は戻れるよ",
+    tut5: <>このように、数字と演算記号を<br/>組み合わせて解答していくよ！<br/><br/>出来たら「答え合わせ」を押してね</>,
+    tut6: <>式が入力されたよ！<br/><span style={{ fontSize: "32px" }}>👇の「答え合わせ」ボタンを押してね。</span></>,
+    exprPlaceholder: "ここに式が入るよ",
+    check: "答え合わせ！",
+    retry: "やり直す",
+    errAll: "①〜⑤の数字を各1回ずつ全部使ってね！",
+    errExpr: "式が正しくないよ。確認してね。",
+    correct: (t) => `正解！= ${t} 🍀`,
+    wrong: (v) => `その式は ${v} になるよ`,
+    tutComplete: <>チュートリアル<br/>完了！🎉</>,
+    correct2: "せいかい！🍬",
+    tutResult1: "⬆️ はクリアしたタイムだよ！\n本番では記録が出るたびに更新されるよ🏆\n👇 新記録なら「新記録」と金色に点滅するよ！",
+    tutResult2: <>やり方はわかったかな？<br/>さぁいよいよチャレンジだ👇</>,
+    nextGame: "次の問題へ 🃏（本番！）",
+    about: "🍀 CLOVER™️について読む",
+    newRecord: "🎉 新記録！ 🎉",
+    currentBest: "🏆 ただ今のベスト：",
+    nextGame2: "次の問題へ 🃏",
+    toTitle: "タイトルへ",
+    aboutTitle: "🍀 CLOVER™️について",
+    about1title: "🏢 監修",
+    about1: <><strong style={{ color: "white" }}>NPO法人 Foster Partner®️</strong>が監修して作ったゲームアプリです。</>,
+    about2title: "📖 誕生の背景",
+    about2: <>以前、似たロジックのカードゲームが世にありましたが、今はどこにも販売されていません。<br/>その寂しさから、ロジックを逆算してデジタル版として<strong style={{ color: "white" }}>CLOVER™️</strong>を組み立てました！</>,
+    about3title: "👨‍👩‍👧‍👦 こんな人に",
+    about3: <>四則計算ができれば<strong style={{ color: "white" }}>小学3年生(?)から</strong>プレイ可能！<br/>大人だから強いとも言えないので、子どもから大人まで本気で勝負できます。<br/><br/>家族が揃っているのにやることない…そんな時に！<br/><span style={{ color: "#fbbf24" }}>・在宅勤務でおうち時間が増えた</span><br/><span style={{ color: "#fbbf24" }}>・祖父母と孫でボケ防止にも笑</span><br/><span style={{ color: "#fbbf24", fontWeight: "bold" }}>・家族全員が本気で競える！</span></>,
+    about4title: "🍀 CLOVERの由来",
+    about4: <>四葉のクローバー → 幸せを呼ぶ → 一見困難でも、工夫すれば（並び変えて四則計算で組むことで）答えを導き出せるかもしれない、という意味を込めました！<br/><br/><strong style={{ color: "#fbbf24", fontSize: "28px" }}>※CLO<span style={{ color: "#ef4444" }}>LOVE</span>R™️の中には「LOVE（愛）」があるのがまたポイント笑</strong></>,
+  },
+  en: {
+    title: "🍀 CLOVER™️",
+    subtitle: "♣ NUMBER CARD GAME ♣",
+    best: "🏆 Best",
+    sec: "s",
+    reset: "Reset",
+    resetConfirm: "Reset your best time?",
+    howToPlay: "How to Play 📖",
+    start: "Start 🃏",
+    hint1: "⬇️ Press a button below…",
+    desc: (
+      <>
+        Draw cards from a 52-card deck!<br/>
+        Use <span style={{ color: "#60a5fa", fontWeight: "bold" }}>①②③④⑤</span> with arithmetic operations to reach the{" "}
+        <span style={{ color: "#ef4444", fontWeight: "bold" }}>⑥</span> target number!<br/>Race against the clock!
+      </>
+    ),
+    toBeHappy: "to be happy... 🍀",
+    tutHint1: "📖 Pink → Try the tutorial first!",
+    tutHint2: "🃏 Yellow → Start the real game!",
+    by: "by NPO Foster Partner®️",
+    back: "← Back",
+    tutBanner: "Tutorial 🩷 — Follow the instructions to learn how to play!",
+    backToTitle: "Back to Title",
+    next: "Next →",
+    tut1: <>👆 The timer starts<br/>as soon as the game begins！⏱</>,
+    target: "⑥ TARGET",
+    tut2: <>👆 This is the ⑥ Target!<br/>Your goal is to make<br/>this number!</>,
+    tut3: <>👆 These are the 5 cards ①②③④⑤!<br/>Rearrange them with<br/>arithmetic operators(+-×÷)<br/>to reach the target!</>,
+    tut3b: <>You can use operators<br/>as many times as you like!</>,
+    tut3c: "※ There may be multiple solutions!",
+    tut4: <>When you're ready,<br/>shout "Fospa!" and<br/>press 👇 the button!</>,
+    tut4b: "※ On the bus/train, just think it 😄",
+    fospa: "Fospa！🙋",
+    dealing: "Dealing cards…",
+    fospaTime: "Fospa！ ⏱",
+    tutBanner2: "Tutorial 🩷",
+    backOk: "You can go back to rethink!",
+    tut5: <>Combine numbers and operators<br/>like this to build your answer!<br/><br/>Then press "Check Answer"!</>,
+    tut6: <>Expression entered!<br/><span style={{ fontSize: "32px" }}>👇 Press "Check Answer"!</span></>,
+    exprPlaceholder: "Your expression goes here",
+    check: "Check Answer！",
+    retry: "Try Again",
+    errAll: "Use each of ①~⑤ exactly once!",
+    errExpr: "Invalid expression. Please check!",
+    correct: (t) => `Correct！= ${t} 🍀`,
+    wrong: (v) => `That equals ${v}`,
+    tutComplete: <>Tutorial<br/>Complete！🎉</>,
+    correct2: "Correct！🍬",
+    tutResult1: "⬆️ That's your clear time!\nIn the real game, your best is saved！🏆\n👇 A new record flashes gold!",
+    tutResult2: <>Got the hang of it？<br/>Now it's time to play for real！👇</>,
+    nextGame: "Next Game 🃏 (Real!)",
+    about: "🍀 About CLOVER™️",
+    newRecord: "🎉 New Record！ 🎉",
+    currentBest: "🏆 Current Best：",
+    nextGame2: "Next Game 🃏",
+    toTitle: "Title",
+    aboutTitle: "🍀 About CLOVER™️",
+    about1title: "🏢 Supervised By",
+    about1: <>This app was created under the supervision of <strong style={{ color: "white" }}>NPO Foster Partner®️</strong>.</>,
+    about2title: "📖 The Story Behind It",
+    about2: <>There used to be a card game with similar logic, but it disappeared from stores. Out of nostalgia, we reverse-engineered the logic and rebuilt it digitally as <strong style={{ color: "white" }}>CLOVER™️</strong>!</>,
+    about3title: "👨‍👩‍👧‍👦 Who Is It For?",
+    about3: <>Anyone who can do basic arithmetic — <strong style={{ color: "white" }}>from about 3rd grade</strong> and up!<br/>Adults don't necessarily have the advantage, so the whole family can compete for real.<br/><br/>Perfect for when the family is home but bored！<br/><span style={{ color: "#fbbf24" }}>・Working from home? Great indoor activity!</span><br/><span style={{ color: "#fbbf24" }}>・Grandparents vs grandkids — great for the brain!</span><br/><span style={{ color: "#fbbf24", fontWeight: "bold" }}>・The whole family competing for real！</span></>,
+    about4title: "🍀 The Name CLOVER",
+    about4: <>Four-leaf clover → brings happiness → even something that looks difficult might have a solution if you rearrange and combine it creatively！<br/><br/><strong style={{ color: "#fbbf24", fontSize: "28px" }}>※ CLO<span style={{ color: "#ef4444" }}>LOVE</span>R™️ — there's LOVE right in the name！ 😄</strong></>,
+  },
+};
+
 function buildDeck() {
   const deck = [];
   for (let n = 1; n <= 10; n++) for (let i = 0; i < 3; i++) deck.push(n);
@@ -60,20 +197,20 @@ function drawCards() {
   return { target: 10, nums: [1, 2, 3, 4, 5] };
 }
 
-function validateExpression(expr, nums, target) {
+function validateExpression(expr, nums, target, t) {
   const tokens = expr.replace(/[+\-*/()]/g, " ").trim().split(/\s+/).filter(Boolean);
   const usedNums = tokens.map(Number).filter(n => !isNaN(n));
   const sortedUsed = [...usedNums].sort((a, b) => a - b);
   const sortedNums = [...nums].sort((a, b) => a - b);
   if (JSON.stringify(sortedUsed) !== JSON.stringify(sortedNums))
-    return { ok: false, msg: "①〜⑤の数字を各1回ずつ全部使ってね！" };
+    return { ok: false, msg: t.errAll };
   try {
     const safe = expr.replace(/[^0-9+\-*/().]/g, "");
     // eslint-disable-next-line no-new-func
     const result = Function('"use strict"; return (' + safe + ")")();
-    if (Math.abs(result - target) < 0.0001) return { ok: true, msg: `正解！= ${target} 🍀` };
-    return { ok: false, msg: `その式は ${Number(result.toFixed(4))} になるよ` };
-  } catch { return { ok: false, msg: "式が正しくないよ。確認してね。" }; }
+    if (Math.abs(result - target) < 0.0001) return { ok: true, msg: t.correct(target) };
+    return { ok: false, msg: t.wrong(Number(result.toFixed(4))) };
+  } catch { return { ok: false, msg: t.errExpr }; }
 }
 
 const TUTORIAL_CARDS = { target: 18, nums: [1, 17, 5, 2, 6] };
@@ -218,6 +355,8 @@ function playPakon() {
 
 export default function App() {
   const [phase, setPhase] = useState("start");
+  const [lang, setLang] = useState("ja");
+  const t = T[lang];
   const [cards, setCards] = useState(null);
   const [revealedCount, setRevealedCount] = useState(-1);
   const [time, setTime] = useState(0);
@@ -279,7 +418,7 @@ export default function App() {
 
   const checkAnswer = () => {
     if (!cards) return;
-    const r = validateExpression(expr, cards.nums, cards.target);
+    const r = validateExpression(expr, cards.nums, cards.target, t);
     setFeedback(r);
     if (r.ok) {
       if (!isTutorial && (bestTime === null || time < bestTime)) {
@@ -323,6 +462,7 @@ export default function App() {
     e.currentTarget.style.transform = "translateY(0)";
     e.currentTarget.style.boxShadow = shadowNormal;
     playPakon();
+    if (navigator.vibrate) navigator.vibrate(30);
     if (cb) cb();
   };
   const btnLeave = (e, shadowNormal) => {
@@ -370,9 +510,27 @@ export default function App() {
       padding: "80px 22px 54px", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
-        <div style={{ fontSize: "94px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>🍀 CLOVER™️</div>
-        <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginTop: "7px" }}>♣ NUMBER CARD GAME ♣</div>
-        {bestTime !== null && <div style={{ fontSize: "25px", color: "#fbbf24", marginTop: "11px" }}>🏆 ベスト: {fmt(bestTime)}秒</div>}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
+          <button
+            onPointerDown={e=>btnDown(e,"0 1px 0 #333")}
+            onPointerUp={e=>btnUp(e,"0 4px 0 #333",()=>setLang(l=>l==="ja"?"en":"ja"))}
+            onPointerLeave={e=>btnLeave(e,"0 4px 0 #333")}
+            style={{ background: "linear-gradient(145deg,#333,#222)", border: "1px solid #555", borderRadius: "20px", color: "white", fontWeight: "bold", fontSize: "22px", padding: "8px 20px", cursor: "pointer", boxShadow: "0 4px 0 #111", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>
+            {lang === "ja" ? "🇺🇸 EN" : "🇯🇵 JP"}
+          </button>
+        </div>
+        <div style={{ fontSize: "94px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>{t.title}</div>
+        <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginTop: "7px" }}>{t.subtitle}</div>
+        {bestTime !== null && (
+          <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "11px", justifyContent: "center" }}>
+            <div style={{ fontSize: "25px", color: "#fbbf24" }}>{t.best}: {fmt(bestTime)}{t.sec}</div>
+            <button
+              onPointerDown={e=>btnDown(e,"0 2px 0 #7f1d1d")}
+              onPointerUp={e=>btnUp(e,"0 6px 0 #7f1d1d", () => { if(window.confirm(t.resetConfirm)) { setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} } })}
+              onPointerLeave={e=>btnLeave(e,"0 6px 0 #7f1d1d")}
+              style={{ background: "linear-gradient(145deg,#ef4444,#dc2626)", border: "none", borderRadius: "12px", color: "white", fontWeight: "bold", fontSize: "18px", padding: "8px 18px", cursor: "pointer", boxShadow: "0 6px 0 #7f1d1d", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.reset}</button>
+          </div>
+        )}
       </div>
 
       {phase === "start" && (
@@ -478,7 +636,7 @@ export default function App() {
                 </div>
               )}
               <button
-                onPointerUp={() => { playPakon(); fospa(); }}
+                onPointerUp={() => { playPakon(); if (navigator.vibrate) navigator.vibrate(30); fospa(); }}
                 onPointerDown={e => {
                   e.currentTarget.style.transform = "translateY(6px)";
                   e.currentTarget.style.boxShadow = "0 2px 0 #166534, 0 4px 10px rgba(74,222,128,0.3)";
