@@ -325,6 +325,7 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
+// パコン効果音
 function playPakon() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -452,6 +453,7 @@ export default function App() {
     setExprTokens(newTokens); setExpr(tokensToExpr(newTokens));
   };
 
+  // 立体ボタン共通ハンドラ
   const btnDown = (e, shadowPressed) => {
     e.currentTarget.style.transform = "translateY(5px)";
     e.currentTarget.style.boxShadow = shadowPressed;
@@ -504,19 +506,8 @@ export default function App() {
 
   return (
     <div style={{
-      minHeight: "100svh",
-      background: "#0a1a0f",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      padding: "80px 22px 0",
-      paddingBottom: "calc(env(safe-area-inset-bottom) + 80px)",
-      color: "white",
-      fontFamily: "Georgia,serif",
-      boxSizing: "border-box",
-      width: "100%",
-      maxWidth: "480px",
-      margin: "0 auto",
+      minHeight: "100svh", background: "#0a1a0f", display: "flex", flexDirection: "column", alignItems: "center",
+      padding: "80px 22px 80px", paddingBottom: "max(80px, env(safe-area-inset-bottom))", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px", paddingRight: "8px" }}>
@@ -629,6 +620,7 @@ export default function App() {
             )}
           </div>
 
+          {/* フォスパボタン - 立体版 */}
           {phase === "playing" && (isTutorial ? tutStep >= 4 : true) && (
             <div style={{ position: "relative" }}>
               {isTutorial && tutStep === 4 && (
@@ -783,6 +775,7 @@ export default function App() {
         </div>
       )}
 
+      {/* ABOUT */}
       {phase === "about" && (
         <div style={{ width: "100%", maxWidth: "756px" }}>
           <div style={{ textAlign: "center", marginBottom: "30px" }}>
@@ -811,6 +804,7 @@ export default function App() {
         </div>
       )}
 
+      {/* RESULT */}
       {phase === "result" && (
         <div style={{ textAlign: "center", width: "100%", maxWidth: "720px", position: "relative" }}>
           {!isTutorial && isNewRecord && (
