@@ -510,12 +510,12 @@ export default function App() {
       padding: "80px 22px 54px", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px", paddingRight: "8px" }}>
           <button
             onPointerDown={e=>btnDown(e,"0 3px 0 #333")}
             onPointerUp={e=>btnUp(e,"0 10px 0 #333",()=>setLang(l=>l==="ja"?"en":"ja"))}
             onPointerLeave={e=>btnLeave(e,"0 10px 0 #333")}
-            style={{ background: "linear-gradient(145deg,#444,#222)", border: "3px solid #888", borderRadius: "30px", color: "white", fontWeight: "bold", fontSize: "38px", padding: "18px 48px", cursor: "pointer", boxShadow: "0 10px 0 #111", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s", letterSpacing: "2px" }}>
+            style={{ background: "linear-gradient(145deg,#444,#222)", border: "3px solid #888", borderRadius: "30px", color: "white", fontWeight: "bold", fontSize: "38px", padding: "10px 20px", cursor: "pointer", boxShadow: "0 10px 0 #111", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s", letterSpacing: "2px" }}>
             {lang === "ja" ? "🇺🇸 English" : "🇯🇵 日本語"}
           </button>
         </div>
