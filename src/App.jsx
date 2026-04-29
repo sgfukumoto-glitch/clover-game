@@ -325,6 +325,27 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
+// キュリキュリン効果音（リセット用）
+function playKyuririn() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const times = [0, 0.07, 0.14];
+    times.forEach((start) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = "sine";
+      o.frequency.setValueAtTime(1800, ctx.currentTime + start);
+      o.frequency.exponentialRampToValueAtTime(2800, ctx.currentTime + start + 0.05);
+      o.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + start + 0.09);
+      g.gain.setValueAtTime(0.35, ctx.currentTime + start);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + 0.1);
+      o.start(ctx.currentTime + start);
+      o.stop(ctx.currentTime + start + 0.1);
+    });
+  } catch(e) {}
+}
+
 // パコン効果音
 function playPakon() {
   try {
@@ -526,7 +547,7 @@ export default function App() {
             <div style={{ fontSize: "25px", color: "#fbbf24" }}>{t.best}: {fmt(bestTime)}{t.sec}</div>
             <button
               onPointerDown={e=>btnDown(e,"0 2px 0 #7f1d1d")}
-              onPointerUp={e=>btnUp(e,"0 6px 0 #7f1d1d", () => { if(window.confirm(t.resetConfirm)) { setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} } })}
+              onPointerUp={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 0 #7f1d1d"; playKyuririn(); if(window.confirm(t.resetConfirm)) { setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} } }}
               onPointerLeave={e=>btnLeave(e,"0 6px 0 #7f1d1d")}
               style={{ background: "linear-gradient(145deg,#ef4444,#dc2626)", border: "none", borderRadius: "12px", color: "white", fontWeight: "bold", fontSize: "18px", padding: "8px 18px", cursor: "pointer", boxShadow: "0 6px 0 #7f1d1d", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.reset}</button>
           </div>
