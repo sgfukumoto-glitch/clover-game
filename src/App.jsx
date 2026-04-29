@@ -325,24 +325,38 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
-// キュリキュリン効果音（リセット用）
+// キュルキュリンッ効果音（リセット用）
 function playKyuririn() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const times = [0, 0.07, 0.14];
-    times.forEach((start) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.type = "sine";
-      o.frequency.setValueAtTime(1800, ctx.currentTime + start);
-      o.frequency.exponentialRampToValueAtTime(2800, ctx.currentTime + start + 0.05);
-      o.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + start + 0.09);
-      g.gain.setValueAtTime(0.35, ctx.currentTime + start);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + 0.1);
-      o.start(ctx.currentTime + start);
-      o.stop(ctx.currentTime + start + 0.1);
-    });
+    const now = ctx.currentTime;
+    // ① キュル：上昇スイープ
+    const o1 = ctx.createOscillator(); const g1 = ctx.createGain();
+    o1.connect(g1); g1.connect(ctx.destination);
+    o1.type = "sine";
+    o1.frequency.setValueAtTime(2200, now);
+    o1.frequency.exponentialRampToValueAtTime(4200, now + 0.1);
+    g1.gain.setValueAtTime(0.0, now); g1.gain.linearRampToValueAtTime(0.4, now + 0.02);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    o1.start(now); o1.stop(now + 0.12);
+    // ② キュリ：さらに上へ
+    const o2 = ctx.createOscillator(); const g2 = ctx.createGain();
+    o2.connect(g2); g2.connect(ctx.destination);
+    o2.type = "sine";
+    o2.frequency.setValueAtTime(3800, now + 0.1);
+    o2.frequency.exponentialRampToValueAtTime(5600, now + 0.2);
+    g2.gain.setValueAtTime(0.35, now + 0.1);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    o2.start(now + 0.1); o2.stop(now + 0.22);
+    // ③ ンッ：キラッと落ちるフィニッシュ
+    const o3 = ctx.createOscillator(); const g3 = ctx.createGain();
+    o3.connect(g3); g3.connect(ctx.destination);
+    o3.type = "triangle";
+    o3.frequency.setValueAtTime(6000, now + 0.2);
+    o3.frequency.exponentialRampToValueAtTime(3200, now + 0.32);
+    g3.gain.setValueAtTime(0.3, now + 0.2);
+    g3.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+    o3.start(now + 0.2); o3.stop(now + 0.34);
   } catch(e) {}
 }
 
