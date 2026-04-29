@@ -325,38 +325,31 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
-// キュルキュリンッ効果音（リセット用）
+// キラキラ✨効果音（リセット用）
 function playKyuririn() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const now = ctx.currentTime;
-    // ① キュル：上昇スイープ
-    const o1 = ctx.createOscillator(); const g1 = ctx.createGain();
-    o1.connect(g1); g1.connect(ctx.destination);
-    o1.type = "sine";
-    o1.frequency.setValueAtTime(2200, now);
-    o1.frequency.exponentialRampToValueAtTime(4200, now + 0.1);
-    g1.gain.setValueAtTime(0.0, now); g1.gain.linearRampToValueAtTime(0.4, now + 0.02);
-    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-    o1.start(now); o1.stop(now + 0.12);
-    // ② キュリ：さらに上へ
-    const o2 = ctx.createOscillator(); const g2 = ctx.createGain();
-    o2.connect(g2); g2.connect(ctx.destination);
-    o2.type = "sine";
-    o2.frequency.setValueAtTime(3800, now + 0.1);
-    o2.frequency.exponentialRampToValueAtTime(5600, now + 0.2);
-    g2.gain.setValueAtTime(0.35, now + 0.1);
-    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    o2.start(now + 0.1); o2.stop(now + 0.22);
-    // ③ ンッ：キラッと落ちるフィニッシュ
-    const o3 = ctx.createOscillator(); const g3 = ctx.createGain();
-    o3.connect(g3); g3.connect(ctx.destination);
-    o3.type = "triangle";
-    o3.frequency.setValueAtTime(6000, now + 0.2);
-    o3.frequency.exponentialRampToValueAtTime(3200, now + 0.32);
-    g3.gain.setValueAtTime(0.3, now + 0.2);
-    g3.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
-    o3.start(now + 0.2); o3.stop(now + 0.34);
+    // キラキラ5粒、ランダムにばらまく感じ
+    const sparkles = [
+      { t: 0.00, f1: 4000, f2: 8000, dur: 0.12 },
+      { t: 0.07, f1: 5500, f2: 9500, dur: 0.11 },
+      { t: 0.13, f1: 6500, f2: 11000, dur: 0.13 },
+      { t: 0.20, f1: 5000, f2: 10000, dur: 0.10 },
+      { t: 0.27, f1: 7000, f2: 12000, dur: 0.14 },
+    ];
+    sparkles.forEach(({ t, f1, f2, dur }) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = "sine";
+      o.frequency.setValueAtTime(f1, now + t);
+      o.frequency.exponentialRampToValueAtTime(f2, now + t + dur * 0.4);
+      o.frequency.exponentialRampToValueAtTime(f1 * 0.8, now + t + dur);
+      g.gain.setValueAtTime(0.0, now + t);
+      g.gain.linearRampToValueAtTime(0.28, now + t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, now + t + dur);
+      o.start(now + t); o.stop(now + t + dur + 0.01);
+    });
   } catch(e) {}
 }
 
