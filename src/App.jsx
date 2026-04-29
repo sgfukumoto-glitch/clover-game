@@ -331,30 +331,32 @@ function playKyuririn() {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const now = ctx.currentTime;
 
-    // ド〜ラ的に駆け上がる16音、2秒で
-    const baseFreq = 523.25; // ド（C5）
-    const scale = [1, 1.122, 1.260, 1.335, 1.498, 1.682, 1.888, 2.0,
-                   2.245, 2.520, 2.670, 2.996, 3.364, 3.775, 4.0, 4.490];
+    const baseFreq = 1046.50; // C6（ド）
+    const totalNotes = 32;
     const totalDur = 1.5;
-    const step = totalDur / scale.length;
+    const step = totalDur / totalNotes;
 
-    scale.forEach((ratio, i) => {
+    for (let i = 0; i < totalNotes; i++) {
       const t = now + i * step;
+      const ratio = Math.pow(16, i / (totalNotes - 1));
       const freq = baseFreq * ratio;
-      const noteDur = step * 2.5; // 余韻あり
+      const noteDur = step * 3.0;
 
-      // ハープっぽく：サイン波 + 倍音
-      [1, 2, 3].forEach((harmonic, hi) => {
+      // 最後の6音はどんどん大きく際立たせる
+      const isEnding = i >= totalNotes - 6;
+      const endBoost = isEnding ? 1.0 + (i - (totalNotes - 6)) * 0.25 : 1.0;
+
+      [1, 2, 3].forEach((harmonic) => {
         const o = ctx.createOscillator(); const g = ctx.createGain();
         o.connect(g); g.connect(ctx.destination);
         o.type = "sine";
         o.frequency.setValueAtTime(freq * harmonic, t);
         g.gain.setValueAtTime(0.0, t);
-        g.gain.linearRampToValueAtTime(0.18 / harmonic, t + 0.008);
-        g.gain.exponentialRampToValueAtTime(0.001, t + noteDur);
-        o.start(t); o.stop(t + noteDur + 0.01);
+        g.gain.linearRampToValueAtTime((0.15 / harmonic) * endBoost, t + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.001, t + noteDur * (isEnding ? 1.6 : 1.0));
+        o.start(t); o.stop(t + noteDur * 1.8);
       });
-    });
+    }
   } catch(e) {}
 }
 
