@@ -325,30 +325,35 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
-// キラキラ✨効果音（リセット用）
+// ハープグリッサンド✨効果音（リセット用）
 function playKyuririn() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const now = ctx.currentTime;
-    // キラキラ5粒、ランダムにばらまく感じ
-    const sparkles = [
-      { t: 0.00, f1: 4000, f2: 8000, dur: 0.12 },
-      { t: 0.07, f1: 5500, f2: 9500, dur: 0.11 },
-      { t: 0.13, f1: 6500, f2: 11000, dur: 0.13 },
-      { t: 0.20, f1: 5000, f2: 10000, dur: 0.10 },
-      { t: 0.27, f1: 7000, f2: 12000, dur: 0.14 },
-    ];
-    sparkles.forEach(({ t, f1, f2, dur }) => {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.type = "sine";
-      o.frequency.setValueAtTime(f1, now + t);
-      o.frequency.exponentialRampToValueAtTime(f2, now + t + dur * 0.4);
-      o.frequency.exponentialRampToValueAtTime(f1 * 0.8, now + t + dur);
-      g.gain.setValueAtTime(0.0, now + t);
-      g.gain.linearRampToValueAtTime(0.28, now + t + 0.015);
-      g.gain.exponentialRampToValueAtTime(0.001, now + t + dur);
-      o.start(now + t); o.stop(now + t + dur + 0.01);
+
+    // ド〜ラ的に駆け上がる16音、2秒で
+    const baseFreq = 523.25; // ド（C5）
+    const scale = [1, 1.122, 1.260, 1.335, 1.498, 1.682, 1.888, 2.0,
+                   2.245, 2.520, 2.670, 2.996, 3.364, 3.775, 4.0, 4.490];
+    const totalDur = 1.5;
+    const step = totalDur / scale.length;
+
+    scale.forEach((ratio, i) => {
+      const t = now + i * step;
+      const freq = baseFreq * ratio;
+      const noteDur = step * 2.5; // 余韻あり
+
+      // ハープっぽく：サイン波 + 倍音
+      [1, 2, 3].forEach((harmonic, hi) => {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = "sine";
+        o.frequency.setValueAtTime(freq * harmonic, t);
+        g.gain.setValueAtTime(0.0, t);
+        g.gain.linearRampToValueAtTime(0.18 / harmonic, t + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.001, t + noteDur);
+        o.start(t); o.stop(t + noteDur + 0.01);
+      });
     });
   } catch(e) {}
 }
@@ -554,7 +559,7 @@ export default function App() {
             <div style={{ fontSize: "25px", color: "#fbbf24" }}>{t.best}: {fmt(bestTime)}{t.sec}</div>
             <button
               onPointerDown={e=>btnDown(e,"0 2px 0 #7f1d1d")}
-              onPointerUp={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 0 #7f1d1d"; playKyuririn(); if(window.confirm(t.resetConfirm)) { setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} } }}
+              onPointerUp={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 0 #7f1d1d"; playKyuririn(); setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} }}
               onPointerLeave={e=>btnLeave(e,"0 6px 0 #7f1d1d")}
               style={{ background: "linear-gradient(145deg,#ef4444,#dc2626)", border: "none", borderRadius: "12px", color: "white", fontWeight: "bold", fontSize: "18px", padding: "8px 18px", cursor: "pointer", boxShadow: "0 6px 0 #7f1d1d", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.reset}</button>
           </div>
