@@ -507,7 +507,7 @@ export default function App() {
   return (
     <div style={{
       minHeight: "100svh", background: "#0a1a0f", display: "flex", flexDirection: "column", alignItems: "center",
-      padding: "80px 22px 0", paddingBottom: "calc(env(safe-area-inset-bottom) + 80px)", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
+      padding: "80px 22px 80px", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
       <div style={{ textAlign: "center", marginBottom: "29px" }}>
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px", paddingRight: "8px" }}>
@@ -854,7 +854,6 @@ export default function App() {
       )}
 
       <style>{`
-        body { background-color: #0a1a0f; }
         @keyframes pulse-pink { 0%, 100% { box-shadow: 0 4px 20px rgba(255,105,180,0.5); } 50% { box-shadow: 0 6px 28px rgba(255,105,180,0.9); transform: scale(1.01); } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes blink-gold { 0%, 100% { color: #fbbf24; opacity: 1; } 50% { color: #f59e0b; opacity: 0.3; } }
