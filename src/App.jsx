@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 const T = {
   ja: {
@@ -495,6 +495,7 @@ export default function App() {
   }, [running]);
 
   const goBackToPlaying = () => { setPhase("playing"); setRunning(true); if (isTutorial) setTutStep(4); };
+  const solutionExpr = useMemo(() => cards ? (findSolution(cards.nums, cards.target) ?? "…") : "…", [cards]);
   const fospa = () => { setRunning(false); setPhase("fospa"); if (isTutorial) setTutStep(5); };
 
   const checkAnswer = () => {
@@ -912,13 +913,13 @@ export default function App() {
                   <CloverCard number={cards.target} isTarget size="normal" />
                 </div>
                 <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "nowrap" }}>
-                  {cards.nums.map((n, i) => <CloverCard key={i} number={n} size="xsmall7" />)}
+                  {cards.nums.map((n, i) => <CloverCard key={i} number={n} size="xsmall" />)}
                 </div>
               </div>
               <div style={{ background: "#111f14", border: "2px solid #4ade8055", borderRadius: "20px", padding: "24px", marginBottom: "32px" }}>
                 <div style={{ fontSize: "16px", color: "#4ade8088", marginBottom: "12px", letterSpacing: "2px" }}>例えば…</div>
                 <div style={{ fontSize: "36px", fontWeight: "900", color: "white", fontFamily: "monospace", letterSpacing: "2px", wordBreak: "break-all" }}>
-                  {findSolution(cards.nums, cards.target) ?? "…"} = {cards.target}
+                  {solutionExpr} = {cards.target}
                 </div>
               </div>
             </>
