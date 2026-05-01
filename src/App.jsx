@@ -900,13 +900,13 @@ export default function App() {
           <div style={{ fontSize: "40px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>{t.surrenderTitle}</div>
           <div style={{ fontSize: "24px", color: "#86efac", marginBottom: "24px" }}>{t.surrenderSub}</div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "24px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "16px", letterSpacing: "3px", color: "#ef4444cc", marginBottom: "8px", fontWeight: "bold" }}>{t.target}</div>
               <CloverCard number={cards.target} isTarget size="normal" />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px" }}>
-              {cards.nums.map((n, i) => <CloverCard key={i} number={n} size="xsmall" />)}
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "nowrap" }}>
+              {cards.nums.map((n, i) => <CloverCard key={i} number={n} size="xsmall7" />)}
             </div>
           </div>
 
