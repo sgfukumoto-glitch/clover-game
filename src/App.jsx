@@ -594,32 +594,31 @@ export default function App() {
       minHeight: "100svh", background: "#0a1a0f", display: "flex", flexDirection: "column", alignItems: "center",
       padding: "80px 22px 80px", color: "white", fontFamily: "Georgia,serif", boxSizing: "border-box",
     }}>
-      <div style={{ textAlign: "center", marginBottom: "29px" }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px", paddingRight: "8px" }}>
-          <button
-            onPointerDown={e=>btnDown(e,"0 3px 0 #333")}
-            onPointerUp={e=>btnUp(e,"0 10px 0 #333",()=>setLang(l=>l==="ja"?"en":"ja"))}
-            onPointerLeave={e=>btnLeave(e,"0 10px 0 #333")}
-            style={{ background: "linear-gradient(145deg,#444,#222)", border: "3px solid #888", borderRadius: "30px", color: "white", fontWeight: "bold", fontSize: "38px", padding: "10px 20px", cursor: "pointer", boxShadow: "0 10px 0 #111", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s", letterSpacing: "2px" }}>
-            {lang === "ja" ? "🇺🇸 English" : "🇯🇵 日本語"}
-          </button>
-        </div>
-        <div style={{ fontSize: "94px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>{t.title}</div>
-        <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginTop: "7px" }}>{t.subtitle}</div>
-        {bestTime !== null && (
-          <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "11px", justifyContent: "center" }}>
-            <div style={{ fontSize: "25px", color: "#fbbf24" }}>{t.best}: {fmt(bestTime)}{t.sec}</div>
-            <button
-              onPointerDown={e=>btnDown(e,"0 2px 0 #7f1d1d")}
-              onPointerUp={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 0 #7f1d1d"; playKyuririn(); setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} }}
-              onPointerLeave={e=>btnLeave(e,"0 6px 0 #7f1d1d")}
-              style={{ background: "linear-gradient(145deg,#ef4444,#dc2626)", border: "none", borderRadius: "12px", color: "white", fontWeight: "bold", fontSize: "18px", padding: "8px 18px", cursor: "pointer", boxShadow: "0 6px 0 #7f1d1d", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.reset}</button>
-          </div>
-        )}
-      </div>
-
       {phase === "start" && (
         <div style={{ width: "100%", maxWidth: "756px", textAlign: "center" }}>
+          <div style={{ textAlign: "center", marginBottom: "29px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px", paddingRight: "8px" }}>
+              <button
+                onPointerDown={e=>btnDown(e,"0 3px 0 #333")}
+                onPointerUp={e=>btnUp(e,"0 10px 0 #333",()=>setLang(l=>l==="ja"?"en":"ja"))}
+                onPointerLeave={e=>btnLeave(e,"0 10px 0 #333")}
+                style={{ background: "linear-gradient(145deg,#444,#222)", border: "3px solid #888", borderRadius: "30px", color: "white", fontWeight: "bold", fontSize: "38px", padding: "10px 20px", cursor: "pointer", boxShadow: "0 10px 0 #111", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s", letterSpacing: "2px" }}>
+                {lang === "ja" ? "🇺🇸 English" : "🇯🇵 日本語"}
+              </button>
+            </div>
+            <div style={{ fontSize: "94px", fontWeight: "900", letterSpacing: "5px", color: "#4ade80", lineHeight: 1 }}>{t.title}</div>
+            <div style={{ fontSize: "20px", letterSpacing: "3px", color: "#4ade8044", marginTop: "7px" }}>{t.subtitle}</div>
+            {bestTime !== null && (
+              <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "11px", justifyContent: "center" }}>
+                <div style={{ fontSize: "25px", color: "#fbbf24" }}>{t.best}: {fmt(bestTime)}{t.sec}</div>
+                <button
+                  onPointerDown={e=>btnDown(e,"0 2px 0 #7f1d1d")}
+                  onPointerUp={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 0 #7f1d1d"; playKyuririn(); setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} }}
+                  onPointerLeave={e=>btnLeave(e,"0 6px 0 #7f1d1d")}
+                  style={{ background: "linear-gradient(145deg,#ef4444,#dc2626)", border: "none", borderRadius: "12px", color: "white", fontWeight: "bold", fontSize: "18px", padding: "8px 18px", cursor: "pointer", boxShadow: "0 6px 0 #7f1d1d", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.reset}</button>
+              </div>
+            )}
+          </div>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "43px" }}><CloverCard number="？" size="large" /></div>
           <div style={{ background: "#111f14", border: "1px solid #4ade8020", borderRadius: "32px", padding: "36px 36px", marginBottom: "43px" }}>
             <div style={{ fontSize: "28px", lineHeight: "2.2", color: "#86efac" }}>{t.desc}</div>
