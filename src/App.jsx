@@ -540,8 +540,12 @@ export default function App() {
     e.currentTarget.style.boxShadow = shadowPressed;
   };
   const btnUp = (e, shadowNormal, cb) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.boxShadow = shadowNormal;
+    try {
+      if (e.currentTarget) {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = shadowNormal;
+      }
+    } catch {}
     playPakon();
     if (navigator.vibrate) navigator.vibrate(30);
     if (cb) cb();
@@ -651,7 +655,7 @@ export default function App() {
             {isTutorial
               ? <div style={{ flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px", padding: "20px 24px", fontSize: "32px", fontWeight: "bold", boxShadow: "0 3px 12px rgba(255,105,180,0.5)" }}>{t.tutBanner}</div>
               : <div style={{ flex: 1, textAlign: "left", fontSize: "18px", color: "#4ade8066" }}>{t.backToTitle}</div>}
-            {phase === "playing" && (
+            {phase === "playing" && allRevealed && (
               <button
                 onPointerDown={e=>btnDown(e,"0 2px 0 #166534")}
                 onPointerUp={e=>btnUp(e,"0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)", () => { setRunning(false); setPhase("surrender"); })}
@@ -709,7 +713,7 @@ export default function App() {
           </div>
 
           {/* フォスパボタン - 立体版 */}
-          {phase === "playing" && (isTutorial ? tutStep >= 4 : true) && (
+          {phase === "playing" && allRevealed && (isTutorial ? tutStep >= 4 : true) && (
             <div style={{ position: "relative" }}>
               {isTutorial && tutStep === 4 && (
                 <div>
@@ -912,7 +916,7 @@ export default function App() {
           <div style={{ background: "#111f14", border: "2px solid #4ade8055", borderRadius: "20px", padding: "24px", marginBottom: "32px" }}>
             <div style={{ fontSize: "16px", color: "#4ade8088", marginBottom: "12px", letterSpacing: "2px" }}>例えば…</div>
             <div style={{ fontSize: "36px", fontWeight: "900", color: "white", fontFamily: "monospace", letterSpacing: "2px", wordBreak: "break-all" }}>
-              {findSolution(cards.nums, cards.target)} = {cards.target}
+              {findSolution(cards.nums, cards.target) ?? "…"} = {cards.target}
             </div>
           </div>
 
