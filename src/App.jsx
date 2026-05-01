@@ -896,34 +896,39 @@ export default function App() {
       )}
 
       {/* SURRENDER */}
-      {phase === "surrender" && cards && (
+      {phase === "surrender" && (
         <div style={{ textAlign: "center", width: "100%", maxWidth: "720px" }}>
           <div style={{ fontSize: "80px", marginBottom: "16px" }}>🍀</div>
-          <div style={{ fontSize: "40px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>{t.surrenderTitle}</div>
+          <div style={{ fontSize: "40px", fontWeight: "900", color: "#4ade80", marginBottom: "8px" }}>
+            {cards ? t.surrenderTitle : "Loading..."}
+          </div>
           <div style={{ fontSize: "24px", color: "#86efac", marginBottom: "24px" }}>{t.surrenderSub}</div>
 
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "16px", letterSpacing: "3px", color: "#ef4444cc", marginBottom: "8px", fontWeight: "bold" }}>{t.target}</div>
-              <CloverCard number={cards.target} isTarget size="normal" />
-            </div>
-            <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "nowrap" }}>
-              {cards.nums.map((n, i) => <CloverCard key={i} number={n} size="xsmall7" />)}
-            </div>
-          </div>
-
-          <div style={{ background: "#111f14", border: "2px solid #4ade8055", borderRadius: "20px", padding: "24px", marginBottom: "32px" }}>
-            <div style={{ fontSize: "16px", color: "#4ade8088", marginBottom: "12px", letterSpacing: "2px" }}>例えば…</div>
-            <div style={{ fontSize: "36px", fontWeight: "900", color: "white", fontFamily: "monospace", letterSpacing: "2px", wordBreak: "break-all" }}>
-              {findSolution(cards.nums, cards.target) ?? "…"} = {cards.target}
-            </div>
-          </div>
+          {cards && (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "16px", letterSpacing: "3px", color: "#ef4444cc", marginBottom: "8px", fontWeight: "bold" }}>{t.target}</div>
+                  <CloverCard number={cards.target} isTarget size="normal" />
+                </div>
+                <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "nowrap" }}>
+                  {cards.nums.map((n, i) => <CloverCard key={i} number={n} size="xsmall7" />)}
+                </div>
+              </div>
+              <div style={{ background: "#111f14", border: "2px solid #4ade8055", borderRadius: "20px", padding: "24px", marginBottom: "32px" }}>
+                <div style={{ fontSize: "16px", color: "#4ade8088", marginBottom: "12px", letterSpacing: "2px" }}>例えば…</div>
+                <div style={{ fontSize: "36px", fontWeight: "900", color: "white", fontFamily: "monospace", letterSpacing: "2px", wordBreak: "break-all" }}>
+                  {findSolution(cards.nums, cards.target) ?? "…"} = {cards.target}
+                </div>
+              </div>
+            </>
+          )}
 
           <button
-            onPointerDown={e=>btnDown(e,"0 4px 0 #166534")}
-            onPointerUp={e=>btnUp(e,"0 10px 0 #166534, 0 12px 24px rgba(74,222,128,0.4)", () => { clearExpr(); startGame(false); })}
-            onPointerLeave={e=>btnLeave(e,"0 10px 0 #166534, 0 12px 24px rgba(74,222,128,0.4)")}
-            style={{ background: "linear-gradient(145deg,#22c55e,#16a34a)", border: "none", borderRadius: "25px", color: "white", fontWeight: "bold", fontSize: "34px", padding: "28px 0", cursor: "pointer", width: "100%", letterSpacing: "2px", boxShadow: "0 10px 0 #166534, 0 12px 24px rgba(74,222,128,0.4)", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.surrenderNext}</button>
+            onPointerDown={e=>{ e.currentTarget.style.transform="translateY(4px)"; e.currentTarget.style.boxShadow="0 4px 0 #166534"; }}
+            onPointerUp={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 10px 0 #166534"; clearExpr(); startGame(false); }}
+            onPointerLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 10px 0 #166534"; }}
+            style={{ background: "linear-gradient(145deg,#22c55e,#16a34a)", border: "none", borderRadius: "25px", color: "white", fontWeight: "bold", fontSize: "34px", padding: "28px 0", cursor: "pointer", width: "100%", letterSpacing: "2px", boxShadow: "0 10px 0 #166534", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.surrenderNext}</button>
         </div>
       )}
 
