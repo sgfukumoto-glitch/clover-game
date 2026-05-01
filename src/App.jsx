@@ -34,7 +34,7 @@ const T = {
     tut3: <>👆 ①②③④⑤の5枚！<br/>この数字を並べ替えて<br/>四則計算記号(+-×÷)で繋いで<br/>上のターゲットの数字にするよ</>,
     tut3b: <>記号(+-×÷)は<br/>何度使ってもいいよ</>,
     tut3c: "※解法は一つではないよ",
-    tut4: <>出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ</>,
+    tut4: <>出来たら<br/>「フォスパ」と言って、<br/>👇のボタンを押すよ<br/><br/>わからない時は<br/>「降参」ボタン👆を押すよ</>,
     tut4b: "※バスや電車の中では、心の中でね笑",
     tut4surrender: "わからなくて解答を知りたい場合は「降参」ボタンを押すよ。",
     fospa: "フォスパ！🙋",
@@ -104,7 +104,7 @@ const T = {
     tut3: <>👆 These are the 5 cards ①②③④⑤!<br/>Rearrange them with<br/>arithmetic operators(+-×÷)<br/>to reach the target!</>,
     tut3b: <>You can use operators<br/>as many times as you like!</>,
     tut3c: "※ There may be multiple solutions!",
-    tut4: <>When you're ready,<br/>shout "Fospa!" and<br/>press 👇 the button!</>,
+    tut4: <>When you're ready,<br/>shout "Fospa!" and<br/>press 👇 the button!<br/><br/>If you're stuck,<br/>press the "Skip" button 👆</>,
     tut4b: "※ On the bus/train, just think it 😄",
     tut4surrender: "If you're stuck and want to see the answer, press the \"Skip\" button.",
     fospa: "Fospa！🙋",
@@ -715,7 +715,6 @@ export default function App() {
                 <div>
                   <div style={{ background: "#ff69b4", color: "white", borderRadius: "14px", padding: "28px 16px", fontSize: "50px", fontWeight: "bold", lineHeight: "1.6", margin: "16px 0", boxShadow: "0 4px 20px rgba(255,105,180,0.5)", border: "2px solid #ff1493", animation: "pulse-pink 2s infinite" }}>{t.tut4}</div>
                   <div style={{ fontSize: "34px", color: "white", marginBottom: "16px", textAlign: "left", textDecoration: "underline", textDecorationStyle: "wavy", textDecorationColor: "#ef4444", whiteSpace: "nowrap" }}>{t.tut4b}</div>
-                  <div style={{ fontSize: "28px", color: "#86efac", marginBottom: "16px", lineHeight: "1.6" }}>{t.tut4surrender}</div>
                 </div>
               )}
               <button
