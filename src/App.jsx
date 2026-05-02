@@ -371,6 +371,110 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
+// ピアノ音周波数定義
+const NOTES = {
+  G5: 783.99, A5: 880.00, B5: 987.77,
+  C6: 1046.50, D6: 1174.66, E6: 1318.51,
+  G6: 1567.98,
+};
+
+let bgmCtx = null;
+let bgmNodes = [];
+let bgmPlaying = false;
+
+function playBGM() {
+  if (bgmPlaying) return;
+  bgmPlaying = true;
+  try {
+    bgmCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const BPM = 140;
+    const beat = 60 / BPM;
+    const e = beat / 2; // 8分音符
+
+    function piano(freq, startT, dur, vol = 0.18) {
+      const o = bgmCtx.createOscillator();
+      const g = bgmCtx.createGain();
+      // 倍音で少しピアノっぽく
+      const o2 = bgmCtx.createOscillator();
+      const g2 = bgmCtx.createGain();
+      o.connect(g); g.connect(bgmCtx.destination);
+      o2.connect(g2); g2.connect(bgmCtx.destination);
+      o.type = "triangle"; o2.type = "sine";
+      o.frequency.setValueAtTime(freq, startT);
+      o2.frequency.setValueAtTime(freq * 2, startT);
+      g.gain.setValueAtTime(0, startT);
+      g.gain.linearRampToValueAtTime(vol, startT + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, startT + dur * 0.9);
+      g2.gain.setValueAtTime(0, startT);
+      g2.gain.linearRampToValueAtTime(vol * 0.4, startT + 0.01);
+      g2.gain.exponentialRampToValueAtTime(0.001, startT + dur * 0.7);
+      o.start(startT); o.stop(startT + dur);
+      o2.start(startT); o2.stop(startT + dur);
+      bgmNodes.push(o, o2);
+    }
+
+    const N = NOTES;
+    let t = bgmCtx.currentTime;
+
+    // イントロ: | G5 D6 G5 D6 G5 D6 | A5 E6 A5 E6 A5 E6 | B5 G6 B5 G6 B5 G6 | G6 hold |
+    const intro = [
+      [N.G5,e],[N.D6,e],[N.G5,e],[N.D6,e],[N.G5,e],[N.D6,e],
+      [N.A5,e],[N.E6,e],[N.A5,e],[N.E6,e],[N.A5,e],[N.E6,e],
+      [N.B5,e],[N.G6,e],[N.B5,e],[N.G6,e],[N.B5,e],[N.G6,e],
+      [N.G6, beat * 4],
+    ];
+    intro.forEach(([freq, dur]) => { piano(freq, t, dur); t += dur; });
+
+    // ループ部分のスケジューリング
+    const loopStart = t;
+    const loopNotes = [
+      // | G5 B5 D6 B5 G5 |
+      [N.G5,e],[N.B5,e],[N.D6,e],[N.B5,e],[N.G5,e],
+      // | G5 A5 B5 A5 G5 |
+      [N.G5,e],[N.A5,e],[N.B5,e],[N.A5,e],[N.G5,e],
+      // | A5 C6 E6 C6 A5 |
+      [N.A5,e],[N.C6,e],[N.E6,e],[N.C6,e],[N.A5,e],
+      // | A5 B5 C6 B5 A5 |
+      [N.A5,e],[N.B5,e],[N.C6,e],[N.B5,e],[N.A5,e],
+      // | B5 D6 G6 D6 B5 |
+      [N.B5,e],[N.D6,e],[N.G6,e],[N.D6,e],[N.B5,e],
+      // | B5 A5 G5 A5 B5 |
+      [N.B5,e],[N.A5,e],[N.G5,e],[N.A5,e],[N.B5,e],
+      // | A5 C6 E6 C6 A5 |
+      [N.A5,e],[N.C6,e],[N.E6,e],[N.C6,e],[N.A5,e],
+      // | G5 short G5 short G5 hold |
+      [N.G5, e*0.5],[N.G5, e*0.5],[N.G5, beat * 3],
+    ];
+
+    // ループを5回分先読みスケジュール（約40秒分）
+    for (let loop = 0; loop < 5; loop++) {
+      loopNotes.forEach(([freq, dur]) => { piano(freq, t, dur); t += dur; });
+    }
+
+    // 残り時間が少なくなったら追加スケジュール
+    const loopDuration = loopNotes.reduce((sum, [, dur]) => sum + dur, 0);
+    const scheduleMore = () => {
+      if (!bgmPlaying) return;
+      const remaining = t - bgmCtx.currentTime;
+      if (remaining < loopDuration * 2) {
+        for (let i = 0; i < 3; i++) {
+          loopNotes.forEach(([freq, dur]) => { piano(freq, t, dur); t += dur; });
+        }
+      }
+      if (bgmPlaying) setTimeout(scheduleMore, 5000);
+    };
+    setTimeout(scheduleMore, 5000);
+
+  } catch(e) { bgmPlaying = false; }
+}
+
+function stopBGM() {
+  bgmPlaying = false;
+  bgmNodes.forEach(n => { try { n.stop(); } catch {} });
+  bgmNodes = [];
+  if (bgmCtx) { try { bgmCtx.close(); } catch {} bgmCtx = null; }
+}
+
 // ハープグリッサンド✨効果音（リセット用）
 function playKyuririn() {
   try {
@@ -459,6 +563,7 @@ export default function App() {
   const dealingTimeoutsRef = useRef([]);
 
   const startGame = useCallback((tutorial = false) => {
+    stopBGM();
     dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
     dealingTimeoutsRef.current = [];
     setIsTutorial(tutorial); setTutStep(0); setPhase("dealing"); setCountdown(null);
@@ -475,11 +580,13 @@ export default function App() {
           const c1 = setTimeout(() => setCountdown(1), 2400);
           const cGo = setTimeout(() => {
             setCountdown("GO!"); setAllRevealed(true);
+            playBGM();
             const cStart = setTimeout(() => {
               setCountdown(null); setPhase("playing"); setRunning(true);
               if (tutorial) setTutStep(1);
             }, 800);
             dealingTimeoutsRef.current.push(cStart);
+          }, 3400);
           }, 3400);
           [c3, c2, c1, cGo].forEach(id => dealingTimeoutsRef.current.push(id));
         }
@@ -636,6 +743,7 @@ export default function App() {
           <PBtn label={t.start} onClick={() => startGame(false)} />
           <div style={{ fontSize: "23px", color: "#86efac", marginTop: "29px", lineHeight: "2.0", textAlign: "left" }}>{t.tutHint1}<br/>{t.tutHint2}</div>
           <div style={{ marginTop: "36px", fontSize: "38px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>{t.by}</div>
+          <a href="http://nextchallenge.jp" target="_blank" style={{ color: "#4ade80", fontSize: "24px", textDecoration: "none", letterSpacing: "1px" }}>nextchallenge.jp</a>
         </div>
       )}
 
@@ -646,9 +754,9 @@ export default function App() {
               onPointerDown={e=>btnDown(e,"0 2px 0 #166534")}
               onPointerUp={e=>btnUp(e,"0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)", () => {
                 if (isTutorial) {
-                  if (tutStep <= 1) { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; setPhase("start"); setIsTutorial(false); setRunning(false); }
+                  if (tutStep <= 1) { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; stopBGM(); setPhase("start"); setIsTutorial(false); setRunning(false); }
                   else setTutStep(s => s - 1);
-                } else { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; setPhase("start"); setRunning(false); clearExpr(); }
+                } else { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; stopBGM(); setPhase("start"); setRunning(false); clearExpr(); }
               })}
               onPointerLeave={e=>btnLeave(e,"0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)")}
               style={{ background: "linear-gradient(145deg,#1e4a2a,#1a3a22)", border: "2px solid #4ade80", borderRadius: "14px", color: "#4ade80", fontWeight: "900", padding: "14px 24px", cursor: "pointer", fontSize: "22px", flexShrink: 0, boxShadow: "0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.back}</button>
@@ -891,7 +999,7 @@ export default function App() {
           </div>
           <div style={{ display: "flex", gap: "16px" }}>
             <div style={{ flex: 1 }}><PBtn label={t.nextGame} onClick={() => startGame(false)} /></div>
-            <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => setPhase("start")} /></div>
+            <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => { stopBGM(); setPhase("start"); }} /></div>
           </div>
         </div>
       )}
@@ -961,7 +1069,16 @@ export default function App() {
             ) : (
               <>
                 {isNewRecord && <div style={{ color: "#fbbf24", fontSize: "40px", fontWeight: "900", marginBottom: "12px", animation: "blink-gold 1.8s infinite" }}>{t.newRecord}</div>}
-                {bestTime !== null && <div style={{ color: "#fbbf24", fontSize: "30px", marginBottom: "12px" }}>{t.currentBest}{fmt(bestTime)}{t.sec}</div>}
+                {bestTime !== null && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "center", marginBottom: "12px" }}>
+                    <div style={{ color: "#fbbf24", fontSize: "30px" }}>{t.currentBest}{fmt(bestTime)}{t.sec}</div>
+                    <button
+                      onPointerDown={e=>btnDown(e,"0 2px 0 #7f1d1d")}
+                      onPointerUp={e=>{ try { if(e.currentTarget){ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 6px 0 #7f1d1d"; } } catch {} playKyuririn(); setBestTime(null); try { localStorage.removeItem("clover_best"); } catch {} }}
+                      onPointerLeave={e=>btnLeave(e,"0 6px 0 #7f1d1d")}
+                      style={{ background: "linear-gradient(145deg,#ef4444,#dc2626)", border: "none", borderRadius: "12px", color: "white", fontWeight: "bold", fontSize: "18px", padding: "8px 18px", cursor: "pointer", boxShadow: "0 6px 0 #7f1d1d", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s", flexShrink: 0 }}>{t.reset}</button>
+                  </div>
+                )}
                 <div style={{ color: "#555", fontSize: "24px", marginBottom: "8px" }}>{feedback?.msg}</div>
                 <div style={{ fontSize: "28px", color: "#5cb85c", fontStyle: "italic", marginBottom: "32px" }}>{t.toBeHappy}</div>
                 <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
@@ -976,7 +1093,7 @@ export default function App() {
               <div style={{ flex: 1 }}>
                 <button onPointerDown={e=>btnDown(e,"0 3px 0 #c0145a")} onPointerUp={e=>btnUp(e,"0 10px 0 #c0145a, 0 12px 24px rgba(255,105,180,0.4)",()=>startGame(true))} onPointerLeave={e=>btnLeave(e,"0 10px 0 #c0145a, 0 12px 24px rgba(255,105,180,0.4)")} style={{ background: "linear-gradient(145deg,#ff79c4,#ff1493)", border: "none", borderRadius: "24px", color: "white", fontWeight: "bold", fontSize: "28px", padding: "32px 0", cursor: "pointer", width: "100%", boxShadow: "0 10px 0 #c0145a, 0 12px 24px rgba(255,105,180,0.4)", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.howToPlay}</button>
               </div>
-              <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => setPhase("start")} /></div>
+              <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => { stopBGM(); setPhase("start"); }} /></div>
             </div>
           </div>
         </div>
