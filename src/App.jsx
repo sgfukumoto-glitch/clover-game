@@ -371,189 +371,176 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
-// ピアノ音周波数定義 - Gメジャー
-const NOTES = {
-  G3: 196.00, A3: 220.00, B3: 246.94, C4: 261.63, D4: 293.66,
-  E4: 329.63, Fs4: 369.99, G4: 392.00, A4: 440.00, B4: 493.88,
-  C5: 523.25, Cs5: 554.37, D5: 587.33, E5: 659.25,
-  Fs5: 739.99, G5: 783.99, A5: 880.00, B5: 987.77,
-  C6: 1046.50, Cs6: 1108.73, D6: 1174.66, E6: 1318.51,
-  Fs6: 1479.98, G6: 1567.98, A6: 1760.00, B6: 1975.53,
-};
-
+// ===== BGM =====
 let bgmCtx = null;
 let bgmNodes = [];
 let bgmPlaying = false;
-let bgmScheduleTimer = null;
+let bgmTimer = null;
 
 function playBGM() {
   if (bgmPlaying) return;
   bgmPlaying = true;
   try {
     bgmCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const BPM = 168;
-    const beat = 60 / BPM;
-    const s16 = beat / 4;  // 16分音符（グレース）
-    const e = beat / 2;    // 8分音符（ちゃ）
-    const q = beat;        // 4分音符（ちゃー・ちゃん・じゃん）
-    const N = NOTES;
-
-    function piano(freq, startT, dur, vol = 0.14, staccato = false, isLeft = false) {
-      const actualDur = staccato ? dur * 0.45 : dur * 0.88;
-      const o = bgmCtx.createOscillator();
-      const g = bgmCtx.createGain();
-      const o2 = bgmCtx.createOscillator();
-      const g2 = bgmCtx.createGain();
-      o.connect(g); g.connect(bgmCtx.destination);
-      o2.connect(g2); g2.connect(bgmCtx.destination);
-      o.type = "triangle"; o2.type = "sine";
-      o.frequency.setValueAtTime(freq, startT);
-      o2.frequency.setValueAtTime(freq * 2, startT);
-      const v = isLeft ? vol * 0.5 : vol;
-      g.gain.setValueAtTime(0, startT);
-      g.gain.linearRampToValueAtTime(v, startT + 0.006);
-      g.gain.exponentialRampToValueAtTime(0.001, startT + actualDur);
-      g2.gain.setValueAtTime(0, startT);
-      g2.gain.linearRampToValueAtTime(v * 0.3, startT + 0.006);
-      g2.gain.exponentialRampToValueAtTime(0.001, startT + actualDur * 0.7);
-      o.start(startT); o.stop(startT + actualDur + 0.01);
-      o2.start(startT); o2.stop(startT + actualDur + 0.01);
-      bgmNodes.push(o, o2);
-    }
-
-    // グレースノート（16分→8分）
-    function grace(fromFreq, toFreq, startT, mainDur, vol = 0.14) {
-      piano(fromFreq, startT, s16, vol * 0.7);
-      piano(toFreq, startT + s16, mainDur - s16, vol);
-    }
-
-    let t = bgmCtx.currentTime;
-
-    function scheduleLoop(startT) {
-      let rT = startT;
-      let lT = startT;
-
-      // ===== 右手イントロ（4小節）=====
-      // 小節1: ちゃちゃちゃー = G5(8) A5(8) >B5(4)
-      piano(N.G5, rT, e, 0.13); rT += e;
-      piano(N.A5, rT, e, 0.13); rT += e;
-      piano(N.B5, rT, q, 0.18); rT += q;
-
-      // 小節2: ちゃちゃちゃー = A5(8) B5(8) >C6(4)
-      piano(N.A5, rT, e, 0.13); rT += e;
-      piano(N.B5, rT, e, 0.13); rT += e;
-      piano(N.C6, rT, q, 0.18); rT += q;
-
-      // 小節3: ちゃちゃちゃちゃ = B5(8) C6(8) D6(8) E6(8)
-      piano(N.B5, rT, e, 0.13); rT += e;
-      piano(N.C6, rT, e, 0.13); rT += e;
-      piano(N.D6, rT, e, 0.13); rT += e;
-      piano(N.E6, rT, e, 0.13); rT += e;
-
-      // 小節4: ちゃっ(スタッカート)+休符 = Fs5(8 stacc) + 8分休符
-      piano(N.Fs5, rT, e, 0.16, true); rT += e;
-      rT += e; // 8分休符
-
-      // ===== 右手ループ（8小節）=====
-      // 小節5: グレイス16+ちゃちゃちゃちゃっちゃっちゃっちゃっちゃー
-      // grace(F#5→G5) G5(8) A5(8) B5(8) C6(stacc8) D6(stacc8) E6(stacc8) Fs6(stacc8) G6(4)
-      grace(N.Fs5, N.G5, rT, e, 0.14); rT += e;
-      piano(N.A5, rT, e, 0.13); rT += e;
-      piano(N.B5, rT, e, 0.13); rT += e;
-      piano(N.C6, rT, e, 0.13, true); rT += e;
-      piano(N.D6, rT, e, 0.13, true); rT += e;
-      piano(N.E6, rT, e, 0.13, true); rT += e;
-      piano(N.Fs6, rT, e, 0.13, true); rT += e;
-      piano(N.G6, rT, q, 0.20); rT += q;
-
-      // 小節6: ちゃーちゃ×3 = B5(4) A5(8)  G5(4) Fs5(8)  E5(4) D5(8)
-      piano(N.B5, rT, q, 0.16); rT += q;
-      piano(N.A5, rT, e, 0.13); rT += e;
-      piano(N.G5, rT, q, 0.15); rT += q;
-      piano(N.Fs5, rT, e, 0.13); rT += e;
-      piano(N.E5, rT, q, 0.15); rT += q;
-      piano(N.D5, rT, e, 0.13); rT += e;
-
-      // 小節7: ちゃちゃちゃ休符 = C5(8) B4(8) A4(8) 休(8)
-      piano(N.C5, rT, e, 0.13); rT += e;
-      piano(N.B4, rT, e, 0.13); rT += e;
-      piano(N.A4, rT, e, 0.13); rT += e;
-      rT += e; // 8分休符
-
-      // 小節8: グレイス16+ちゃん = grace(Fs5→G5) G5(4)
-      grace(N.Fs5, N.G5, rT, q, 0.17); rT += q;
-
-      // 小節9: ちゃちゃちゃちゃ×2 = D5 E5 Fs5 G5 | A5 G5 Fs5 E5
-      piano(N.D5, rT, e, 0.13); rT += e;
-      piano(N.E5, rT, e, 0.13); rT += e;
-      piano(N.Fs5, rT, e, 0.13); rT += e;
-      piano(N.G5, rT, e, 0.13); rT += e;
-      piano(N.A5, rT, e, 0.13); rT += e;
-      piano(N.G5, rT, e, 0.13); rT += e;
-      piano(N.Fs5, rT, e, 0.13); rT += e;
-      piano(N.E5, rT, e, 0.13); rT += e;
-
-      // 小節10: 休符ちゃんちゃちゃちゃ = 休(8) D5(4) Cs5(8) D5(8) E5(8)
-      rT += e; // 8分休符
-      piano(N.D5, rT, q, 0.16); rT += q;
-      piano(N.Cs5, rT, e, 0.13); rT += e;
-      piano(N.D5, rT, e, 0.13); rT += e;
-      piano(N.E5, rT, e, 0.13); rT += e;
-
-      // 小節11: じゃん = G5(2分) hold
-      piano(N.G5, rT, q * 2, 0.20); rT += q * 2;
-
-      // ===== 左手（イントロ+ループ通し）=====
-      // イントロ左手 4小節: G3-D4-G4 ベースパターン
-      [
-        [N.G3,N.D4,N.G4], [N.G3,N.D4,N.G4],
-        [N.A3,N.E4,N.A4], [N.A3,N.E4,N.A4],
-        [N.B3,N.Fs4,N.B4],[N.B3,N.Fs4,N.B4],
-        [N.G3,N.D4,N.G4], [N.G3,N.D4,N.G4],
-      ].forEach(([b,m,hi]) => {
-        piano(b,  lT, e, 0.09, false, true); lT += e;
-        piano(m,  lT, e, 0.07, false, true); lT += e;
-      });
-
-      // ループ左手 8小節
-      [
-        [N.G3,N.D4,N.G4], [N.G3,N.D4,N.G4],
-        [N.A3,N.E4,N.A4], [N.A3,N.E4,N.A4],
-        [N.B3,N.Fs4,N.B4],[N.A3,N.E4,N.A4],
-        [N.G3,N.D4,N.G4], [N.G3,N.D4,N.G4],
-        [N.A3,N.E4,N.A4], [N.A3,N.E4,N.A4],
-        [N.B3,N.Fs4,N.B4],[N.B3,N.Fs4,N.B4],
-        [N.G3,N.D4,N.G4], [N.G3,N.D4,N.G4],
-        [N.G3,N.D4,N.G4], [N.G3,N.D4,N.G4],
-        [N.A3,N.E4,N.A4], [N.A3,N.E4,N.A4],
-        [N.D4,N.A4,N.D5], [N.D4,N.A4,N.D5],
-        [N.G3,N.B3,N.D4], [N.G3,N.B3,N.D4],
-      ].forEach(([b,m]) => {
-        piano(b, lT, e, 0.09, false, true); lT += e;
-        piano(m, lT, e, 0.07, false, true); lT += e;
-      });
-
-      return rT;
-    }
-
-    for (let i = 0; i < 3; i++) t = scheduleLoop(t);
-
-    const scheduleMore = () => {
-      if (!bgmPlaying) return;
-      if (t - bgmCtx.currentTime < 15) t = scheduleLoop(t);
-      if (bgmPlaying) bgmScheduleTimer = setTimeout(scheduleMore, 3000);
-    };
-    bgmScheduleTimer = setTimeout(scheduleMore, 3000);
-
+    if (bgmCtx.state === 'suspended') bgmCtx.resume();
   } catch(e) { bgmPlaying = false; }
 }
 
 function stopBGM() {
   bgmPlaying = false;
-  if (bgmScheduleTimer) { clearTimeout(bgmScheduleTimer); bgmScheduleTimer = null; }
+  if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
   bgmNodes.forEach(n => { try { n.stop(); } catch {} });
   bgmNodes = [];
   if (bgmCtx) { try { bgmCtx.close(); } catch {} bgmCtx = null; }
+}
+
+function _n(ctx, nodes, freq, t, dur, vol, left) {
+  try {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(freq, t);
+    const v = left ? vol * 0.5 : vol;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(v, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.85);
+    o.start(t); o.stop(t + dur);
+    nodes.push(o);
+  } catch(e) {}
+}
+
+function startBGMNotes() {
+  if (!bgmCtx || !bgmPlaying) return;
+  try {
+    const BPM = 180, beat = 60 / BPM, e = beat / 2, q = beat, h = beat * 2, s = beat / 4;
+    // 右手音
+    const E3=165, Fs4=370, G4=392, Ds4=311, C4=262, E4=330;
+    const Fs5=740, G5=784, A5=880, B5=988, C6=1047, D6=1175, E6=1319, G6=1568, B6=1976;
+    const Ds5=622;
+    // 左手音（RHの1オクターブ下 + ループ用）
+    const G3=196, Ds3=156, C3=131, Fs3=185, E3L=165, A3=220, B3=247, D4=294, E4L=330, A4=440, B4=494, Fs4L=370;
+
+    const ctx = bgmCtx, nd = bgmNodes;
+    const p = (f,t,d,v=0.13,l=false) => _n(ctx,nd,f,t,d,v,l);
+    const grace = (f1,f2,t,dur,v=0.13) => { p(f1,t,s*0.4,v*0.7); p(f2,t+s*0.4,dur-s*0.4,v); };
+
+    let t = ctx.currentTime;
+
+    const loop = (st) => {
+      let r = st, l = st;
+
+      // ===== RHイントロ4小節 =====
+      // G5(8) D#5(8) G5(4) F#5(8) D#5(8) F#5(4) F#5(8) C5(8) D#5(8) E5(8) F#5(8) 休(8) E4(4)
+      p(G5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(G5,r,q,0.18); r+=q;
+      p(Fs5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(Fs5,r,q,0.18); r+=q;
+      p(Fs5,r,e,0.13); r+=e; p(C4*2,r,e,0.13); r+=e; p(Ds5,r,e,0.13); r+=e; p(E4*2,r,e,0.13); r+=e;
+      p(Fs5,r,e*0.4,0.15); r+=e; r+=e; p(E4,r,q,0.13); r+=q;
+
+      // ===== LHイントロ（RHの1オクターブ下）=====
+      p(G4,l,e,0.09,true); l+=e; p(Ds4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
+      p(Fs4,l,e,0.09,true); l+=e; p(Ds4,l,e,0.08,true); l+=e; p(Fs4,l,q,0.10,true); l+=q;
+      p(Fs4,l,e,0.08,true); l+=e; p(C4,l,e,0.08,true); l+=e; p(Ds4,l,e,0.08,true); l+=e; p(E4,l,e,0.08,true); l+=e;
+      p(Fs4,l,e*0.4,0.09,true); l+=e; l+=e; p(E3,l,q,0.09,true); l+=q;
+
+      // ===== RHループ =====
+      // | grace(F#5→)G5(8) G5(8) >D6(4) |
+      grace(Fs5,G5,r,e,0.13); r+=e; p(G5,r,e,0.13); r+=e; p(D6,r,q,0.19); r+=q;
+      // | grace(A5→)B5(8) B5(8) >G6(4) |
+      grace(A5,B5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(G6,r,q,0.19); r+=q;
+      // | grace(B5→)D6(8) D6(8) >B6(4) |
+      grace(B5,D6,r,e,0.13); r+=e; p(D6,r,e,0.13); r+=e; p(B6,r,q,0.19); r+=q;
+      // | grace(A5→)B5(8) B5(8) >G6(4) |
+      grace(A5,B5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(G6,r,q,0.19); r+=q;
+      // | G5(8) B5(8) >D6(4) |
+      p(G5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(D6,r,q,0.18); r+=q;
+      // | A5(8) C6(8) >E6(4) |
+      p(A5,r,e,0.13); r+=e; p(C6,r,e,0.13); r+=e; p(E6,r,q,0.18); r+=q;
+      // | B5(8) D6(8) >G6(4) |
+      p(B5,r,e,0.13); r+=e; p(D6,r,e,0.13); r+=e; p(G6,r,q,0.18); r+=q;
+      // | G5(8) G5(8) >G5(4) |
+      p(G5,r,e,0.13); r+=e; p(G5,r,e,0.13); r+=e; p(G5,r,q,0.18); r+=q;
+
+      // ===== LHループ =====
+      // | G3(8) D4(8) G4(4) | ×2
+      p(G3,l,e,0.09,true); l+=e; p(D4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
+      p(G3,l,e,0.09,true); l+=e; p(D4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
+      // | B3(8) F#4(8) B4(4) |
+      p(B3,l,e,0.09,true); l+=e; p(Fs4L,l,e,0.08,true); l+=e; p(B4,l,q,0.10,true); l+=q;
+      // | A3(8) E4(8) A4(4) |
+      p(A3,l,e,0.09,true); l+=e; p(E4L,l,e,0.08,true); l+=e; p(A4,l,q,0.10,true); l+=q;
+      // | G3(8) D4(8) G4(4) |
+      p(G3,l,e,0.09,true); l+=e; p(D4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
+      // | A3(8) E4(8) A4(4) |
+      p(A3,l,e,0.09,true); l+=e; p(E4L,l,e,0.08,true); l+=e; p(A4,l,q,0.10,true); l+=q;
+      // | B3(8) F#4(8) B4(4) |
+      p(B3,l,e,0.09,true); l+=e; p(Fs4L,l,e,0.08,true); l+=e; p(B4,l,q,0.10,true); l+=q;
+      // | G3(2) |
+      p(G3,l,h,0.11,true); l+=h;
+
+      return r;
+    };
+
+    for (let i = 0; i < 3; i++) t = loop(t);
+    const more = () => {
+      if (!bgmPlaying) return;
+      if (t - ctx.currentTime < 15) t = loop(t);
+      if (bgmPlaying) bgmTimer = setTimeout(more, 3000);
+    };
+    bgmTimer = setTimeout(more, 3000);
+  } catch(e) {}
+}
+// ===== BGM END =====
+
+function startBGMNotes() {
+  if (!bgmCtx || !bgmPlaying) return;
+  try {
+    const BPM = 140, beat = 60 / BPM, e = beat / 2, q = beat, s = beat / 4;
+    const E4=330, Ds5=622, E5=659, Fs5=740, G5=784, A5=880, B5=988;
+    const C5=523, C6=1047, Ds6=1245, E6=1319, F6=1397, Fs6=1480, G6=1568, A6=1760;
+    const G3=196, Ds3=156, C3=131, A3=220, D4=294;
+    const ctx = bgmCtx, nd = bgmNodes;
+    const p = (f,t,d,v=0.13,l=false) => _n(ctx,nd,f,t,d,v,l);
+
+    let t = ctx.currentTime;
+
+    const loop = (st) => {
+      let r = st, l = st;
+      // 右手イントロ
+      p(G5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(G5,r,q,0.18); r+=q;
+      p(Fs5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(Fs5,r,q,0.18); r+=q;
+      p(Fs5,r,e,0.13); r+=e; p(C5,r,e,0.13); r+=e; p(Ds5,r,e,0.13); r+=e; p(E5,r,e,0.13); r+=e;
+      p(Fs5,r,e*0.4,0.14); r+=e; r+=e; p(E4,r,q,0.13); r+=q;
+      // 右手ループ
+      p(Fs5,r,s*0.35,0.10); r+=s*0.35;
+      p(G5,r,e-s*0.35,0.14); r+=e-s*0.35;
+      p(A5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(C6,r,e,0.13); r+=e;
+      p(Ds6,r,e,0.13); r+=e; p(E6,r,e,0.13); r+=e; p(Fs6,r,e,0.13); r+=e;
+      p(E6,r,e,0.13); r+=e; p(F6,r,e,0.13); r+=e;
+      p(G6,r,q,0.20); r+=q;
+      p(Fs5,r,q,0.15); r+=q;
+      r+=e; p(A6,r,e,0.13); r+=e; p(E5,r,q,0.15); r+=q;
+      r+=e; p(A6,r,e,0.13); r+=e; p(Ds5,r,q,0.15); r+=q;
+      r+=e; p(A6,r,e,0.13); r+=e;
+      p(Ds5,r,e,0.13); r+=e; p(C5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e;
+      // 左手
+      [[G3,D4],[G3,D4],[Ds3,A3],[Ds3,A3],[C3,G3],[C3,G3],[G3,D4],[G3,D4],
+       [G3,D4],[G3,D4],[G3,D4],[G3,D4],[Ds3,A3],[Ds3,A3],[C3,G3],[C3,G3],
+       [G3,D4],[G3,D4],[Ds3,A3],[Ds3,A3],[C3,G3],[C3,G3],[G3,D4],[G3,D4],
+      ].forEach(([b,m]) => { p(b,l,e,0.09,true); l+=e; p(m,l,e,0.07,true); l+=e; });
+      return r;
+    };
+
+    for (let i = 0; i < 3; i++) t = loop(t);
+    const more = () => {
+      if (!bgmPlaying) return;
+      if (t - ctx.currentTime < 15) t = loop(t);
+      if (bgmPlaying) bgmTimer = setTimeout(more, 3000);
+    };
+    bgmTimer = setTimeout(more, 3000);
+  } catch(e) {}
+}
+// ===== BGM END =====
+
 function playKyuririn() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -642,6 +629,7 @@ export default function App() {
 
   const startGame = useCallback((tutorial = false) => {
     stopBGM();
+    if (!tutorial) { try { playBGM(); } catch(err) {} }
     dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
     dealingTimeoutsRef.current = [];
     setIsTutorial(tutorial); setTutStep(0); setPhase("dealing"); setCountdown(null);
@@ -658,7 +646,7 @@ export default function App() {
           const c1 = setTimeout(() => setCountdown(1), 2400);
           const cGo = setTimeout(() => {
             setCountdown("GO!"); setAllRevealed(true);
-            playBGM();
+            try { startBGMNotes(); } catch(err) {}
             const cStart = setTimeout(() => {
               setCountdown(null); setPhase("playing"); setRunning(true);
               if (tutorial) setTutStep(1);
