@@ -696,7 +696,7 @@ export default function App() {
           <PBtn label={t.start} onClick={() => startGame(false)} />
           <div style={{ fontSize: "23px", color: "#86efac", marginTop: "29px", lineHeight: "2.0", textAlign: "left" }}>{t.tutHint1}<br/>{t.tutHint2}</div>
           <div style={{ marginTop: "36px", fontSize: "38px", fontWeight: "bold", color: "white", letterSpacing: "1px" }}>{t.by}</div>
-          <a href="http://nextchallenge.jp" target="_blank" style={{ color: "#4ade80", fontSize: "24px", textDecoration: "none", letterSpacing: "1px" }}>nextchallenge.jp</a>
+          <a href="http://nextchallenge.jp/sp" target="_blank" style={{ color: "#4ade80", fontSize: "24px", textDecoration: "none", letterSpacing: "1px" }}>nextchallenge.jp</a>
         </div>
       )}
 
