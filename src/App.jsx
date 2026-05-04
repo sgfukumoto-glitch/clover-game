@@ -534,11 +534,10 @@ export default function App() {
           const c2 = setTimeout(() => setCountdown(2), 1400);
           const c1 = setTimeout(() => setCountdown(1), 2400);
           const cGo = setTimeout(() => {
-            setCountdown("GO!"); setAllRevealed(true);
-            
+            setCountdown("GO!"); setAllRevealed(true); setPhase("playing"); setRunning(true);
+            if (tutorial) setTutStep(1);
             const cStart = setTimeout(() => {
-              setCountdown(null); setPhase("playing"); setRunning(true);
-              if (tutorial) setTutStep(1);
+              setCountdown(null);
             }, 800);
             dealingTimeoutsRef.current.push(cStart);
           }, 3400);
@@ -717,7 +716,7 @@ export default function App() {
             {isTutorial
               ? <div style={{ flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px", padding: "20px 24px", fontSize: "32px", fontWeight: "bold", boxShadow: "0 3px 12px rgba(255,105,180,0.5)" }}>{t.tutBanner}</div>
               : <div style={{ flex: 1, textAlign: "left", fontSize: "18px", color: "#4ade8066" }}>{t.backToTitle}</div>}
-            {phase === "playing" && (countdown === "GO!" || allRevealed) && (
+            {phase === "playing" && (
               <button
                 onPointerDown={e=>btnDown(e,"0 2px 0 #166534")}
                 onPointerUp={e=>btnUp(e,"0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)", () => { setRunning(false); setPhase("surrender"); })}
@@ -775,7 +774,7 @@ export default function App() {
           </div>
 
           {/* フォスパボタン - 立体版 */}
-          {phase === "playing" && (countdown === "GO!" || allRevealed) && (isTutorial ? tutStep >= 4 : true) && (
+          {phase === "playing" && (isTutorial ? tutStep >= 4 : true) && (
             <div style={{ position: "relative" }}>
               {isTutorial && tutStep === 4 && (
                 <div>
