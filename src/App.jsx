@@ -198,6 +198,64 @@ function findSolution(nums, target) {
   return null;
 }
 
+// ステップ表示用：数字と演算子の配列を返す
+function findSolutionSteps(nums, target) {
+  const ops = ["+", "-", "*", "/"];
+  const opSymbols = { "+": "+", "-": "-", "*": "×", "/": "÷" };
+  function perms(arr) {
+    if (arr.length <= 1) return [arr];
+    const r = [];
+    for (let i = 0; i < arr.length; i++) {
+      const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+      for (const p of perms(rest)) r.push([arr[i], ...p]);
+    }
+    return r;
+  }
+  function opCombos(n) {
+    if (n === 0) return [[]];
+    const r = [];
+    for (const op of ops) for (const rest of opCombos(n - 1)) r.push([op, ...rest]);
+    return r;
+  }
+  function evaluate(vals, operators) {
+    let result = vals[0];
+    for (let i = 0; i < operators.length; i++) {
+      const v = vals[i + 1];
+      if (operators[i] === "+") result += v;
+      else if (operators[i] === "-") result -= v;
+      else if (operators[i] === "*") result *= v;
+      else { if (v === 0) return null; result /= v; }
+    }
+    return result;
+  }
+  for (const perm of perms(nums))
+    for (const combo of opCombos(4)) {
+      const val = evaluate(perm, combo);
+      if (val !== null && Math.abs(val - target) < 0.0001) {
+        // ステップ分解: 左から1つずつ計算
+        const steps = [];
+        let current = perm[0];
+        for (let i = 0; i < combo.length; i++) {
+          const next = perm[i + 1];
+          const sym = opSymbols[combo[i]];
+          let result;
+          if (combo[i] === "+") result = current + next;
+          else if (combo[i] === "-") result = current - next;
+          else if (combo[i] === "*") result = current * next;
+          else result = current / next;
+          // 小数点は最大2桁まで
+          const resultDisplay = Number.isInteger(result) ? result : Math.round(result * 100) / 100;
+          steps.push({ left: current, op: sym, right: next, result: resultDisplay });
+          current = result;
+        }
+        return steps;
+      }
+    }
+  return null;
+}
+
+
+
 function canSolve(nums, target) {
   const ops = ["+", "-", "*", "/"];
   function perms(arr) {
@@ -498,7 +556,7 @@ export default function App() {
   }, [running]);
 
   const goBackToPlaying = () => { setPhase("playing"); setRunning(true); if (isTutorial) setTutStep(4); };
-  const solutionExpr = useMemo(() => cards ? (findSolution(cards.nums, cards.target) ?? "…") : "…", [cards]);
+  const solutionSteps = useMemo(() => cards ? findSolutionSteps(cards.nums, cards.target) : null, [cards]);
   const fospa = () => { setRunning(false); setPhase("fospa"); if (isTutorial) setTutStep(5); };
 
   const checkAnswer = () => {
@@ -921,10 +979,16 @@ export default function App() {
                 </div>
               </div>
               <div style={{ background: "#111f14", border: "2px solid #4ade8055", borderRadius: "20px", padding: "24px", marginBottom: "32px" }}>
-                <div style={{ fontSize: "16px", color: "#4ade8088", marginBottom: "12px", letterSpacing: "2px" }}>例えば…</div>
-                <div style={{ fontSize: "36px", fontWeight: "900", color: "white", fontFamily: "monospace", letterSpacing: "2px", wordBreak: "break-all" }}>
-                  {solutionExpr} = {cards.target}
-                </div>
+                <div style={{ fontSize: "16px", color: "#4ade8088", marginBottom: "16px", letterSpacing: "2px" }}>例えば…</div>
+                {solutionSteps ? solutionSteps.map((step, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", fontSize: "32px", fontWeight: "900", color: "white", fontFamily: "monospace", marginBottom: "12px" }}>
+                    <span style={{ color: "#86efac" }}>{step.left}</span>
+                    <span style={{ color: "#fbbf24" }}>{step.op}</span>
+                    <span style={{ color: "#86efac" }}>{step.right}</span>
+                    <span style={{ color: "#aaa" }}>=</span>
+                    <span style={{ color: i === solutionSteps.length - 1 ? "#4ade80" : "white", fontWeight: "900" }}>{step.result}</span>
+                  </div>
+                )) : <div style={{ fontSize: "32px", color: "white" }}>…</div>}
               </div>
             </>
           )}
