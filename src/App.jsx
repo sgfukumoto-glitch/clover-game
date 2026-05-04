@@ -371,175 +371,6 @@ function AnimatedExprDemo({ nums, onUsedIdxsChange, onDone }) {
   );
 }
 
-// ===== BGM =====
-let bgmCtx = null;
-let bgmNodes = [];
-let bgmPlaying = false;
-let bgmTimer = null;
-
-function playBGM() {
-  if (bgmPlaying) return;
-  bgmPlaying = true;
-  try {
-    bgmCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (bgmCtx.state === 'suspended') bgmCtx.resume();
-  } catch(e) { bgmPlaying = false; }
-}
-
-function stopBGM() {
-  bgmPlaying = false;
-  if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
-  bgmNodes.forEach(n => { try { n.stop(); } catch {} });
-  bgmNodes = [];
-  if (bgmCtx) { try { bgmCtx.close(); } catch {} bgmCtx = null; }
-}
-
-function _n(ctx, nodes, freq, t, dur, vol, left) {
-  try {
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = 'triangle';
-    o.frequency.setValueAtTime(freq, t);
-    const v = left ? vol * 0.5 : vol;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(v, t + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.85);
-    o.start(t); o.stop(t + dur);
-    nodes.push(o);
-  } catch(e) {}
-}
-
-function startBGMNotes() {
-  if (!bgmCtx || !bgmPlaying) return;
-  try {
-    const BPM = 180, beat = 60 / BPM, e = beat / 2, q = beat, h = beat * 2, s = beat / 4;
-    // 右手音
-    const E3=165, Fs4=370, G4=392, Ds4=311, C4=262, E4=330;
-    const Fs5=740, G5=784, A5=880, B5=988, C6=1047, D6=1175, E6=1319, G6=1568, B6=1976;
-    const Ds5=622;
-    // 左手音（RHの1オクターブ下 + ループ用）
-    const G3=196, Ds3=156, C3=131, Fs3=185, E3L=165, A3=220, B3=247, D4=294, E4L=330, A4=440, B4=494, Fs4L=370;
-
-    const ctx = bgmCtx, nd = bgmNodes;
-    const p = (f,t,d,v=0.13,l=false) => _n(ctx,nd,f,t,d,v,l);
-    const grace = (f1,f2,t,dur,v=0.13) => { p(f1,t,s*0.4,v*0.7); p(f2,t+s*0.4,dur-s*0.4,v); };
-
-    let t = ctx.currentTime;
-
-    const loop = (st) => {
-      let r = st, l = st;
-
-      // ===== RHイントロ4小節 =====
-      // G5(8) D#5(8) G5(4) F#5(8) D#5(8) F#5(4) F#5(8) C5(8) D#5(8) E5(8) F#5(8) 休(8) E4(4)
-      p(G5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(G5,r,q,0.18); r+=q;
-      p(Fs5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(Fs5,r,q,0.18); r+=q;
-      p(Fs5,r,e,0.13); r+=e; p(C4*2,r,e,0.13); r+=e; p(Ds5,r,e,0.13); r+=e; p(E4*2,r,e,0.13); r+=e;
-      p(Fs5,r,e*0.4,0.15); r+=e; r+=e; p(E4,r,q,0.13); r+=q;
-
-      // ===== LHイントロ（RHの1オクターブ下）=====
-      p(G4,l,e,0.09,true); l+=e; p(Ds4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
-      p(Fs4,l,e,0.09,true); l+=e; p(Ds4,l,e,0.08,true); l+=e; p(Fs4,l,q,0.10,true); l+=q;
-      p(Fs4,l,e,0.08,true); l+=e; p(C4,l,e,0.08,true); l+=e; p(Ds4,l,e,0.08,true); l+=e; p(E4,l,e,0.08,true); l+=e;
-      p(Fs4,l,e*0.4,0.09,true); l+=e; l+=e; p(E3,l,q,0.09,true); l+=q;
-
-      // ===== RHループ =====
-      // | grace(F#5→)G5(8) G5(8) >D6(4) |
-      grace(Fs5,G5,r,e,0.13); r+=e; p(G5,r,e,0.13); r+=e; p(D6,r,q,0.19); r+=q;
-      // | grace(A5→)B5(8) B5(8) >G6(4) |
-      grace(A5,B5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(G6,r,q,0.19); r+=q;
-      // | grace(B5→)D6(8) D6(8) >B6(4) |
-      grace(B5,D6,r,e,0.13); r+=e; p(D6,r,e,0.13); r+=e; p(B6,r,q,0.19); r+=q;
-      // | grace(A5→)B5(8) B5(8) >G6(4) |
-      grace(A5,B5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(G6,r,q,0.19); r+=q;
-      // | G5(8) B5(8) >D6(4) |
-      p(G5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(D6,r,q,0.18); r+=q;
-      // | A5(8) C6(8) >E6(4) |
-      p(A5,r,e,0.13); r+=e; p(C6,r,e,0.13); r+=e; p(E6,r,q,0.18); r+=q;
-      // | B5(8) D6(8) >G6(4) |
-      p(B5,r,e,0.13); r+=e; p(D6,r,e,0.13); r+=e; p(G6,r,q,0.18); r+=q;
-      // | G5(8) G5(8) >G5(4) |
-      p(G5,r,e,0.13); r+=e; p(G5,r,e,0.13); r+=e; p(G5,r,q,0.18); r+=q;
-
-      // ===== LHループ =====
-      // | G3(8) D4(8) G4(4) | ×2
-      p(G3,l,e,0.09,true); l+=e; p(D4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
-      p(G3,l,e,0.09,true); l+=e; p(D4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
-      // | B3(8) F#4(8) B4(4) |
-      p(B3,l,e,0.09,true); l+=e; p(Fs4L,l,e,0.08,true); l+=e; p(B4,l,q,0.10,true); l+=q;
-      // | A3(8) E4(8) A4(4) |
-      p(A3,l,e,0.09,true); l+=e; p(E4L,l,e,0.08,true); l+=e; p(A4,l,q,0.10,true); l+=q;
-      // | G3(8) D4(8) G4(4) |
-      p(G3,l,e,0.09,true); l+=e; p(D4,l,e,0.08,true); l+=e; p(G4,l,q,0.10,true); l+=q;
-      // | A3(8) E4(8) A4(4) |
-      p(A3,l,e,0.09,true); l+=e; p(E4L,l,e,0.08,true); l+=e; p(A4,l,q,0.10,true); l+=q;
-      // | B3(8) F#4(8) B4(4) |
-      p(B3,l,e,0.09,true); l+=e; p(Fs4L,l,e,0.08,true); l+=e; p(B4,l,q,0.10,true); l+=q;
-      // | G3(2) |
-      p(G3,l,h,0.11,true); l+=h;
-
-      return r;
-    };
-
-    for (let i = 0; i < 3; i++) t = loop(t);
-    const more = () => {
-      if (!bgmPlaying) return;
-      if (t - ctx.currentTime < 15) t = loop(t);
-      if (bgmPlaying) bgmTimer = setTimeout(more, 3000);
-    };
-    bgmTimer = setTimeout(more, 3000);
-  } catch(e) {}
-}
-// ===== BGM END =====
-
-function startBGMNotes() {
-  if (!bgmCtx || !bgmPlaying) return;
-  try {
-    const BPM = 140, beat = 60 / BPM, e = beat / 2, q = beat, s = beat / 4;
-    const E4=330, Ds5=622, E5=659, Fs5=740, G5=784, A5=880, B5=988;
-    const C5=523, C6=1047, Ds6=1245, E6=1319, F6=1397, Fs6=1480, G6=1568, A6=1760;
-    const G3=196, Ds3=156, C3=131, A3=220, D4=294;
-    const ctx = bgmCtx, nd = bgmNodes;
-    const p = (f,t,d,v=0.13,l=false) => _n(ctx,nd,f,t,d,v,l);
-
-    let t = ctx.currentTime;
-
-    const loop = (st) => {
-      let r = st, l = st;
-      // 右手イントロ
-      p(G5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(G5,r,q,0.18); r+=q;
-      p(Fs5,r,e,0.14); r+=e; p(Ds5,r,e,0.13); r+=e; p(Fs5,r,q,0.18); r+=q;
-      p(Fs5,r,e,0.13); r+=e; p(C5,r,e,0.13); r+=e; p(Ds5,r,e,0.13); r+=e; p(E5,r,e,0.13); r+=e;
-      p(Fs5,r,e*0.4,0.14); r+=e; r+=e; p(E4,r,q,0.13); r+=q;
-      // 右手ループ
-      p(Fs5,r,s*0.35,0.10); r+=s*0.35;
-      p(G5,r,e-s*0.35,0.14); r+=e-s*0.35;
-      p(A5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e; p(C6,r,e,0.13); r+=e;
-      p(Ds6,r,e,0.13); r+=e; p(E6,r,e,0.13); r+=e; p(Fs6,r,e,0.13); r+=e;
-      p(E6,r,e,0.13); r+=e; p(F6,r,e,0.13); r+=e;
-      p(G6,r,q,0.20); r+=q;
-      p(Fs5,r,q,0.15); r+=q;
-      r+=e; p(A6,r,e,0.13); r+=e; p(E5,r,q,0.15); r+=q;
-      r+=e; p(A6,r,e,0.13); r+=e; p(Ds5,r,q,0.15); r+=q;
-      r+=e; p(A6,r,e,0.13); r+=e;
-      p(Ds5,r,e,0.13); r+=e; p(C5,r,e,0.13); r+=e; p(B5,r,e,0.13); r+=e;
-      // 左手
-      [[G3,D4],[G3,D4],[Ds3,A3],[Ds3,A3],[C3,G3],[C3,G3],[G3,D4],[G3,D4],
-       [G3,D4],[G3,D4],[G3,D4],[G3,D4],[Ds3,A3],[Ds3,A3],[C3,G3],[C3,G3],
-       [G3,D4],[G3,D4],[Ds3,A3],[Ds3,A3],[C3,G3],[C3,G3],[G3,D4],[G3,D4],
-      ].forEach(([b,m]) => { p(b,l,e,0.09,true); l+=e; p(m,l,e,0.07,true); l+=e; });
-      return r;
-    };
-
-    for (let i = 0; i < 3; i++) t = loop(t);
-    const more = () => {
-      if (!bgmPlaying) return;
-      if (t - ctx.currentTime < 15) t = loop(t);
-      if (bgmPlaying) bgmTimer = setTimeout(more, 3000);
-    };
-    bgmTimer = setTimeout(more, 3000);
-  } catch(e) {}
-}
-// ===== BGM END =====
 
 function playKyuririn() {
   try {
@@ -628,8 +459,8 @@ export default function App() {
   const dealingTimeoutsRef = useRef([]);
 
   const startGame = useCallback((tutorial = false) => {
-    stopBGM();
-    if (!tutorial) { try { playBGM(); } catch(err) {} }
+    
+    
     dealingTimeoutsRef.current.forEach(id => clearTimeout(id));
     dealingTimeoutsRef.current = [];
     setIsTutorial(tutorial); setTutStep(0); setPhase("dealing"); setCountdown(null);
@@ -646,7 +477,7 @@ export default function App() {
           const c1 = setTimeout(() => setCountdown(1), 2400);
           const cGo = setTimeout(() => {
             setCountdown("GO!"); setAllRevealed(true);
-            try { startBGMNotes(); } catch(err) {}
+            
             const cStart = setTimeout(() => {
               setCountdown(null); setPhase("playing"); setRunning(true);
               if (tutorial) setTutStep(1);
@@ -819,9 +650,9 @@ export default function App() {
               onPointerDown={e=>btnDown(e,"0 2px 0 #166534")}
               onPointerUp={e=>btnUp(e,"0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)", () => {
                 if (isTutorial) {
-                  if (tutStep <= 1) { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; stopBGM(); setPhase("start"); setIsTutorial(false); setRunning(false); }
+                  if (tutStep <= 1) { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = [];  setPhase("start"); setIsTutorial(false); setRunning(false); }
                   else setTutStep(s => s - 1);
-                } else { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = []; stopBGM(); setPhase("start"); setRunning(false); clearExpr(); }
+                } else { dealingTimeoutsRef.current.forEach(id => clearTimeout(id)); dealingTimeoutsRef.current = [];  setPhase("start"); setRunning(false); clearExpr(); }
               })}
               onPointerLeave={e=>btnLeave(e,"0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)")}
               style={{ background: "linear-gradient(145deg,#1e4a2a,#1a3a22)", border: "2px solid #4ade80", borderRadius: "14px", color: "#4ade80", fontWeight: "900", padding: "14px 24px", cursor: "pointer", fontSize: "22px", flexShrink: 0, boxShadow: "0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.back}</button>
@@ -1064,7 +895,7 @@ export default function App() {
           </div>
           <div style={{ display: "flex", gap: "16px" }}>
             <div style={{ flex: 1 }}><PBtn label={t.nextGame} onClick={() => startGame(false)} /></div>
-            <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => { stopBGM(); setPhase("start"); }} /></div>
+            <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => {  setPhase("start"); }} /></div>
           </div>
         </div>
       )}
@@ -1158,7 +989,7 @@ export default function App() {
               <div style={{ flex: 1 }}>
                 <button onPointerDown={e=>btnDown(e,"0 3px 0 #c0145a")} onPointerUp={e=>btnUp(e,"0 10px 0 #c0145a, 0 12px 24px rgba(255,105,180,0.4)",()=>startGame(true))} onPointerLeave={e=>btnLeave(e,"0 10px 0 #c0145a, 0 12px 24px rgba(255,105,180,0.4)")} style={{ background: "linear-gradient(145deg,#ff79c4,#ff1493)", border: "none", borderRadius: "24px", color: "white", fontWeight: "bold", fontSize: "28px", padding: "32px 0", cursor: "pointer", width: "100%", boxShadow: "0 10px 0 #c0145a, 0 12px 24px rgba(255,105,180,0.4)", transform: "translateY(0)", transition: "transform 0.1s, box-shadow 0.1s" }}>{t.howToPlay}</button>
               </div>
-              <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => { stopBGM(); setPhase("start"); }} /></div>
+              <div style={{ flex: 1 }}><GBtn label={t.toTitle} onClick={() => {  setPhase("start"); }} /></div>
             </div>
           </div>
         </div>
