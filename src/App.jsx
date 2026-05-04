@@ -717,7 +717,7 @@ export default function App() {
             {isTutorial
               ? <div style={{ flex: 1, background: "#ff69b4", color: "white", borderRadius: "14px", padding: "20px 24px", fontSize: "32px", fontWeight: "bold", boxShadow: "0 3px 12px rgba(255,105,180,0.5)" }}>{t.tutBanner}</div>
               : <div style={{ flex: 1, textAlign: "left", fontSize: "18px", color: "#4ade8066" }}>{t.backToTitle}</div>}
-            {phase === "playing" && allRevealed && (
+            {phase === "playing" && (countdown === "GO!" || allRevealed) && (
               <button
                 onPointerDown={e=>btnDown(e,"0 2px 0 #166534")}
                 onPointerUp={e=>btnUp(e,"0 8px 0 #166534, 0 10px 20px rgba(74,222,128,0.3)", () => { setRunning(false); setPhase("surrender"); })}
@@ -775,7 +775,7 @@ export default function App() {
           </div>
 
           {/* フォスパボタン - 立体版 */}
-          {phase === "playing" && allRevealed && (isTutorial ? tutStep >= 4 : true) && (
+          {phase === "playing" && (countdown === "GO!" || allRevealed) && (isTutorial ? tutStep >= 4 : true) && (
             <div style={{ position: "relative" }}>
               {isTutorial && tutStep === 4 && (
                 <div>
@@ -980,15 +980,29 @@ export default function App() {
               </div>
               <div style={{ background: "#111f14", border: "2px solid #4ade8055", borderRadius: "20px", padding: "24px", marginBottom: "32px" }}>
                 <div style={{ fontSize: "16px", color: "#4ade8088", marginBottom: "16px", letterSpacing: "2px" }}>例えば…</div>
-                {solutionSteps ? solutionSteps.map((step, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", fontSize: "32px", fontWeight: "900", color: "white", fontFamily: "monospace", marginBottom: "12px" }}>
-                    <span style={{ color: "#86efac" }}>{step.left}</span>
-                    <span style={{ color: "#fbbf24" }}>{step.op}</span>
-                    <span style={{ color: "#86efac" }}>{step.right}</span>
-                    <span style={{ color: "#aaa" }}>=</span>
-                    <span style={{ color: i === solutionSteps.length - 1 ? "#4ade80" : "white", fontWeight: "900" }}>{step.result}</span>
-                  </div>
-                )) : <div style={{ fontSize: "32px", color: "white" }}>…</div>}
+                {solutionSteps ? (() => {
+                  const cardNums = [...cards.nums];
+                  const isCard = (val, pool) => {
+                    const idx = pool.findIndex(n => n === val);
+                    if (idx !== -1) { pool.splice(idx, 1); return true; }
+                    return false;
+                  };
+                  const pool = [...cardNums];
+                  return solutionSteps.map((step, i) => {
+                    const leftIsCard = i === 0 ? isCard(step.left, pool) : false;
+                    const rightIsCard = isCard(step.right, pool);
+                    const isLast = i === solutionSteps.length - 1;
+                    return (
+                      <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", fontSize: "32px", fontWeight: "900", fontFamily: "monospace", marginBottom: "12px" }}>
+                        <span style={{ color: leftIsCard ? "#4ade80" : "white" }}>{step.left}</span>
+                        <span style={{ color: "#f97316" }}>{step.op}</span>
+                        <span style={{ color: rightIsCard ? "#4ade80" : "white" }}>{step.right}</span>
+                        <span style={{ color: "#aaa" }}>=</span>
+                        <span style={{ color: isLast ? "#ef4444" : "white" }}>{step.result}</span>
+                      </div>
+                    );
+                  });
+                })() : <div style={{ fontSize: "32px", color: "white" }}>…</div>}
               </div>
             </>
           )}
